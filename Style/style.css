@@ -1199,3 +1199,81 @@ button.dashboard-link {
         padding: 20px;
     }
 }
+
+
+/* =========================================================
+   PERFIL PÚBLICO DO PROFESSOR
+   ========================================================= */
+
+.professor-public-status {
+    margin: 0 0 18px;
+    padding: 22px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    background: linear-gradient(135deg,#f6faff,#edf5ff);
+    border: 1px solid #dbe9f8;
+    border-radius: 18px;
+}
+
+.professor-public-status h2 {
+    margin: 6px 0;
+    font-size: 20px;
+    color: #172033;
+}
+
+.professor-public-status p {
+    margin: 0;
+    color: #718096;
+    font-size: 13px;
+}
+
+.public-profile-modal {
+    max-width: 650px;
+}
+
+.public-profile-modal textarea {
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.public-cover-preview {
+    display: none;
+    width: 100%;
+    max-height: 190px;
+    object-fit: cover;
+    margin-top: 8px;
+    border-radius: 12px;
+    border: 1px solid #dce6f1;
+}
+
+.publish-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px;
+    border-radius: 12px;
+    background: #f5f9ff;
+    color: #344054;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.publish-toggle input {
+    width: 18px;
+    height: 18px;
+}
+
+@media(max-width:620px) {
+    .professor-public-status {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .professor-public-status .primary-action {
+        width: 100%;
+        text-align: center;
+    }
+}
