@@ -101,22 +101,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 if (userType === "direcao") {
 
-                    window.location.href =
-                        "direcao.html";
+                    window.location.href = "Style/Apps/direcao.html";
 
                 }
 
                 else if (userType === "professor") {
 
-                    window.location.href =
-                        "professor.html";
+                    window.location.href = "Style/Apps/professor.html";
 
                 }
 
                 else if (userType === "aluno") {
 
-                    window.location.href =
-                        "aluno.html";
+                    window.location.href = "Style/Apps/aluno.html";
 
                 }
 
