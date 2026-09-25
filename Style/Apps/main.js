@@ -55,41 +55,88 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
 
-                const accountData =
-                    localStorage.getItem(
-                        "apsan_account"
-                    );
+                /*
+                 * Cada conta deve ser carregada pelo número de telefone.
+                 * Antes usávamos apenas "apsan_account", que continha
+                 * somente a última conta criada. Isso fazia um aluno
+                 * aparecer como outro utilizador ao entrar.
+                 */
 
+                let account = null;
 
-                if (accountData) {
+                try {
 
-                    const account =
-                        JSON.parse(accountData);
-
-
-                    if (
-                        account.password !== password ||
-                        account.type !== userType ||
-                        (account.phone && account.phone !== phone)
-                    ) {
-
-                        message.textContent =
-                            "Número de telefone, palavra-passe ou perfil incorreto.";
-
-                        return;
-                    }
-
-                    /* Compatibilidade com contas criadas antes
-                       da inclusão do número de telefone. */
-                    if (!account.phone) {
-                        account.phone = phone;
-                        localStorage.setItem(
-                            "apsan_account",
-                            JSON.stringify(account)
+                    const accountsRegistry =
+                        JSON.parse(
+                            localStorage.getItem("apsan_accounts") || "[]"
                         );
-                    }
+
+                    const accounts =
+                        Array.isArray(accountsRegistry)
+                            ? accountsRegistry
+                            : [];
+
+                    account = accounts.find(function (item) {
+                        return (
+                            item &&
+                            item.phone === phone &&
+                            item.password === password &&
+                            item.type === userType
+                        );
+                    }) || null;
+
+                } catch (error) {
+
+                    account = null;
 
                 }
+
+
+                /*
+                 * Compatibilidade com contas antigas que ainda não
+                 * foram colocadas no catálogo.
+                 */
+                if (!account) {
+
+                    try {
+
+                        const legacy =
+                            JSON.parse(
+                                localStorage.getItem("apsan_account") || "null"
+                            );
+
+                        if (
+                            legacy &&
+                            legacy.password === password &&
+                            legacy.type === userType &&
+                            legacy.phone === phone
+                        ) {
+                            account = legacy;
+                        }
+
+                    } catch (error) {
+                        account = null;
+                    }
+                }
+
+
+                if (!account) {
+
+                    message.textContent =
+                        "Número de telefone, palavra-passe ou perfil incorreto.";
+
+                    return;
+                }
+
+
+                /*
+                 * A partir deste momento, apsan_account representa
+                 * exatamente a conta que acabou de entrar.
+                 */
+                localStorage.setItem(
+                    "apsan_account",
+                    JSON.stringify(account)
+                );
 
 
                 localStorage.setItem(
