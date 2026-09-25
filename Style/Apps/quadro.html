@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>APSAN Academy - Quadro</title>
+
+    <link rel="stylesheet" href="Style/style.css">
+</head>
+
+<body class="app-page">
+
+    <!-- CABEÇALHO -->
+
+    <header class="app-header">
+
+        <div>
+            <strong>APSAN Academy</strong>
+        </div>
+
+        <button
+            type="button"
+            data-back
+            class="login-button"
+            style="width:auto; height:40px; padding:0 16px;"
+        >
+            Voltar
+        </button>
+
+    </header>
+
+
+    <!-- QUADRO -->
+
+    <main class="app-content">
+
+        <div style="margin-bottom:20px;">
+
+            <h1>Quadro Interativo</h1>
+
+            <p style="color:#718096; margin-top:6px;">
+                Espaço para conteúdos e atividades das aulas.
+            </p>
+
+        </div>
+
+
+        <!-- ÁREA DO QUADRO -->
+
+        <section
+            class="dashboard-card"
+            style="min-height:450px;"
+        >
+
+            <div
+                id="whiteboard"
+                style="
+                    width:100%;
+                    min-height:380px;
+                    background:#ffffff;
+                    border:2px solid #dce5ef;
+                    border-radius:12px;
+                    padding:25px;
+                "
+            >
+
+                <p style="color:#9aa6b2;">
+                    Área do quadro interativo
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- FERRAMENTAS -->
+
+        <section
+            class="dashboard-grid"
+            style="margin-top:18px;"
+        >
+
+            <div class="dashboard-card">
+
+                <h3>Conteúdo da Aula</h3>
+
+                <p style="margin-top:10px; color:#718096;">
+                    Área para apresentar textos, explicações
+                    e conteúdos da aula.
+                </p>
+
+            </div>
+
+
+            <div class="dashboard-card">
+
+                <h3>Atividades</h3>
+
+                <p style="margin-top:10px; color:#718096;">
+                    Área destinada aos exercícios e atividades.
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script src="Apps/main.js"></script>
+
+</body>
+</html>
