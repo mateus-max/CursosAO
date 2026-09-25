@@ -28,6 +28,8 @@
         <section class="login-card">
 
 
+            <!-- LOGO -->
+
             <div class="login-logo">
 
                 <div class="logo-circle">
@@ -36,6 +38,8 @@
 
             </div>
 
+
+            <!-- TÍTULO -->
 
             <h1>
                 Criar Conta
@@ -47,8 +51,12 @@
             </p>
 
 
+            <!-- FORMULÁRIO -->
+
             <form id="registerForm">
 
+
+                <!-- NOME -->
 
                 <div class="form-group">
 
@@ -59,12 +67,14 @@
                     <input
                         type="text"
                         id="fullName"
-                        placeholder="Digite o seu nome"
+                        placeholder="Digite o seu nome completo"
                         required
                     >
 
                 </div>
 
+
+                <!-- UTILIZADOR -->
 
                 <div class="form-group">
 
@@ -75,12 +85,14 @@
                     <input
                         type="text"
                         id="newUsername"
-                        placeholder="Escolha um utilizador"
+                        placeholder="Escolha um nome de utilizador"
                         required
                     >
 
                 </div>
 
+
+                <!-- SENHA -->
 
                 <div class="form-group">
 
@@ -97,6 +109,26 @@
 
                 </div>
 
+
+                <!-- CONFIRMAR SENHA -->
+
+                <div class="form-group">
+
+                    <label for="confirmPassword">
+                        Confirmar palavra-passe
+                    </label>
+
+                    <input
+                        type="password"
+                        id="confirmPassword"
+                        placeholder="Repita a palavra-passe"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- TIPO DE CONTA -->
 
                 <div class="form-group">
 
@@ -126,6 +158,8 @@
                 </div>
 
 
+                <!-- BOTÃO -->
+
                 <button
                     type="submit"
                     class="login-button"
@@ -133,6 +167,8 @@
                     Criar Conta
                 </button>
 
+
+                <!-- MENSAGEM -->
 
                 <p
                     id="registerMessage"
@@ -142,6 +178,8 @@
 
             </form>
 
+
+            <!-- VOLTAR -->
 
             <div
                 style="
@@ -163,6 +201,8 @@
 
             </div>
 
+
+            <!-- RODAPÉ -->
 
             <div class="login-footer">
 
@@ -195,55 +235,126 @@
                 event.preventDefault();
 
 
+                /* ==========================================
+                   RECOLHER DADOS
+                   ========================================== */
+
                 const fullName =
-                    document.getElementById(
-                        "fullName"
-                    ).value.trim();
+                    document
+                    .getElementById("fullName")
+                    .value
+                    .trim();
 
 
                 const username =
-                    document.getElementById(
-                        "newUsername"
-                    ).value.trim();
+                    document
+                    .getElementById("newUsername")
+                    .value
+                    .trim();
 
 
                 const password =
-                    document.getElementById(
-                        "newPassword"
-                    ).value.trim();
+                    document
+                    .getElementById("newPassword")
+                    .value
+                    .trim();
+
+
+                const confirmPassword =
+                    document
+                    .getElementById("confirmPassword")
+                    .value
+                    .trim();
 
 
                 const userType =
-                    document.getElementById(
-                        "newUserType"
-                    ).value;
+                    document
+                    .getElementById("newUserType")
+                    .value;
 
 
                 const message =
-                    document.getElementById(
-                        "registerMessage"
-                    );
+                    document
+                    .getElementById("registerMessage");
 
+
+                /* ==========================================
+                   VALIDAÇÕES
+                   ========================================== */
 
                 if (
                     !fullName ||
                     !username ||
                     !password ||
+                    !confirmPassword ||
                     !userType
                 ) {
+
+                    message.style.color = "#d93025";
 
                     message.textContent =
                         "Preencha todos os campos.";
 
                     return;
+                }
+
+
+                if (password !== confirmPassword) {
+
+                    message.style.color = "#d93025";
+
+                    message.textContent =
+                        "As palavras-passe não coincidem.";
+
+                    return;
+                }
+
+
+                if (password.length < 6) {
+
+                    message.style.color = "#d93025";
+
+                    message.textContent =
+                        "A palavra-passe deve ter pelo menos 6 caracteres.";
+
+                    return;
+                }
+
+
+                /* ==========================================
+                   VERIFICAR SE JÁ EXISTE CONTA
+                   ========================================== */
+
+                const existingAccount =
+                    localStorage.getItem("apsan_account");
+
+
+                if (existingAccount) {
+
+                    const oldAccount =
+                        JSON.parse(existingAccount);
+
+
+                    if (
+                        oldAccount.username &&
+                        oldAccount.username.toLowerCase() ===
+                        username.toLowerCase()
+                    ) {
+
+                        message.style.color = "#d93025";
+
+                        message.textContent =
+                            "Este nome de utilizador já existe.";
+
+                        return;
+                    }
 
                 }
 
 
-                /*
-                 * Guardar conta localmente
-                 * para esta versão inicial.
-                 */
+                /* ==========================================
+                   CRIAR CONTA
+                   ========================================== */
 
                 const account = {
 
@@ -253,10 +364,25 @@
 
                     password: password,
 
-                    type: userType
+                    type: userType,
+
+                    bio: "",
+
+                    photo: "",
+
+                    createdAt:
+                        new Date().toISOString()
 
                 };
 
+
+                /*
+                 * Guardar a conta.
+                 *
+                 * Bio e foto começam vazios.
+                 * Posteriormente poderão ser alterados
+                 * na área de perfil aberta através do avatar.
+                 */
 
                 localStorage.setItem(
                     "apsan_account",
@@ -264,19 +390,74 @@
                 );
 
 
-                message.style.color =
-                    "#16803c";
+                /* ==========================================
+                   GUARDAR SESSÃO
+                   ========================================== */
+
+                localStorage.setItem(
+                    "apsan_username",
+                    username
+                );
+
+
+                localStorage.setItem(
+                    "apsan_user_type",
+                    userType
+                );
+
+
+                localStorage.setItem(
+                    "apsan_logged_in",
+                    "true"
+                );
+
+
+                /* ==========================================
+                   MENSAGEM DE SUCESSO
+                   ========================================== */
+
+                message.style.color = "#16803c";
 
                 message.textContent =
-                    "Conta criada com sucesso!";
+                    "Conta criada com sucesso! A abrir o seu painel...";
 
+
+                /* ==========================================
+                   ABRIR PAINEL CORRESPONDENTE
+                   ========================================== */
 
                 setTimeout(function() {
+
+
+                    if (userType === "professor") {
+
+                        window.location.href =
+                            "professor.html";
+
+                        return;
+                    }
+
+
+                    if (userType === "aluno") {
+
+                        window.location.href =
+                            "aluno.html";
+
+                        return;
+                    }
+
+
+                    /*
+                     * Segurança adicional:
+                     * caso apareça algum tipo inválido,
+                     * volta ao login.
+                     */
 
                     window.location.href =
                         "index.html";
 
-                }, 1000);
+
+                }, 900);
 
             }
         );
