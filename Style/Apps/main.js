@@ -18,6 +18,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 event.preventDefault();
 
 
+                const phone =
+                    document
+                    .getElementById("phone")
+                    .value
+                    .trim();
+
                 const password =
                     document
                     .getElementById("password")
@@ -37,6 +43,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
                 if (
+                    !phone ||
                     !password ||
                     !userType
                 ) {
@@ -61,18 +68,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
                     if (
+                        account.phone !== phone ||
                         account.password !== password ||
                         account.type !== userType
                     ) {
 
                         message.textContent =
-                            "Palavra-passe ou perfil incorreto.";
+                            "Número de telefone, palavra-passe ou perfil incorreto.";
 
                         return;
                     }
 
                 }
 
+
+                localStorage.setItem(
+                    "apsan_phone",
+                    phone
+                );
 
                 localStorage.setItem(
                     "apsan_user_type",
