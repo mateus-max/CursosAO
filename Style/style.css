@@ -1,3 +1,38 @@
+
+/* =========================================================
+   CABEÇALHO DO APP
+   ========================================================= */
+
+.app-header {
+    width: 100%;
+    min-height: 64px;
+    padding: 10px 24px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    background: #ffffff;
+    border-bottom: 1px solid #e8edf3;
+}
+
+.app-header .header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.app-header .profile-avatar-button {
+    flex: 0 0 42px;
+    margin-left: auto;
+}
+
+@media (max-width: 560px) {
+    .app-header {
+        padding: 9px 14px;
+    }
+}
+
 /* =========================================================
    PROFESSOR DASHBOARD
    ========================================================= */
