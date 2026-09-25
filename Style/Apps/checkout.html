@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>APSAN Academy - Pagamento</title>
+
+    <link rel="stylesheet" href="Style/style.css">
+</head>
+
+<body class="app-page">
+
+    <!-- CABEÇALHO -->
+
+    <header class="app-header">
+
+        <div>
+            <strong>APSAN Academy</strong>
+        </div>
+
+        <button
+            type="button"
+            data-back
+            class="login-button"
+            style="width:auto; height:40px; padding:0 16px;"
+        >
+            Voltar
+        </button>
+
+    </header>
+
+
+    <!-- CHECKOUT -->
+
+    <main class="app-content">
+
+        <div style="margin-bottom:25px;">
+
+            <h1>Pagamento</h1>
+
+            <p style="color:#718096; margin-top:6px;">
+                Confirme os dados antes de realizar o pagamento.
+            </p>
+
+        </div>
+
+
+        <section class="dashboard-grid">
+
+            <!-- RESUMO -->
+
+            <div class="dashboard-card">
+
+                <h3>Resumo da Inscrição</h3>
+
+                <div style="margin-top:18px;">
+
+                    <p style="margin-bottom:10px;">
+                        <strong>Curso:</strong>
+                        <span id="courseName">
+                            Curso Online
+                        </span>
+                    </p>
+
+                    <p style="margin-bottom:10px;">
+                        <strong>Aluno:</strong>
+                        <span id="studentName">
+                            —
+                        </span>
+                    </p>
+
+                    <p>
+                        <strong>Valor:</strong>
+                        <span id="coursePrice">
+                            0 Kz
+                        </span>
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- PAGAMENTO -->
+
+            <div class="dashboard-card">
+
+                <h3>Método de Pagamento</h3>
+
+                <form id="checkoutForm" style="margin-top:18px;">
+
+                    <div class="form-group">
+
+                        <label for="paymentMethod">
+                            Selecione o método
+                        </label>
+
+                        <select
+                            id="paymentMethod"
+                            required
+                        >
+
+                            <option value="">
+                                Selecione
+                            </option>
+
+                            <option value="transferencia">
+                                Transferência Bancária
+                            </option>
+
+                            <option value="multicaixa">
+                                Multicaixa Express
+                            </option>
+
+                            <option value="outro">
+                                Outro método
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="paymentReference">
+                            Referência / Comprovativo
+                        </label>
+
+                        <input
+                            type="text"
+                            id="paymentReference"
+                            placeholder="Digite a referência"
+                        >
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="login-button"
+                    >
+                        Confirmar Pagamento
+                    </button>
+
+                    <p
+                        id="paymentMessage"
+                        class="login-message"
+                    ></p>
+
+                </form>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script src="Apps/main.js"></script>
+
+    <script>
+
+        const checkoutForm =
+            document.getElementById("checkoutForm");
+
+        if (checkoutForm) {
+
+            checkoutForm.addEventListener(
+                "submit",
+                function(event) {
+
+                    event.preventDefault();
+
+                    const method =
+                        document.getElementById(
+                            "paymentMethod"
+                        ).value;
+
+                    const reference =
+                        document.getElementById(
+                            "paymentReference"
+                        ).value.trim();
+
+                    const message =
+                        document.getElementById(
+                            "paymentMessage"
+                        );
+
+                    if (!method || !reference) {
+
+                        message.textContent =
+                            "Preencha todos os dados do pagamento.";
+
+                        return;
+                    }
+
+                    message.style.color = "#16803c";
+
+                    message.textContent =
+                        "Pagamento registado com sucesso.";
+
+                }
+            );
+
+        }
+
+    </script>
+
+</body>
+</html>
