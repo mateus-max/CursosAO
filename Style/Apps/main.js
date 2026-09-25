@@ -203,6 +203,7 @@ document.addEventListener("DOMContentLoaded", function () {
        ===================================================== */
 
     let account = null;
+    let pendingProfilePhoto = null;
 
 
     const accountData =
@@ -408,6 +409,8 @@ document.addEventListener("DOMContentLoaded", function () {
             );
 
 
+        pendingProfilePhoto = account && account.photo ? account.photo : null;
+
         if (account) {
 
             profileName.value =
@@ -600,12 +603,7 @@ document.addEventListener("DOMContentLoaded", function () {
                          * na conta local.
                          */
 
-                        if (account) {
-
-                            account.photo =
-                                photo;
-
-                        }
+                        pendingProfilePhoto = photo;
 
                     };
 
@@ -683,9 +681,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 account.name =
                     profileName;
 
-
-                account.bio =
-                    profileBio;
+                if (pendingProfilePhoto) {
+                    account.photo = pendingProfilePhoto;
+                }
 
 
                 if (profilePassword) {
@@ -711,12 +709,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
 
-                localStorage.setItem(
-                    "apsan_account",
-                    JSON.stringify(account)
-                );
+                try {
+                    localStorage.setItem(
+                        "apsan_account",
+                        JSON.stringify(account)
+                    );
+                } catch (error) {
+                    profileMessage.style.color = "#d93025";
+                    profileMessage.textContent = "Não foi possível guardar a foto. Tente uma imagem menor.";
+                    return;
+                }
 
-
+                pendingProfilePhoto = account.photo || null;
                 updateProfileDisplay();
 
 
