@@ -18,13 +18,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 event.preventDefault();
 
 
-                const username =
-                    document
-                    .getElementById("username")
-                    .value
-                    .trim();
-
-
                 const password =
                     document
                     .getElementById("password")
@@ -44,7 +37,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
                 if (
-                    !username ||
                     !password ||
                     !userType
                 ) {
@@ -69,24 +61,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
                     if (
-                        account.username !== username ||
                         account.password !== password ||
                         account.type !== userType
                     ) {
 
                         message.textContent =
-                            "Utilizador, palavra-passe ou perfil incorreto.";
+                            "Palavra-passe ou perfil incorreto.";
 
                         return;
                     }
 
                 }
-
-
-                localStorage.setItem(
-                    "apsan_username",
-                    username
-                );
 
 
                 localStorage.setItem(
