@@ -230,7 +230,21 @@
             <h1>APSAN Academy</h1>
             <p class="login-subtitle">Aceda à sua conta para continuar</p>
 
-            <form id="loginForm"><div class="form-group">
+            <form id="loginForm">
+
+                <div class="form-group">
+                    <label for="phone">Número de telefone</label>
+                    <input
+                        type="tel"
+                        id="phone"
+                        placeholder="Digite o seu número de telefone"
+                        autocomplete="tel"
+                        inputmode="tel"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
                     <label for="password">Palavra-passe</label>
                     <input
                         type="password"
