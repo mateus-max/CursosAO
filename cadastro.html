@@ -74,6 +74,25 @@
                 </div>
 
 
+                <!-- TELEFONE -->
+
+                <div class="form-group">
+
+                    <label for="phone">
+                        Número de telefone
+                    </label>
+
+                    <input
+                        type="tel"
+                        id="phone"
+                        placeholder="Digite o seu número de telefone"
+                        inputmode="tel"
+                        required
+                    >
+
+                </div>
+
+
                 <!-- UTILIZADOR -->
 
                 <div class="form-group">
@@ -252,6 +271,12 @@
                     .value
                     .trim();
 
+                const phone =
+                    document
+                    .getElementById("phone")
+                    .value
+                    .trim();
+
 
                 const password =
                     document
@@ -285,6 +310,7 @@
                 if (
                     !fullName ||
                     !username ||
+                    !phone ||
                     !password ||
                     !confirmPassword ||
                     !userType
@@ -362,6 +388,8 @@
 
                     username: username,
 
+                    phone: phone,
+
                     password: password,
 
                     type: userType,
@@ -397,6 +425,11 @@
                 localStorage.setItem(
                     "apsan_username",
                     username
+                );
+
+                localStorage.setItem(
+                    "apsan_phone",
+                    phone
                 );
 
 
