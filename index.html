@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plataforma de Ensino</title>
+    <!-- Ícones do Lucide via CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Contêiner Principal da App */
+        #app-container {
+            width: 100%;
+            max-width: 480px;
+            height: 100vh;
+            max-height: 850px;
+            background: #ffffff;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* --- SESSÃO DE AUTH (LOGIN / CADASTRO) --- */
+        .auth-screen {
+            padding: 30px 24px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            justify-content: center;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .auth-header h2 {
+            color: #1e293b;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .role-selector {
+            display: flex;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .role-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .role-btn.active {
+            background: #2563eb;
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+        }
+
+        .auth-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .auth-toggle span {
+            cursor: pointer;
+            color: #64748b;
+            font-weight: 600;
+            padding-bottom: 4px;
+        }
+
+        .auth-toggle span.active {
+            color: #2563eb;
+            border-bottom: 2px solid #2563eb;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            color: #475569;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .form-group input:focus {
+            border-color: #2563eb;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 12px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        /* --- DASHBOARD / PAINEL --- */
+        .dashboard-screen {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            background: #f8fafc;
+        }
+
+        /* Top Bar Header */
+        .top-bar {
+            background: #ffffff;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e2e8f0;
+            position: relative;
+        }
+
+        .avatar-container {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid #2563eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .avatar-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .menu-dots {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            color: #475569;
+        }
+
+        /* Menu Dropdown dos 3 pontinhos */
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 60px;
+            right: 16px;
+            background: white;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            border-radius: 12px;
+            width: 220px;
+            z-index: 100;
+            overflow: hidden;
+            border: 1px solid #f1f5f9;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #334155;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background: #f1f5f9;
+            color: #2563eb;
+        }
+
+        /* Conteúdo das Abas do Painel */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 16px;
+        }
+
+        .card {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 12px;
+        }
+
+        /* Pesquisa de Professor no Painel do Aluno */
+        .search-box {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 12px 12px 40px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+
+        .teacher-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 10px;
+        }
+
+        .teacher-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .teacher-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: #cbd5e1;
+            object-fit: cover;
+        }
+
+        .btn-subscribe {
+            padding: 6px 12px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* --- MODAL DO PERFIL --- */
+        .modal-overlay {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 200;
+            justify-content: center;
+            align-items: flex-end;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            border-radius: 20px 20px 0 0;
+            padding: 24px;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-upload {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .profile-preview {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            margin: 0 auto 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .profile-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-btn {
+            font-size: 12px;
+            color: #2563eb;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+
+    <!-- 1. TELA DE AUTENTICAÇÃO (LOGIN / REGISTO) -->
+    <div id="auth-screen" class="auth-screen">
+        <div class="auth-header">
+            <h2>Bem-vindo(a)</h2>
+            <p style="color: #64748b; font-size: 14px;">Selecione o seu perfil para continuar</p>
+        </div>
+
+        <!-- Escolha do Perfil -->
+        <div class="role-selector">
+            <button class="role-btn active" onclick="setRole('professor')">Professor</button>
+            <button class="role-btn" onclick="setRole('aluno')">Aluno</button>
+        </div>
+
+        <!-- Alternar entre Entrar e Criar Conta -->
+        <div class="auth-toggle">
+            <span id="tab-login" class="active" onclick="toggleAuthMode('login')">Entrar</span>
+            <span id="tab-register" onclick="toggleAuthMode('register')">Criar Conta</span>
+        </div>
+
+        <!-- Formulário Dinâmico -->
+        <form id="auth-form" onsubmit="handleAuth(event)">
+            <!-- Campos visíveis apenas no Criar Conta -->
+            <div id="register-fields" style="display: none;">
+                <div class="form-group">
+                    <label>Nome Completo</label>
+                    <input type="text" id="reg-name" placeholder="Ex: Eduardo Gabriel">
+                </div>
+                <div class="form-group">
+                    <label>Número de Telefone</label>
+                    <input type="tel" id="reg-phone" placeholder="Ex: +244 9XX XXX XXX">
+                </div>
+                <div class="form-group">
+                    <label>Palavra-passe</label>
+                    <input type="password" id="reg-pass" placeholder="Crie a sua palavra-passe">
+                </div>
+            </div>
+
+            <!-- Campos do Login -->
+            <div id="login-fields">
+                <div class="form-group">
+                    <label>Telefone ou Nome</label>
+                    <input type="text" id="login-id" placeholder="Digite o seu contacto ou nome">
+                </div>
+                <div class="form-group">
+                    <label>Palavra-passe</label>
+                    <input type="password" id="login-pass" placeholder="••••••••">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary" id="auth-submit-btn">Entrar</button>
+        </form>
+    </div>
+
+    <!-- 2. PAINEL PRINCIPAL (DASHBOARD) -->
+    <div id="dashboard-screen" class="dashboard-screen">
+        <!-- Topo da Aplicação -->
+        <div class="top-bar">
+            <!-- Avatar do Perfil (Canto Superior Esquerdo) -->
+            <div class="avatar-container" onclick="openProfileModal()">
+                <img id="user-avatar" src="https://via.placeholder.com/150" alt="Avatar">
+            </div>
+
+            <span id="user-display-name" style="font-weight: 600; color: #1e293b;"></span>
+
+            <!-- Botão dos 3 Pontinhos -->
+            <button class="menu-dots" onclick="toggleMenu()">
+                <i data-lucide="more-vertical"></i>
+            </button>
+
+            <!-- Dropdown Menu -->
+            <div id="dropdown-menu" class="dropdown-menu">
+                <!-- Preenchido via JS conforme a role -->
+            </div>
+        </div>
+
+        <!-- Conteúdo Mutável -->
+        <div id="main-content" class="main-content">
+            <!-- O conteúdo varia de acordo com o perfil/menu -->
+        </div>
+    </div>
+
+    <!-- 3. MODAL DE EDIÇÃO DE PERFIL -->
+    <div id="profile-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="color: #1e293b;">Editar Perfil</h3>
+                <button class="close-btn" onclick="closeProfileModal()"><i data-lucide="x"></i></button>
+            </div>
+
+            <div class="profile-upload">
+                <div class="profile-preview">
+                    <img id="modal-avatar-preview" src="https://via.placeholder.com/150" alt="Preview">
+                </div>
+                <label for="file-upload" class="upload-btn">Carregar nova foto</label>
+                <input type="file" id="file-upload" class="file-input" accept="image/*" onchange="previewImage(event)">
+            </div>
+
+            <form onsubmit="saveProfile(event)">
+                <div class="form-group">
+                    <label>Nome Completo</label>
+                    <input type="text" id="edit-name" required>
+                </div>
+                <div class="form-group">
+                    <label>Nova Palavra-passe</label>
+                    <input type="password" id="edit-pass" placeholder="Deixe em branco para manter">
+                </div>
+                <button type="submit" class="btn-primary">Guardar Alterações</button>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // ESTADO DA APLICAÇÃO
+    let currentRole = 'professor'; // 'professor' ou 'aluno'
+    let authMode = 'login'; // 'login' ou 'register'
+    
+    // Utilizador Atual Simulado
+    let currentUser = {
+        name: 'Eduardo Gabriel',
+        phone: '923000000',
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250',
+        role: 'professor'
+    };
+
+    // Dados Exemplo de Professores (Para pesquisa do Aluno)
+    const teachersList = [
+        { id: 1, name: 'Prof. Carlos Silva', subject: 'Matemática & Física', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150' },
+        { id: 2, name: 'Profa. Maria Fernandes', subject: 'Língua Inglesa', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150' },
+        { id: 3, name: 'Prof. Eduardo Gabriel', subject: 'Tecnologia & Informática', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250' }
+    ];
+
+    // Inicialização do Lucide Icons
+    lucide.createIcons();
+
+    // Mudar Seleção de Perfil (Professor/Aluno) na Auth
+    function setRole(role) {
+        currentRole = role;
+        document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+    }
+
+    // Alternar entre Entrar e Criar Conta
+    function toggleAuthMode(mode) {
+        authMode = mode;
+        const loginFields = document.getElementById('login-fields');
+        const registerFields = document.getElementById('register-fields');
+        const submitBtn = document.getElementById('auth-submit-btn');
+
+        document.getElementById('tab-login').classList.toggle('active', mode === 'login');
+        document.getElementById('tab-register').classList.toggle('active', mode === 'register');
+
+        if (mode === 'register') {
+            loginFields.style.display = 'none';
+            registerFields.style.display = 'block';
+            submitBtn.textContent = 'Criar Conta';
+        } else {
+            loginFields.style.display = 'block';
+            registerFields.style.display = 'none';
+            submitBtn.textContent = 'Entrar';
+        }
+    }
+
+    // Submissão do Formulário de Auth
+    function handleAuth(e) {
+        e.preventDefault();
+        
+        if (authMode === 'register') {
+            const name = document.getElementById('reg-name').value;
+            const phone = document.getElementById('reg-phone').value;
+            const pass = document.getElementById('reg-pass').value;
+
+            if (!name || !phone || !pass) {
+                alert('Por favor, preencha o Nome, Telefone e Palavra-passe.');
+                return;
+            }
+            currentUser.name = name;
+            currentUser.phone = phone;
+        }
+
+        currentUser.role = currentRole;
+        
+        // Transição para a Dashboard
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('dashboard-screen').style.display = 'flex';
+        
+        setupDashboard();
+    }
+
+    // Configurar Dashboard com base no perfil logado
+    function setupDashboard() {
+        document.getElementById('user-display-name').textContent = currentUser.name;
+        document.getElementById('user-avatar').src = currentUser.avatar;
+        document.getElementById('modal-avatar-preview').src = currentUser.avatar;
+        document.getElementById('edit-name').value = currentUser.name;
+
+        buildMenu();
+        
+        // Exibir ecrã inicial padrão
+        if (currentUser.role === 'professor') {
+            loadTeacherView('alunos');
+        } else {
+            loadStudentView('pesquisar');
+        }
+    }
+
+    // Construir Menu Dropdown (3 Pontinhos)
+    function buildMenu() {
+        const menu = document.getElementById('dropdown-menu');
+        menu.innerHTML = '';
+
+        let items = [];
+
+        if (currentUser.role === 'professor') {
+            items = [
+                { label: 'Meus Alunos', icon: 'users', action: "loadTeacherView('alunos')" },
+                { label: 'Minhas Matérias', icon: 'book-open', action: "loadTeacherView('materias')" },
+                { label: 'Quadro Virtual (Salas)', icon: 'layout', action: "loadTeacherView('quadro')" },
+                { label: 'Meu Financeiro', icon: 'dollar-sign', action: "loadTeacherView('financeiro')" },
+                { label: 'Terminar Sessão', icon: 'log-out', action: "logout()" }
+            ];
+        } else {
+            items = [
+                { label: 'Pesquisar Professor', icon: 'search', action: "loadStudentView('pesquisar')" },
+                { label: 'Meus Cursos', icon: 'book-marked', action: "loadStudentView('cursos')" },
+                { label: 'Quadro Virtual', icon: 'layout', action: "loadStudentView('quadro')" },
+                { label: 'Minhas Finanças', icon: 'credit-card', action: "loadStudentView('financeiro')" },
+                { label: 'Terminar Sessão', icon: 'log-out', action: "logout()" }
+            ];
+        }
+
+        items.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'dropdown-item';
+            div.innerHTML = `<i data-lucide="${item.icon}"></i> ${item.label}`;
+            div.onclick = () => {
+                eval(item.action);
+                toggleMenu();
+            };
+            menu.appendChild(div);
+        });
+
+        lucide.createIcons();
+    }
+
+    function toggleMenu() {
+        document.getElementById('dropdown-menu').classList.toggle('show');
+    }
+
+    // --- VISTAS DO PROFESSOR ---
+    function loadTeacherView(view) {
+        const content = document.getElementById('main-content');
+        if (view === 'alunos') {
+            content.innerHTML = `
+                <h3 class="section-title">Meus Alunos</h3>
+                <div class="card"><strong>Ana Paula</strong> - Curso de Inglês Intermédio</div>
+                <div class="card"><strong>João Silva</strong> - Informática Básica</div>
+            `;
+        } else if (view === 'materias') {
+            content.innerHTML = `
+                <h3 class="section-title">Minhas Matérias</h3>
+                <div class="card">Módulo 1: Introdução à Gramática</div>
+                <div class="card">Módulo 2: Leitura e Interpretação</div>
+            `;
+        } else if (view === 'quadro') {
+            content.innerHTML = `
+                <h3 class="section-title">Quadro Virtual (Salas)</h3>
+                <div class="card" style="background:#2563eb; color:white;">
+                    <h4>Turma A - Ativa</h4>
+                    <p>Link da aula ao vivo disponível.</p>
+                </div>
+            `;
+        } else if (view === 'financeiro') {
+            content.innerHTML = `
+                <h3 class="section-title">Meu Financeiro</h3>
+                <div class="card">Total Recebido: <strong>150.000 Kz</strong></div>
+                <div class="card">Pagamentos Pendentes: <strong>25.000 Kz</strong></div>
+            `;
+        }
+    }
+
+    // --- VISTAS DO ALUNO ---
+    function loadStudentView(view) {
+        const content = document.getElementById('main-content');
+        if (view === 'pesquisar') {
+            let teachersHTML = teachersList.map(t => `
+                <div class="teacher-card">
+                    <div class="teacher-info">
+                        <img src="${t.avatar}" class="teacher-avatar">
+                        <div>
+                            <h4 style="font-size:14px; color:#1e293b;">${t.name}</h4>
+                            <p style="font-size:12px; color:#64748b;">${t.subject}</p>
+                        </div>
+                    </div>
+                    <button class="btn-subscribe" onclick="subscribeCourse('${t.name}')">Inscrição</button>
+                </div>
+            `).join('');
+
+            content.innerHTML = `
+                <h3 class="section-title">Pesquisar Professor</h3>
+                <div class="search-box">
+                    <i data-lucide="search"></i>
+                    <input type="text" placeholder="Procurar por nome ou disciplina..." onkeyup="filterTeachers(this.value)">
+                </div>
+                <div id="teachers-container">${teachersHTML}</div>
+            `;
+            lucide.createIcons();
+        } else if (view === 'cursos') {
+            content.innerHTML = `
+                <h3 class="section-title">Meus Cursos Inscritos</h3>
+                <div class="card">Inglês Intermédio com Prof. Eduardo Gabriel</div>
+            `;
+        } else if (view === 'quadro') {
+            content.innerHTML = `
+                <h3 class="section-title">Quadro Virtual</h3>
+                <div class="card">Aceder à Sala Virtual em Directo</div>
+            `;
+        } else if (view === 'financeiro') {
+            content.innerHTML = `
+                <h3 class="section-title">Minhas Finanças</h3>
+                <div class="card">Propina Mensal: <strong>Pago</strong></div>
+            `;
+        }
+    }
+
+    // Função de inscrição de Curso pelo Aluno
+    function subscribeCourse(teacherName) {
+        alert(`Inscrição solicitada com sucesso para as aulas de: ${teacherName}`);
+    }
+
+    // Filtro de Pesquisa de Professores
+    function filterTeachers(query) {
+        const filtered = teachersList.filter(t => 
+            t.name.toLowerCase().includes(query.toLowerCase()) || 
+            t.subject.toLowerCase().includes(query.toLowerCase())
+        );
+        
+        const container = document.getElementById('teachers-container');
+        container.innerHTML = filtered.map(t => `
+            <div class="teacher-card">
+                <div class="teacher-info">
+                    <img src="${t.avatar}" class="teacher-avatar">
+                    <div>
+                        <h4 style="font-size:14px; color:#1e293b;">${t.name}</h4>
+                        <p style="font-size:12px; color:#64748b;">${t.subject}</p>
+                    </div>
+                </div>
+                <button class="btn-subscribe" onclick="subscribeCourse('${t.name}')">Inscrição</button>
+            </div>
+        `).join('');
+    }
+
+    // --- MODAL & PERFIL ---
+    function openProfileModal() {
+        document.getElementById('profile-modal').classList.add('show');
+    }
+
+    function closeProfileModal() {
+        document.getElementById('profile-modal').classList.remove('show');
+    }
+
+    // Preview e alteração da imagem em tempo real
+    function previewImage(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const newImg = e.target.result;
+                document.getElementById('modal-avatar-preview').src = newImg;
+                document.getElementById('user-avatar').src = newImg; // Atualização automática no avatar principal
+                currentUser.avatar = newImg;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // Guardar Edição de Perfil
+    function saveProfile(e) {
+        e.preventDefault();
+        const newName = document.getElementById('edit-name').value;
+        if (newName) {
+            currentUser.name = newName;
+            document.getElementById('user-display-name').textContent = newName;
+        }
+        closeProfileModal();
+    }
+
+    // Terminar Sessão
+    function logout() {
+        document.getElementById('dashboard-screen').style.display = 'none';
+        document.getElementById('auth-screen').style.display = 'flex';
+    }
+</script>
+</body>
+</html>
