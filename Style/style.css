@@ -1,0 +1,341 @@
+/* =========================================================
+   APSAN ACADEMY
+   STYLE.CSS
+   ========================================================= */
+
+/* ---------- RESET ---------- */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f4f7fb;
+    color: #172033;
+}
+
+
+/* =========================================================
+   LOGIN
+   ========================================================= */
+
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+
+    background: linear-gradient(
+        135deg,
+        #0057b8 0%,
+        #0074d9 50%,
+        #eef6ff 100%
+    );
+}
+
+
+/* ---------- LOGIN CARD ---------- */
+
+.login-container {
+    width: 100%;
+    max-width: 420px;
+}
+
+.login-card {
+    width: 100%;
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 35px 30px;
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.15);
+}
+
+
+/* ---------- LOGO ---------- */
+
+.login-logo {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 18px;
+}
+
+.logo-circle {
+    width: 70px;
+    height: 70px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #0066cc;
+    color: #ffffff;
+
+    border-radius: 50%;
+
+    font-size: 32px;
+    font-weight: 700;
+
+    box-shadow: 0 8px 20px rgba(0, 102, 204, 0.25);
+}
+
+
+/* ---------- TITLES ---------- */
+
+.login-card h1 {
+    text-align: center;
+
+    font-size: 26px;
+    font-weight: 700;
+
+    color: #0759a5;
+
+    margin-bottom: 7px;
+}
+
+.login-subtitle {
+    text-align: center;
+
+    font-size: 14px;
+
+    color: #718096;
+
+    margin-bottom: 28px;
+}
+
+
+/* =========================================================
+   FORM
+   ========================================================= */
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    color: #26364a;
+}
+
+
+/* ---------- INPUTS ---------- */
+
+.form-group input,
+.form-group select {
+    width: 100%;
+
+    height: 48px;
+
+    border: 1px solid #d7e0ea;
+    border-radius: 10px;
+
+    padding: 0 14px;
+
+    background: #ffffff;
+
+    color: #172033;
+
+    font-size: 14px;
+
+    outline: none;
+
+    transition: 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #0074d9;
+
+    box-shadow: 0 0 0 3px rgba(0, 116, 217, 0.10);
+}
+
+
+/* =========================================================
+   LOGIN BUTTON
+   ========================================================= */
+
+.login-button {
+    width: 100%;
+
+    height: 50px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: #0066cc;
+    color: #ffffff;
+
+    font-size: 15px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    margin-top: 5px;
+
+    transition: 0.2s ease;
+}
+
+.login-button:hover {
+    background: #004f9e;
+
+    transform: translateY(-1px);
+}
+
+.login-button:active {
+    transform: translateY(0);
+}
+
+
+/* =========================================================
+   LOGIN MESSAGE
+   ========================================================= */
+
+.login-message {
+    min-height: 20px;
+
+    text-align: center;
+
+    margin-top: 14px;
+
+    font-size: 13px;
+
+    color: #d93025;
+}
+
+
+/* =========================================================
+   LOGIN FOOTER
+   ========================================================= */
+
+.login-footer {
+    margin-top: 28px;
+
+    padding-top: 20px;
+
+    border-top: 1px solid #edf1f5;
+
+    text-align: center;
+}
+
+.login-footer span {
+    display: block;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    color: #0759a5;
+
+    margin-bottom: 4px;
+}
+
+.login-footer small {
+    display: block;
+
+    font-size: 11px;
+
+    color: #8a96a5;
+}
+
+
+/* =========================================================
+   RESPONSIVIDADE
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+    .login-page {
+        padding: 15px;
+    }
+
+    .login-card {
+        padding: 30px 22px;
+
+        border-radius: 17px;
+    }
+
+    .login-card h1 {
+        font-size: 23px;
+    }
+
+    .logo-circle {
+        width: 62px;
+        height: 62px;
+
+        font-size: 28px;
+    }
+
+    .form-group input,
+    .form-group select {
+        height: 46px;
+    }
+
+    .login-button {
+        height: 48px;
+    }
+}
+
+
+/* =========================================================
+   BASE PARA OS PAINÉIS
+   Estas classes serão utilizadas nos próximos arquivos.
+   ========================================================= */
+
+.app-page {
+    min-height: 100vh;
+    background: #f4f7fb;
+}
+
+.app-header {
+    height: 64px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 20px;
+
+    background: #ffffff;
+
+    border-bottom: 1px solid #e5eaf0;
+}
+
+.app-content {
+    padding: 20px;
+}
+
+.dashboard-grid {
+    display: grid;
+
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(220px, 1fr)
+    );
+
+    gap: 18px;
+}
+
+.dashboard-card {
+    background: #ffffff;
+
+    border-radius: 14px;
+
+    padding: 20px;
+
+    border: 1px solid #e8edf3;
+
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.04);
+}
