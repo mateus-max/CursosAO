@@ -1,9 +1,8 @@
-/* =========================================================
-   APSAN ACADEMY
-   MAIN.JS
-   ========================================================= */
-
 document.addEventListener("DOMContentLoaded", function () {
+
+    /* ==========================================
+       LOGIN
+       ========================================== */
 
     const loginForm = document.getElementById("loginForm");
 
@@ -26,8 +25,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 document.getElementById("loginMessage");
 
 
-            /* Verificação básica */
-
             if (!username || !password || !userType) {
 
                 message.textContent =
@@ -37,35 +34,67 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
 
-            /* =================================================
-               ENCAMINHAMENTO DOS UTILIZADORES
-               ================================================= */
+            /*
+             * Guardamos temporariamente os dados
+             * do utilizador.
+             */
 
-            if (userType === "direcao") {
+            localStorage.setItem(
+                "apsan_username",
+                username
+            );
 
-                window.location.href = "direcao.html";
+            localStorage.setItem(
+                "apsan_user_type",
+                userType
+            );
 
-            } else if (userType === "professor") {
 
-                window.location.href = "professor.html";
+            /*
+             * ABRIR O PAINEL DE ACORDO
+             * COM O PERFIL ESCOLHIDO.
+             */
 
-            } else if (userType === "aluno") {
+            switch (userType) {
 
-                window.location.href = "aluno.html";
+                case "direcao":
 
-            } else {
+                    window.location.href =
+                        "direcao.html";
 
-                message.textContent =
-                    "Tipo de acesso inválido.";
+                    break;
+
+
+                case "professor":
+
+                    window.location.href =
+                        "professor.html";
+
+                    break;
+
+
+                case "aluno":
+
+                    window.location.href =
+                        "aluno.html";
+
+                    break;
+
+
+                default:
+
+                    message.textContent =
+                        "Selecione um perfil válido.";
+
             }
 
         });
     }
 
 
-    /* =========================================================
-       BOTÃO VOLTAR
-       ========================================================= */
+    /* ==========================================
+       BOTÕES DE VOLTAR / SAIR
+       ========================================== */
 
     const backButtons =
         document.querySelectorAll("[data-back]");
@@ -74,23 +103,40 @@ document.addEventListener("DOMContentLoaded", function () {
 
         button.addEventListener("click", function () {
 
-            if (window.history.length > 1) {
+            localStorage.removeItem("apsan_username");
+            localStorage.removeItem("apsan_user_type");
 
-                window.history.back();
-
-            } else {
-
-                window.location.href = "index.html";
-            }
+            window.location.href = "index.html";
 
         });
 
     });
 
 
-    /* =========================================================
-       MENU MOBILE
-       ========================================================= */
+    /* ==========================================
+       NOME DO UTILIZADOR
+       ========================================== */
+
+    const userNameElements =
+        document.querySelectorAll("[data-user-name]");
+
+    const savedUsername =
+        localStorage.getItem("apsan_username");
+
+    userNameElements.forEach(function (element) {
+
+        if (savedUsername) {
+
+            element.textContent = savedUsername;
+
+        }
+
+    });
+
+
+    /* ==========================================
+       MENU
+       ========================================== */
 
     const menuButton =
         document.querySelector("[data-menu-button]");
@@ -107,27 +153,5 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
     }
-
-
-    /* =========================================================
-       FECHAR MENU AO CLICAR NUM LINK
-       ========================================================= */
-
-    const menuLinks =
-        document.querySelectorAll("[data-menu-link]");
-
-    menuLinks.forEach(function (link) {
-
-        link.addEventListener("click", function () {
-
-            if (sideMenu) {
-
-                sideMenu.classList.remove("menu-open");
-
-            }
-
-        });
-
-    });
 
 });
