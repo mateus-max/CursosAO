@@ -159,259 +159,172 @@
 
 
     <!-- =====================================================
-         CONTEÚDO PRINCIPAL
+         CONTEÚDO PRINCIPAL — PAINEL DO PROFESSOR
          ===================================================== -->
 
-    <main class="app-content professor-content">
+    <main class="app-content professor-content professor-option2">
 
+        <section class="professor-hero">
 
-        <!-- SAUDAÇÃO -->
-
-        <section class="welcome-section">
-
-            <h1>
-                Olá, <span id="teacherName">Professor</span> 👋
-            </h1>
-
-            <p>
-                Bem-vindo ao seu painel.
-            </p>
-
-        </section>
-
-
-
-        <!-- =================================================
-             PRÓXIMA AULA
-             ================================================= -->
-
-        <section
-            class="next-class-card"
-            id="aulas"
-        >
-
-            <div>
-
-                <span class="section-label">
-                    PRÓXIMA AULA
-                </span>
-
-                <h2>
-                    Inglês
-                </h2>
-
-                <p>
-                    Hoje · 19:00
-                </p>
-
+            <div class="professor-hero-copy">
+                <span class="hero-kicker">PAINEL DO PROFESSOR</span>
+                <h1>Olá, <span id="teacherName">Professor</span>! 👋</h1>
+                <p>Continue a inspirar os seus alunos através do ensino.</p>
             </div>
 
-
-            <button
-                class="primary-action"
-                type="button"
-            >
-                Entrar na aula
-            </button>
+            <div class="hero-brand">
+                <div class="hero-logo">A</div>
+                <strong>APSAN Academy</strong>
+            </div>
 
         </section>
 
 
+        <section class="professor-stats">
 
-        <!-- =================================================
-             ÁREAS DO PROFESSOR
-             ================================================= -->
-
-        <section class="dashboard-grid professor-grid">
-
-
-            <a
-                href="#aulas"
-                class="dashboard-card dashboard-link"
-            >
-
-                <div class="card-icon">
-                    📚
+            <a href="#alunos" class="professor-stat">
+                <span class="stat-icon">👥</span>
+                <div>
+                    <strong>Meus Alunos</strong>
+                    <b>—</b>
+                    <small>Alunos registados</small>
                 </div>
-
-                <h3>
-                    Minhas Aulas
-                </h3>
-
-                <p>
-                    Consulte e organize as suas aulas.
-                </p>
-
             </a>
 
-
-
-            <a
-                href="#alunos"
-                class="dashboard-card dashboard-link"
-            >
-
-                <div class="card-icon">
-                    👥
+            <a href="#aulas" class="professor-stat">
+                <span class="stat-icon">📅</span>
+                <div>
+                    <strong>Minhas Aulas</strong>
+                    <b>—</b>
+                    <small>Aulas agendadas</small>
                 </div>
-
-                <h3>
-                    Meus Alunos
-                </h3>
-
-                <p>
-                    Consulte os seus alunos e turmas.
-                </p>
-
             </a>
 
-
-
-            <a
-                href="#materiais"
-                class="dashboard-card dashboard-link"
-            >
-
-                <div class="card-icon">
-                    📄
+            <a href="#materiais" class="professor-stat">
+                <span class="stat-icon">📄</span>
+                <div>
+                    <strong>Materiais</strong>
+                    <b>—</b>
+                    <small>Materiais publicados</small>
                 </div>
-
-                <h3>
-                    Materiais
-                </h3>
-
-                <p>
-                    Organize materiais das aulas.
-                </p>
-
             </a>
 
-
-
-            <a
-                href="quadro.html"
-                class="dashboard-card dashboard-link"
-            >
-
-                <div class="card-icon">
-                    🖥
+            <a href="#agenda" class="professor-stat">
+                <span class="stat-icon">📊</span>
+                <div>
+                    <strong>Agenda</strong>
+                    <b>—</b>
+                    <small>Próximos compromissos</small>
                 </div>
-
-                <h3>
-                    Quadro
-                </h3>
-
-                <p>
-                    Abra o quadro interativo.
-                </p>
-
             </a>
-
-
-
-            <a
-                href="#agenda"
-                class="dashboard-card dashboard-link"
-            >
-
-                <div class="card-icon">
-                    📅
-                </div>
-
-                <h3>
-                    Agenda
-                </h3>
-
-                <p>
-                    Consulte os horários das aulas.
-                </p>
-
-            </a>
-
-
-
-            <button
-                class="dashboard-card dashboard-link profile-card-button"
-                id="openProfileFromCard"
-                type="button"
-            >
-
-                <div class="card-icon">
-                    👤
-                </div>
-
-                <h3>
-                    Conta
-                </h3>
-
-                <p>
-                    Clique no avatar para editar o perfil.
-                </p>
-
-            </button>
-
 
         </section>
 
 
+        <section class="professor-actions">
 
-        <!-- =================================================
-             SEÇÕES SIMPLES
-             ================================================= -->
+            <a href="#aulas" class="professor-action">
+                <span>📚</span>
+                <strong>Minhas Aulas</strong>
+            </a>
 
-        <section
-            id="alunos"
-            class="simple-section"
-        >
+            <a href="#alunos" class="professor-action">
+                <span>👥</span>
+                <strong>Meus Alunos</strong>
+            </a>
 
-            <h2>
-                Meus Alunos
-            </h2>
+            <a href="#materiais" class="professor-action">
+                <span>📄</span>
+                <strong>Materiais</strong>
+            </a>
 
-            <p>
-                Os seus alunos aparecerão aqui.
-            </p>
+            <a href="#agenda" class="professor-action">
+                <span>📅</span>
+                <strong>Agenda</strong>
+            </a>
 
-        </section>
-
-
-
-        <section
-            id="materiais"
-            class="simple-section"
-        >
-
-            <h2>
-                Materiais
-            </h2>
-
-            <p>
-                Os materiais das aulas aparecerão aqui.
-            </p>
+            <a href="quadro.html" class="professor-action">
+                <span>🖥</span>
+                <strong>Quadro</strong>
+            </a>
 
         </section>
 
 
+        <section class="professor-main-grid">
 
-        <section
-            id="agenda"
-            class="simple-section"
-        >
+            <article class="professor-next-class" id="aulas">
 
-            <h2>
-                Agenda
-            </h2>
+                <div>
+                    <span class="section-label">PRÓXIMA AULA</span>
+                    <h2>Inglês</h2>
+                    <p>Hoje · 19:00 — 20:00</p>
+                </div>
 
-            <p>
-                A sua agenda de aulas aparecerá aqui.
-            </p>
+                <a class="primary-action" href="quadro.html">
+                    Entrar na aula
+                </a>
+
+            </article>
+
+
+            <article class="professor-schedule" id="agenda">
+
+                <div class="section-heading">
+                    <h2>Agenda</h2>
+                    <a href="#agenda">Ver agenda</a>
+                </div>
+
+                <div class="schedule-row">
+                    <span class="schedule-day">Hoje</span>
+                    <div>
+                        <strong>Inglês</strong>
+                        <small>19:00 — 20:00</small>
+                    </div>
+                </div>
+
+                <div class="schedule-row">
+                    <span class="schedule-day">—</span>
+                    <div>
+                        <strong>Próxima aula</strong>
+                        <small>Ainda não definida</small>
+                    </div>
+                </div>
+
+            </article>
 
         </section>
 
+
+        <section class="professor-lower-grid">
+
+            <article class="professor-list-card" id="alunos">
+                <div class="section-heading">
+                    <h2>Meus Alunos</h2>
+                    <a href="#alunos">Ver todos</a>
+                </div>
+                <p class="empty-state">Os alunos oficiais aparecerão aqui após a matrícula e confirmação pela direção.</p>
+            </article>
+
+            <article class="professor-list-card" id="materiais">
+                <div class="section-heading">
+                    <h2>Materiais</h2>
+                    <a href="#materiais">Ver todos</a>
+                </div>
+                <p class="empty-state">Os materiais publicados para as suas aulas aparecerão aqui.</p>
+            </article>
+
+            <article class="professor-list-card">
+                <div class="section-heading">
+                    <h2>Mensagens</h2>
+                    <a href="#mensagens">Ver todas</a>
+                </div>
+                <p class="empty-state">As mensagens dos seus alunos aparecerão aqui.</p>
+            </article>
+
+        </section>
 
     </main>
-
-
 
     <!-- =====================================================
          MODAL DO PERFIL
