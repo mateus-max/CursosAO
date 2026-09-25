@@ -1032,3 +1032,170 @@ button.dashboard-link {
     .professor-actions{grid-template-columns:1fr 1fr}
     .professor-action:last-child{grid-column:span 2}
 }
+
+
+/* =========================================================
+   MÓDULOS FUNCIONAIS DO PROFESSOR
+   ========================================================= */
+
+.panel-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.professor-modal-button,
+.text-button {
+    border: 0;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.secondary-action {
+    background: #eaf3ff !important;
+    color: #1769e0 !important;
+}
+
+.text-button {
+    background: transparent;
+    color: #1769e0;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.panel-badge {
+    min-width: 28px;
+    height: 28px;
+    padding: 0 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: #eaf3ff;
+    color: #1769e0;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.module-row {
+    min-height: 54px;
+    padding: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid #edf1f6;
+}
+
+.module-row:last-child {
+    border-bottom: 0;
+}
+
+.module-row-icon {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: #eaf3ff;
+}
+
+.module-row > div {
+    min-width: 0;
+    flex: 1;
+}
+
+.module-row strong,
+.module-row small {
+    display: block;
+}
+
+.module-row strong {
+    color: #172033;
+    font-size: 13px;
+}
+
+.module-row small {
+    margin-top: 3px;
+    color: #8996a8;
+    font-size: 11px;
+}
+
+.module-row small a {
+    margin-left: 7px;
+    color: #1769e0;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.module-delete {
+    border: 0;
+    background: #fff1f1;
+    color: #c62828;
+    border-radius: 8px;
+    padding: 7px 9px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.professor-panel-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 600;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(13, 25, 41, .58);
+}
+
+.professor-panel-overlay.professor-panel-open {
+    display: flex;
+}
+
+.professor-panel-modal {
+    width: 100%;
+    max-width: 560px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 18px;
+    padding: 25px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.22);
+}
+
+.professor-form {
+    display: grid;
+    gap: 16px;
+}
+
+.professor-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.professor-form .form-group input,
+.professor-form .form-group select {
+    box-sizing: border-box;
+}
+
+@media(max-width:620px) {
+    .professor-form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .panel-actions {
+        width: 100%;
+    }
+
+    .panel-actions .primary-action {
+        width: 100%;
+        text-align: center;
+    }
+
+    .professor-panel-modal {
+        padding: 20px;
+    }
+}
