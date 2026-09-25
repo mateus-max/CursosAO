@@ -1,123 +1,587 @@
 <!DOCTYPE html>
 <html lang="pt">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>APSAN Academy - Professor</title>
 
-    <link rel="stylesheet" href="Style/style.css">
+    <link
+        rel="stylesheet"
+        href="Style/style.css"
+    >
+
 </head>
+
 
 <body class="app-page">
 
-    <!-- CABEÇALHO -->
 
-    <header class="app-header">
+    <!-- =====================================================
+         CABEÇALHO
+         ===================================================== -->
 
-        <div>
-            <strong>APSAN Academy</strong>
+    <header class="app-header professor-header">
+
+        <div class="header-left">
+
+            <button
+                class="menu-button"
+                data-menu-button
+                type="button"
+                aria-label="Abrir menu"
+            >
+                ☰
+            </button>
+
+            <strong>
+                APSAN Academy
+            </strong>
+
         </div>
 
+
+        <!-- AVATAR -->
+
         <button
+            class="profile-avatar-button"
+            id="profileAvatarButton"
             type="button"
-            data-back
-            class="login-button"
-            style="width:auto; height:40px; padding:0 16px;"
+            aria-label="Abrir perfil"
         >
-            Sair
+
+            <img
+                id="topAvatar"
+                class="profile-avatar"
+                src=""
+                alt="Perfil"
+            >
+
+            <span
+                id="topAvatarLetter"
+                class="avatar-letter"
+            >
+                P
+            </span>
+
         </button>
 
     </header>
 
 
-    <!-- CONTEÚDO -->
 
-    <main class="app-content">
+    <!-- =====================================================
+         MENU LATERAL
+         ===================================================== -->
 
-        <div style="margin-bottom:25px;">
+    <aside
+        class="side-menu"
+        data-side-menu
+    >
 
-            <h1>Painel do Professor</h1>
+        <div class="side-menu-header">
 
-            <p style="color:#718096; margin-top:6px;">
-                Organize as suas aulas e acompanhe os seus alunos.
-            </p>
+            <strong>
+                APSAN Academy
+            </strong>
 
         </div>
 
 
-        <!-- ÁREA PRINCIPAL -->
+        <nav>
 
-        <section class="dashboard-grid">
-
-            <div class="dashboard-card">
-
-                <h3>Minhas Aulas</h3>
-
-                <p style="margin-top:10px; color:#718096;">
-                    Consulte e organize as suas aulas.
-                </p>
-
-            </div>
+            <a
+                href="professor.html"
+                data-menu-link
+            >
+                🏠 Início
+            </a>
 
 
-            <div class="dashboard-card">
-
-                <h3>Meus Alunos</h3>
-
-                <p style="margin-top:10px; color:#718096;">
-                    Consulte os alunos das suas turmas.
-                </p>
-
-            </div>
+            <a
+                href="#aulas"
+                data-menu-link
+            >
+                📚 Minhas Aulas
+            </a>
 
 
-            <div class="dashboard-card">
-
-                <h3>Quadro Interativo</h3>
-
-                <p style="margin-top:10px; color:#718096;">
-                    Aceda ao quadro utilizado durante as aulas.
-                </p>
-
-            </div>
+            <a
+                href="#alunos"
+                data-menu-link
+            >
+                👥 Meus Alunos
+            </a>
 
 
-            <div class="dashboard-card">
-
-                <h3>Materiais</h3>
-
-                <p style="margin-top:10px; color:#718096;">
-                    Organize materiais e conteúdos das aulas.
-                </p>
-
-            </div>
+            <a
+                href="#materiais"
+                data-menu-link
+            >
+                📄 Materiais
+            </a>
 
 
-            <div class="dashboard-card">
-
-                <h3>Agenda</h3>
-
-                <p style="margin-top:10px; color:#718096;">
-                    Consulte o calendário das suas aulas.
-                </p>
-
-            </div>
+            <a
+                href="quadro.html"
+                data-menu-link
+            >
+                🖥 Quadro
+            </a>
 
 
-            <div class="dashboard-card">
+            <a
+                href="#agenda"
+                data-menu-link
+            >
+                📅 Agenda
+            </a>
 
-                <h3>Perfil</h3>
+        </nav>
 
-                <p style="margin-top:10px; color:#718096;">
-                    Atualize as suas informações profissionais.
-                </p>
 
-            </div>
+        <button
+            class="side-menu-logout"
+            id="logoutButton"
+            type="button"
+        >
+            🚪 Sair
+        </button>
+
+    </aside>
+
+
+
+    <!-- =====================================================
+         CONTEÚDO PRINCIPAL
+         ===================================================== -->
+
+    <main class="app-content professor-content">
+
+
+        <!-- SAUDAÇÃO -->
+
+        <section class="welcome-section">
+
+            <h1>
+                Olá, <span id="teacherName">Professor</span> 👋
+            </h1>
+
+            <p>
+                Bem-vindo ao seu painel.
+            </p>
 
         </section>
 
+
+
+        <!-- =================================================
+             PRÓXIMA AULA
+             ================================================= -->
+
+        <section
+            class="next-class-card"
+            id="aulas"
+        >
+
+            <div>
+
+                <span class="section-label">
+                    PRÓXIMA AULA
+                </span>
+
+                <h2>
+                    Inglês
+                </h2>
+
+                <p>
+                    Hoje · 19:00
+                </p>
+
+            </div>
+
+
+            <button
+                class="primary-action"
+                type="button"
+            >
+                Entrar na aula
+            </button>
+
+        </section>
+
+
+
+        <!-- =================================================
+             ÁREAS DO PROFESSOR
+             ================================================= -->
+
+        <section class="dashboard-grid professor-grid">
+
+
+            <a
+                href="#aulas"
+                class="dashboard-card dashboard-link"
+            >
+
+                <div class="card-icon">
+                    📚
+                </div>
+
+                <h3>
+                    Minhas Aulas
+                </h3>
+
+                <p>
+                    Consulte e organize as suas aulas.
+                </p>
+
+            </a>
+
+
+
+            <a
+                href="#alunos"
+                class="dashboard-card dashboard-link"
+            >
+
+                <div class="card-icon">
+                    👥
+                </div>
+
+                <h3>
+                    Meus Alunos
+                </h3>
+
+                <p>
+                    Consulte os seus alunos e turmas.
+                </p>
+
+            </a>
+
+
+
+            <a
+                href="#materiais"
+                class="dashboard-card dashboard-link"
+            >
+
+                <div class="card-icon">
+                    📄
+                </div>
+
+                <h3>
+                    Materiais
+                </h3>
+
+                <p>
+                    Organize materiais das aulas.
+                </p>
+
+            </a>
+
+
+
+            <a
+                href="quadro.html"
+                class="dashboard-card dashboard-link"
+            >
+
+                <div class="card-icon">
+                    🖥
+                </div>
+
+                <h3>
+                    Quadro
+                </h3>
+
+                <p>
+                    Abra o quadro interativo.
+                </p>
+
+            </a>
+
+
+
+            <a
+                href="#agenda"
+                class="dashboard-card dashboard-link"
+            >
+
+                <div class="card-icon">
+                    📅
+                </div>
+
+                <h3>
+                    Agenda
+                </h3>
+
+                <p>
+                    Consulte os horários das aulas.
+                </p>
+
+            </a>
+
+
+
+            <button
+                class="dashboard-card dashboard-link profile-card-button"
+                id="openProfileFromCard"
+                type="button"
+            >
+
+                <div class="card-icon">
+                    👤
+                </div>
+
+                <h3>
+                    Conta
+                </h3>
+
+                <p>
+                    Clique no avatar para editar o perfil.
+                </p>
+
+            </button>
+
+
+        </section>
+
+
+
+        <!-- =================================================
+             SEÇÕES SIMPLES
+             ================================================= -->
+
+        <section
+            id="alunos"
+            class="simple-section"
+        >
+
+            <h2>
+                Meus Alunos
+            </h2>
+
+            <p>
+                Os seus alunos aparecerão aqui.
+            </p>
+
+        </section>
+
+
+
+        <section
+            id="materiais"
+            class="simple-section"
+        >
+
+            <h2>
+                Materiais
+            </h2>
+
+            <p>
+                Os materiais das aulas aparecerão aqui.
+            </p>
+
+        </section>
+
+
+
+        <section
+            id="agenda"
+            class="simple-section"
+        >
+
+            <h2>
+                Agenda
+            </h2>
+
+            <p>
+                A sua agenda de aulas aparecerá aqui.
+            </p>
+
+        </section>
+
+
     </main>
+
+
+
+    <!-- =====================================================
+         MODAL DO PERFIL
+         ===================================================== -->
+
+    <div
+        class="profile-overlay"
+        id="profileOverlay"
+    >
+
+        <div class="profile-modal">
+
+
+            <div class="profile-modal-header">
+
+                <div>
+
+                    <h2>
+                        Meu Perfil
+                    </h2>
+
+                    <p>
+                        Atualize os seus dados.
+                    </p>
+
+                </div>
+
+
+                <button
+                    id="closeProfile"
+                    class="close-profile"
+                    type="button"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+
+            <!-- FOTO -->
+
+            <div class="profile-photo-area">
+
+                <div class="large-avatar">
+
+                    <img
+                        id="profilePhotoPreview"
+                        src=""
+                        alt="Foto de perfil"
+                    >
+
+                    <span
+                        id="profilePhotoLetter"
+                    >
+                        P
+                    </span>
+
+                </div>
+
+
+                <label
+                    for="profilePhotoInput"
+                    class="upload-photo-button"
+                >
+                    Carregar foto
+                </label>
+
+
+                <input
+                    type="file"
+                    id="profilePhotoInput"
+                    accept="image/*"
+                    hidden
+                >
+
+            </div>
+
+
+
+            <!-- FORMULÁRIO -->
+
+            <form id="profileForm">
+
+
+                <div class="form-group">
+
+                    <label for="profileName">
+                        Nome
+                    </label>
+
+                    <input
+                        type="text"
+                        id="profileName"
+                        required
+                    >
+
+                </div>
+
+
+
+                <div class="form-group">
+
+                    <label for="profileUsername">
+                        Utilizador
+                    </label>
+
+                    <input
+                        type="text"
+                        id="profileUsername"
+                        readonly
+                    >
+
+                </div>
+
+
+
+                <div class="form-group">
+
+                    <label for="profilePassword">
+                        Nova palavra-passe
+                    </label>
+
+                    <input
+                        type="password"
+                        id="profilePassword"
+                        placeholder="Deixe vazio para manter a atual"
+                    >
+
+                </div>
+
+
+
+                <div class="form-group">
+
+                    <label for="profileBio">
+                        Bio
+                    </label>
+
+                    <textarea
+                        id="profileBio"
+                        rows="4"
+                        placeholder="Escreva uma breve descrição sobre si..."
+                    ></textarea>
+
+                </div>
+
+
+
+                <button
+                    type="submit"
+                    class="login-button"
+                >
+                    Salvar alterações
+                </button>
+
+
+                <p
+                    id="profileMessage"
+                    class="login-message"
+                ></p>
+
+
+            </form>
+
+
+        </div>
+
+    </div>
+
 
 
     <script src="Apps/main.js"></script>
