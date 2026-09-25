@@ -677,6 +677,31 @@ document.addEventListener("DOMContentLoaded", function () {
                         serializedAccount
                     );
 
+                    const accountsRegistry =
+                        JSON.parse(localStorage.getItem("apsan_accounts") || "[]");
+
+                    const registry = Array.isArray(accountsRegistry)
+                        ? accountsRegistry
+                        : [];
+
+                    const accountIndex = registry.findIndex(function (item) {
+                        return (
+                            item.phone === updatedAccount.phone ||
+                            item.username === updatedAccount.username
+                        );
+                    });
+
+                    if (accountIndex >= 0) {
+                        registry[accountIndex] = updatedAccount;
+                    } else {
+                        registry.push(updatedAccount);
+                    }
+
+                    localStorage.setItem(
+                        "apsan_accounts",
+                        JSON.stringify(registry)
+                    );
+
                     const savedAccount =
                         JSON.parse(
                             localStorage.getItem("apsan_account")
@@ -717,6 +742,272 @@ document.addEventListener("DOMContentLoaded", function () {
         );
     }
 
+
+
+    /* =====================================================
+       PERFIL PÚBLICO DO PROFESSOR
+       ===================================================== */
+
+    const publicProfilePanel =
+        document.getElementById("publicProfilePanel");
+
+    const publicProfileForm =
+        document.getElementById("publicProfileForm");
+
+    const publicCoverInput =
+        document.getElementById("publicCoverInput");
+
+    let pendingPublicCover = "";
+
+    function professorProfileKey() {
+        return "apsan_professor_profile_" +
+            ((account && (account.phone || account.username)) || "default");
+    }
+
+    function getPublicProfile() {
+        try {
+            const profile = JSON.parse(
+                localStorage.getItem(professorProfileKey()) || "null"
+            );
+            return profile || {};
+        } catch (error) {
+            return {};
+        }
+    }
+
+    function savePublicProfile(profile) {
+        localStorage.setItem(
+            professorProfileKey(),
+            JSON.stringify(profile)
+        );
+
+        const profiles =
+            JSON.parse(localStorage.getItem("apsan_professors") || "[]");
+
+        const list = Array.isArray(profiles) ? profiles : [];
+
+        const index = list.findIndex(function (item) {
+            return item.teacherPhone === profile.teacherPhone;
+        });
+
+        if (profile.published) {
+            if (index >= 0) {
+                list[index] = profile;
+            } else {
+                list.push(profile);
+            }
+        } else if (index >= 0) {
+            list.splice(index, 1);
+        }
+
+        localStorage.setItem("apsan_professors", JSON.stringify(list));
+    }
+
+    function renderPublicProfileStatus(profile) {
+
+        const title =
+            document.getElementById("publicProfileStatusTitle");
+
+        const description =
+            document.getElementById("publicProfileStatusText");
+
+        if (!title || !description) return;
+
+        if (profile.published) {
+            title.textContent = "Perfil publicado";
+            description.textContent =
+                "Os alunos já podem encontrar este perfil na pesquisa de professores.";
+        } else {
+            title.textContent = "Perfil ainda não publicado";
+            description.textContent =
+                "Configure as suas informações profissionais e publique para que os alunos o encontrem.";
+        }
+    }
+
+    function loadPublicProfileForm() {
+
+        if (!publicProfileForm) return;
+
+        const profile = getPublicProfile();
+
+        const values = {
+            publicCourse: profile.course || "",
+            publicDescription: profile.description || "",
+            publicModality: profile.modality || "Online",
+            publicPrice: profile.price || "",
+            publicSchedules: profile.schedules || "",
+            publicExperience: profile.experience || "",
+            publicAdvantages: profile.advantages || ""
+        };
+
+        Object.keys(values).forEach(function (id) {
+            const element = document.getElementById(id);
+            if (element) element.value = values[id];
+        });
+
+        const published =
+            document.getElementById("publicPublished");
+
+        if (published) {
+            published.checked = !!profile.published;
+        }
+
+        pendingPublicCover = profile.cover || "";
+
+        const preview =
+            document.getElementById("publicCoverPreview");
+
+        if (preview) {
+            if (pendingPublicCover) {
+                preview.src = pendingPublicCover;
+                preview.style.display = "block";
+            } else {
+                preview.removeAttribute("src");
+                preview.style.display = "none";
+            }
+        }
+    }
+
+    if (publicCoverInput) {
+
+        publicCoverInput.addEventListener("change", function (event) {
+
+            const file = event.target.files[0];
+
+            if (!file || !file.type.startsWith("image/")) return;
+
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+
+                const image = new Image();
+
+                image.onload = function () {
+
+                    const maxWidth = 1200;
+                    let width = image.naturalWidth;
+                    let height = image.naturalHeight;
+
+                    if (width > maxWidth) {
+                        height = Math.round(height * maxWidth / width);
+                        width = maxWidth;
+                    }
+
+                    const canvas = document.createElement("canvas");
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    const context = canvas.getContext("2d");
+                    context.drawImage(image, 0, 0, width, height);
+
+                    pendingPublicCover =
+                        canvas.toDataURL("image/jpeg", 0.78);
+
+                    const preview =
+                        document.getElementById("publicCoverPreview");
+
+                    if (preview) {
+                        preview.src = pendingPublicCover;
+                        preview.style.display = "block";
+                    }
+                };
+
+                image.src = e.target.result;
+            };
+
+            reader.readAsDataURL(file);
+        });
+    }
+
+    if (publicProfileForm) {
+
+        publicProfileForm.addEventListener("submit", function (event) {
+
+            event.preventDefault();
+
+            const profileMessage =
+                document.getElementById("publicProfileMessage");
+
+            const profile = {
+                teacherPhone: account && account.phone
+                    ? account.phone
+                    : (account && account.username) || "default",
+                teacherName: account && account.name
+                    ? account.name
+                    : "Professor",
+                teacherPhoto: account && account.photo
+                    ? account.photo
+                    : "",
+                course: document.getElementById("publicCourse").value.trim(),
+                description: document.getElementById("publicDescription").value.trim(),
+                modality: document.getElementById("publicModality").value,
+                price: document.getElementById("publicPrice").value.trim(),
+                schedules: document.getElementById("publicSchedules").value.trim(),
+                experience: document.getElementById("publicExperience").value.trim(),
+                advantages: document.getElementById("publicAdvantages").value.trim(),
+                cover: pendingPublicCover,
+                published: document.getElementById("publicPublished").checked,
+                updatedAt: new Date().toISOString()
+            };
+
+            if (
+                !profile.course ||
+                !profile.description ||
+                !profile.schedules ||
+                !profile.experience ||
+                profile.price === ""
+            ) {
+                profileMessage.style.color = "#d93025";
+                profileMessage.textContent =
+                    "Preencha curso, descrição, preço, horários e experiência.";
+                return;
+            }
+
+            try {
+
+                savePublicProfile(profile);
+                renderPublicProfileStatus(profile);
+
+                profileMessage.style.color = "#16803c";
+                profileMessage.textContent =
+                    profile.published
+                        ? "Perfil publicado com sucesso!"
+                        : "Perfil guardado como não publicado.";
+
+                setTimeout(function () {
+                    if (publicProfilePanel) {
+                        publicProfilePanel.classList.remove("professor-panel-open");
+                    }
+                    profileMessage.textContent = "";
+                }, 900);
+
+            } catch (error) {
+
+                profileMessage.style.color = "#d93025";
+                profileMessage.textContent =
+                    "Não foi possível guardar o perfil.";
+            }
+        });
+    }
+
+    if (publicProfilePanel) {
+        publicProfilePanel.addEventListener("click", function (event) {
+            if (event.target === publicProfilePanel) {
+                publicProfilePanel.classList.remove("professor-panel-open");
+            }
+        });
+    }
+
+    const publicProfileOpenButtons =
+        document.querySelectorAll('[data-open-panel="publicProfile"]');
+
+    publicProfileOpenButtons.forEach(function (button) {
+        button.addEventListener("click", function () {
+            loadPublicProfileForm();
+        });
+    });
+
+    renderPublicProfileStatus(getPublicProfile());
 
 
     /* =====================================================
