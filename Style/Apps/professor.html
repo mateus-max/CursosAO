@@ -247,6 +247,11 @@
                 <span>🖥</span>
                 <strong>Quadro</strong>
             </a>
+            
+            <button type="button" class="professor-action professor-modal-button" data-open-panel="publicProfile">
+                <span>🌐</span>
+                <strong>Meu Perfil Público</strong>
+            </button>
 
         </section>
 
@@ -291,6 +296,16 @@
         </section>
 
 
+
+        <section class="professor-public-status" id="perfil-publico">
+            <div>
+                <span class="section-label">PERFIL PÚBLICO</span>
+                <h2 id="publicProfileStatusTitle">Perfil ainda não publicado</h2>
+                <p id="publicProfileStatusText">Configure as suas informações profissionais e publique para que os alunos o encontrem.</p>
+            </div>
+            <button type="button" class="primary-action professor-modal-button" data-open-panel="publicProfile">Configurar perfil</button>
+        </section>
+
         <section class="professor-lower-grid">
 
             <article class="professor-list-card" id="alunos">
@@ -330,6 +345,74 @@
     <!-- =====================================================
          MODAIS DE AULAS E MATERIAIS
          ===================================================== -->
+
+    <div class="professor-panel-overlay" id="publicProfilePanel">
+        <div class="professor-panel-modal public-profile-modal">
+            <div class="profile-modal-header">
+                <div>
+                    <h2>Perfil Público do Professor</h2>
+                    <p>Estas informações serão apresentadas aos alunos quando pesquisarem por si.</p>
+                </div>
+                <button type="button" class="close-profile" data-close-panel="publicProfile">×</button>
+            </div>
+
+            <form id="publicProfileForm" class="professor-form">
+                <div class="form-group">
+                    <label for="publicCoverInput">Imagem de capa</label>
+                    <input id="publicCoverInput" type="file" accept="image/*">
+                    <img id="publicCoverPreview" class="public-cover-preview" alt="Pré-visualização da capa">
+                </div>
+
+                <div class="form-group">
+                    <label for="publicCourse">Curso / disciplina</label>
+                    <input id="publicCourse" type="text" placeholder="Ex.: Inglês" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="publicDescription">Descrição</label>
+                    <textarea id="publicDescription" rows="4" placeholder="Apresente o seu curso e a sua forma de ensinar." required></textarea>
+                </div>
+
+                <div class="professor-form-row">
+                    <div class="form-group">
+                        <label for="publicModality">Modalidade</label>
+                        <select id="publicModality">
+                            <option>Online</option>
+                            <option>Presencial</option>
+                            <option>Online e Presencial</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="publicPrice">Preço da matrícula / inscrição (Kz)</label>
+                        <input id="publicPrice" type="number" min="0" step="1" placeholder="Ex.: 10000" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="publicSchedules">Horários disponíveis</label>
+                    <textarea id="publicSchedules" rows="3" placeholder="Ex.: Segunda a sexta, 19:00–20:00; sábado, 09:00–10:00." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="publicExperience">Experiência</label>
+                    <textarea id="publicExperience" rows="3" placeholder="Ex.: Mais de 3 anos de experiência no ensino de Inglês." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="publicAdvantages">Vantagens / diferenciais</label>
+                    <textarea id="publicAdvantages" rows="3" placeholder="Ex.: Aulas práticas, acompanhamento individual, materiais de apoio."></textarea>
+                </div>
+
+                <label class="publish-toggle">
+                    <input id="publicPublished" type="checkbox">
+                    <span>Publicar este perfil para os alunos</span>
+                </label>
+
+                <button type="submit" class="login-button">Guardar e publicar</button>
+                <p id="publicProfileMessage" class="login-message"></p>
+            </form>
+        </div>
+    </div>
 
     <div class="professor-panel-overlay" id="lessonPanel">
         <div class="professor-panel-modal">
