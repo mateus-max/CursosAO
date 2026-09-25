@@ -68,15 +68,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
                     if (
-                        account.phone !== phone ||
                         account.password !== password ||
-                        account.type !== userType
+                        account.type !== userType ||
+                        (account.phone && account.phone !== phone)
                     ) {
 
                         message.textContent =
                             "Número de telefone, palavra-passe ou perfil incorreto.";
 
                         return;
+                    }
+
+                    /* Compatibilidade com contas criadas antes
+                       da inclusão do número de telefone. */
+                    if (!account.phone) {
+                        account.phone = phone;
+                        localStorage.setItem(
+                            "apsan_account",
+                            JSON.stringify(account)
+                        );
                     }
 
                 }
