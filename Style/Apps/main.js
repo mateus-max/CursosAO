@@ -1239,20 +1239,45 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll("[data-open-panel]").forEach(function (button) {
         button.addEventListener("click", function () {
             const type = button.getAttribute("data-open-panel");
+
+            const panelMap = {
+                lesson: "lessonPanel",
+                material: "materialPanel",
+                publicProfile: "publicProfilePanel"
+            };
+
             const panel = document.getElementById(
-                type === "lesson" ? "lessonPanel" : "materialPanel"
+                panelMap[type] || ""
             );
-            if (panel) panel.classList.add("professor-panel-open");
+
+            if (panel) {
+                if (type === "publicProfile" &&
+                    typeof loadPublicProfileForm === "function") {
+                    loadPublicProfileForm();
+                }
+
+                panel.classList.add("professor-panel-open");
+            }
         });
     });
 
     document.querySelectorAll("[data-close-panel]").forEach(function (button) {
         button.addEventListener("click", function () {
             const type = button.getAttribute("data-close-panel");
+
+            const panelMap = {
+                lesson: "lessonPanel",
+                material: "materialPanel",
+                publicProfile: "publicProfilePanel"
+            };
+
             const panel = document.getElementById(
-                type === "lesson" ? "lessonPanel" : "materialPanel"
+                panelMap[type] || ""
             );
-            if (panel) panel.classList.remove("professor-panel-open");
+
+            if (panel) {
+                panel.classList.remove("professor-panel-open");
+            }
         });
     });
 
