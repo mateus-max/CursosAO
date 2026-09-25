@@ -560,3 +560,149 @@ button.dashboard-link {
     }
 
 }
+
+/* =========================================================
+   LOGIN / CADASTRO
+   ========================================================= */
+
+.login-page{
+    min-height:100vh;
+    margin:0;
+    background:
+        radial-gradient(circle at 12% 18%, rgba(58,132,255,.22), transparent 28%),
+        radial-gradient(circle at 88% 82%, rgba(23,105,224,.18), transparent 30%),
+        linear-gradient(135deg,#f4f8ff 0%,#eef5ff 48%,#e8f1ff 100%);
+    color:#172033;
+}
+
+.login-container{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:32px 18px;
+}
+
+.login-card{
+    width:min(100%,460px);
+    background:#fff;
+    border-radius:28px;
+    padding:38px 38px 25px;
+    box-shadow:0 24px 70px rgba(24,63,120,.16);
+}
+
+.login-logo{
+    display:flex;
+    justify-content:center;
+    margin-bottom:18px;
+}
+
+.logo-circle{
+    width:76px;
+    height:76px;
+    display:grid;
+    place-items:center;
+    border-radius:23px;
+    background:linear-gradient(145deg,#1769e0,#0d47b5);
+    color:#fff;
+    font-size:32px;
+    font-weight:800;
+    box-shadow:0 14px 28px rgba(23,105,224,.28);
+}
+
+.login-card h1{
+    margin:0;
+    text-align:center;
+    font-size:28px;
+    color:#13213a;
+}
+
+.login-subtitle{
+    margin:8px 0 28px;
+    text-align:center;
+    color:#718096;
+    font-size:15px;
+}
+
+.login-card form{
+    display:grid;
+    gap:18px;
+}
+
+.form-group{
+    display:grid;
+    gap:8px;
+}
+
+.form-group label{
+    font-size:13px;
+    font-weight:700;
+    color:#334155;
+}
+
+.form-group input,
+.form-group select{
+    width:100%;
+    height:52px;
+    border:1px solid #e4eaf2;
+    border-radius:14px;
+    background:#f9fbfe;
+    color:#172033;
+    padding:0 15px;
+    font-size:15px;
+    outline:none;
+}
+
+.form-group input:focus,
+.form-group select:focus{
+    border-color:#5592ed;
+    background:#fff;
+    box-shadow:0 0 0 4px rgba(23,105,224,.10);
+}
+
+.login-button{
+    width:100%;
+    height:54px;
+    border:0;
+    border-radius:15px;
+    background:linear-gradient(135deg,#1769e0,#0d47b5);
+    color:#fff;
+    font-size:16px;
+    font-weight:800;
+    cursor:pointer;
+    box-shadow:0 12px 24px rgba(23,105,224,.23);
+}
+
+.login-message{
+    min-height:18px;
+    margin:0;
+    text-align:center;
+    font-size:13px;
+}
+
+.login-footer{
+    margin-top:22px;
+    padding-top:17px;
+    border-top:1px solid #edf1f6;
+    text-align:center;
+    display:grid;
+    gap:4px;
+}
+
+.login-footer span{
+    color:#52627a;
+    font-size:13px;
+    font-weight:700;
+}
+
+.login-footer small{
+    color:#9aa7b8;
+    font-size:12px;
+}
+
+@media(max-width:520px){
+    .login-container{padding:18px 14px}
+    .login-card{padding:30px 22px 22px;border-radius:23px}
+    .login-card h1{font-size:25px}
+    .logo-circle{width:68px;height:68px;font-size:29px}
+}
