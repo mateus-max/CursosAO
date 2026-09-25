@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", function () {
                  * aparecer como outro utilizador ao entrar.
                  */
 
-                let account = null;
+                let loginAccount = null;
 
                 try {
 
@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             ? accountsRegistry
                             : [];
 
-                    account = accounts.find(function (item) {
+                    loginAccount = accounts.find(function (item) {
                         return (
                             item &&
                             item.phone === phone &&
@@ -87,7 +87,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 } catch (error) {
 
-                    account = null;
+                    loginAccount = null;
 
                 }
 
@@ -96,7 +96,7 @@ document.addEventListener("DOMContentLoaded", function () {
                  * Compatibilidade com contas antigas que ainda não
                  * foram colocadas no catálogo.
                  */
-                if (!account) {
+                if (!loginAccount) {
 
                     try {
 
@@ -111,16 +111,16 @@ document.addEventListener("DOMContentLoaded", function () {
                             legacy.type === userType &&
                             legacy.phone === phone
                         ) {
-                            account = legacy;
+                            loginAccount = legacy;
                         }
 
                     } catch (error) {
-                        account = null;
+                        loginAccount = null;
                     }
                 }
 
 
-                if (!account) {
+                if (!loginAccount) {
 
                     message.textContent =
                         "Número de telefone, palavra-passe ou perfil incorreto.";
@@ -135,7 +135,7 @@ document.addEventListener("DOMContentLoaded", function () {
                  */
                 localStorage.setItem(
                     "apsan_account",
-                    JSON.stringify(account)
+                    JSON.stringify(loginAccount)
                 );
 
 
