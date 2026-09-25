@@ -720,6 +720,328 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     /* =====================================================
+       MÓDULOS DO PAINEL DO PROFESSOR
+       ===================================================== */
+
+    const professorPhone =
+        localStorage.getItem("apsan_phone") || "default";
+
+    const lessonsKey = "apsan_professor_lessons_" + professorPhone;
+    const materialsKey = "apsan_professor_materials_" + professorPhone;
+
+    function getStoredList(key) {
+        try {
+            const value = JSON.parse(localStorage.getItem(key) || "[]");
+            return Array.isArray(value) ? value : [];
+        } catch (error) {
+            return [];
+        }
+    }
+
+    function saveStoredList(key, list) {
+        localStorage.setItem(key, JSON.stringify(list));
+    }
+
+    function formatLessonDate(dateString) {
+        if (!dateString) return "Data não definida";
+        const date = new Date(dateString + "T00:00:00");
+        return date.toLocaleDateString("pt-PT", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric"
+        });
+    }
+
+    function renderProfessorModules() {
+
+        const lessons = getStoredList(lessonsKey);
+        const materials = getStoredList(materialsKey);
+
+        const studentSource =
+            JSON.parse(localStorage.getItem("apsan_teacher_students") || "[]");
+
+        const students =
+            Array.isArray(studentSource)
+                ? studentSource.filter(function (student) {
+                    return (
+                        student &&
+                        (
+                            student.teacherPhone === professorPhone ||
+                            student.teacherPhone === (account && account.phone) ||
+                            student.status === "confirmed"
+                        )
+                    );
+                })
+                : [];
+
+        const studentCount = document.getElementById("studentCount");
+        const lessonCount = document.getElementById("lessonCount");
+        const materialCount = document.getElementById("materialCount");
+        const agendaCount = document.getElementById("agendaCount");
+        const studentBadge = document.getElementById("studentBadge");
+
+        if (studentCount) studentCount.textContent = students.length;
+        if (studentBadge) studentBadge.textContent = students.length;
+        if (lessonCount) lessonCount.textContent = lessons.length;
+        if (materialCount) materialCount.textContent = materials.length;
+        if (agendaCount) agendaCount.textContent = lessons.length;
+
+        const studentsList = document.getElementById("studentsList");
+
+        if (studentsList) {
+            if (!students.length) {
+                studentsList.innerHTML =
+                    '<p class="empty-state">Os alunos oficiais aparecerão aqui após a matrícula e confirmação pela direção.</p>';
+            } else {
+                studentsList.innerHTML = students.map(function (student) {
+                    const name = student.name || student.studentName || "Aluno";
+                    return '<div class="module-row">' +
+                        '<span class="module-row-icon">👤</span>' +
+                        '<div><strong>' + escapeModuleText(name) + '</strong>' +
+                        '<small>Aluno confirmado</small></div>' +
+                        '</div>';
+                }).join("");
+            }
+        }
+
+        const materialsList = document.getElementById("materialsList");
+
+        if (materialsList) {
+            if (!materials.length) {
+                materialsList.innerHTML =
+                    '<p class="empty-state">Ainda não existem materiais guardados.</p>';
+            } else {
+                materialsList.innerHTML = materials.map(function (material) {
+                    const link = material.link
+                        ? '<a href="' + escapeModuleAttribute(material.link) + '" target="_blank" rel="noopener">Abrir</a>'
+                        : "";
+                    return '<div class="module-row">' +
+                        '<span class="module-row-icon">📄</span>' +
+                        '<div><strong>' + escapeModuleText(material.title) + '</strong>' +
+                        '<small>' + escapeModuleText(material.type || "Material") + ' ' + link + '</small></div>' +
+                        '<button type="button" class="module-delete" data-delete-material="' + material.id + '">Excluir</button>' +
+                        '</div>';
+                }).join("");
+            }
+        }
+
+        const agendaList = document.getElementById("agendaList");
+
+        if (agendaList) {
+            if (!lessons.length) {
+                agendaList.innerHTML =
+                    '<p class="empty-state">Ainda não existem aulas agendadas.</p>';
+            } else {
+                agendaList.innerHTML = lessons
+                    .slice()
+                    .sort(function (a, b) {
+                        return (a.date + a.time).localeCompare(b.date + b.time);
+                    })
+                    .map(function (lesson) {
+                        return '<div class="schedule-row">' +
+                            '<span class="schedule-day">' + escapeModuleText(formatLessonDate(lesson.date)) + '</span>' +
+                            '<div><strong>' + escapeModuleText(lesson.title) + '</strong>' +
+                            '<small>' + escapeModuleText(lesson.time) + ' · ' + escapeModuleText(lesson.duration || "60") + ' min</small></div>' +
+                            '<button type="button" class="module-delete" data-delete-lesson="' + lesson.id + '">Excluir</button>' +
+                            '</div>';
+                    }).join("");
+            }
+        }
+
+        const nextTitle = document.getElementById("nextLessonTitle");
+        const nextInfo = document.getElementById("nextLessonInfo");
+
+        if (nextTitle && nextInfo) {
+            const next = lessons
+                .slice()
+                .sort(function (a, b) {
+                    return (a.date + a.time).localeCompare(b.date + b.time);
+                })[0];
+
+            if (next) {
+                nextTitle.textContent = next.title;
+                nextInfo.textContent =
+                    formatLessonDate(next.date) +
+                    " · " +
+                    next.time +
+                    " · " +
+                    (next.duration || "60") +
+                    " min";
+            } else {
+                nextTitle.textContent = "Nenhuma aula criada";
+                nextInfo.textContent =
+                    "Crie a sua primeira aula para ela aparecer aqui.";
+            }
+        }
+    }
+
+    function escapeModuleText(value) {
+        return String(value || "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function escapeModuleAttribute(value) {
+        return escapeModuleText(value);
+    }
+
+    document.querySelectorAll("[data-open-panel]").forEach(function (button) {
+        button.addEventListener("click", function () {
+            const type = button.getAttribute("data-open-panel");
+            const panel = document.getElementById(
+                type === "lesson" ? "lessonPanel" : "materialPanel"
+            );
+            if (panel) panel.classList.add("professor-panel-open");
+        });
+    });
+
+    document.querySelectorAll("[data-close-panel]").forEach(function (button) {
+        button.addEventListener("click", function () {
+            const type = button.getAttribute("data-close-panel");
+            const panel = document.getElementById(
+                type === "lesson" ? "lessonPanel" : "materialPanel"
+            );
+            if (panel) panel.classList.remove("professor-panel-open");
+        });
+    });
+
+    document.querySelectorAll(".professor-panel-overlay").forEach(function (panel) {
+        panel.addEventListener("click", function (event) {
+            if (event.target === panel) {
+                panel.classList.remove("professor-panel-open");
+            }
+        });
+    });
+
+    const lessonForm = document.getElementById("lessonForm");
+
+    if (lessonForm) {
+        lessonForm.addEventListener("submit", function (event) {
+
+            event.preventDefault();
+
+            const title = document.getElementById("lessonTitle").value.trim();
+            const date = document.getElementById("lessonDate").value;
+            const time = document.getElementById("lessonTime").value;
+            const duration = document.getElementById("lessonDuration").value;
+            const message = document.getElementById("lessonMessage");
+
+            if (!title || !date || !time) {
+                message.textContent = "Preencha a aula, data e hora.";
+                message.style.color = "#d93025";
+                return;
+            }
+
+            const lessons = getStoredList(lessonsKey);
+
+            lessons.push({
+                id: Date.now().toString(),
+                title: title,
+                date: date,
+                time: time,
+                duration: duration
+            });
+
+            saveStoredList(lessonsKey, lessons);
+            renderProfessorModules();
+
+            message.textContent = "Aula guardada com sucesso.";
+            message.style.color = "#16803c";
+
+            lessonForm.reset();
+
+            setTimeout(function () {
+                document.getElementById("lessonPanel").classList.remove("professor-panel-open");
+                message.textContent = "";
+            }, 700);
+        });
+    }
+
+    const materialForm = document.getElementById("materialForm");
+
+    if (materialForm) {
+        materialForm.addEventListener("submit", function (event) {
+
+            event.preventDefault();
+
+            const title = document.getElementById("materialTitle").value.trim();
+            const type = document.getElementById("materialType").value;
+            const link = document.getElementById("materialLink").value.trim();
+            const message = document.getElementById("materialMessage");
+
+            if (!title) {
+                message.textContent = "Digite o nome do material.";
+                message.style.color = "#d93025";
+                return;
+            }
+
+            const materials = getStoredList(materialsKey);
+
+            materials.push({
+                id: Date.now().toString(),
+                title: title,
+                type: type,
+                link: link
+            });
+
+            saveStoredList(materialsKey, materials);
+            renderProfessorModules();
+
+            message.textContent = "Material guardado com sucesso.";
+            message.style.color = "#16803c";
+
+            materialForm.reset();
+
+            setTimeout(function () {
+                document.getElementById("materialPanel").classList.remove("professor-panel-open");
+                message.textContent = "";
+            }, 700);
+        });
+    }
+
+    document.addEventListener("click", function (event) {
+
+        const deleteLessonButton =
+            event.target.closest("[data-delete-lesson]");
+
+        if (deleteLessonButton) {
+
+            const id = deleteLessonButton.getAttribute("data-delete-lesson");
+
+            const lessons = getStoredList(lessonsKey)
+                .filter(function (lesson) {
+                    return lesson.id !== id;
+                });
+
+            saveStoredList(lessonsKey, lessons);
+            renderProfessorModules();
+            return;
+        }
+
+        const deleteMaterialButton =
+            event.target.closest("[data-delete-material]");
+
+        if (deleteMaterialButton) {
+
+            const id = deleteMaterialButton.getAttribute("data-delete-material");
+
+            const materials = getStoredList(materialsKey)
+                .filter(function (material) {
+                    return material.id !== id;
+                });
+
+            saveStoredList(materialsKey, materials);
+            renderProfessorModules();
+        }
+    });
+
+    renderProfessorModules();
+
+
+    /* =====================================================
        SAIR
        ===================================================== */
 
