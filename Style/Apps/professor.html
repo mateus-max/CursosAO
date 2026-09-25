@@ -186,8 +186,8 @@
                 <span class="stat-icon">👥</span>
                 <div>
                     <strong>Meus Alunos</strong>
-                    <b>—</b>
-                    <small>Alunos registados</small>
+                    <b id="studentCount">0</b>
+                    <small>Alunos confirmados</small>
                 </div>
             </a>
 
@@ -195,8 +195,8 @@
                 <span class="stat-icon">📅</span>
                 <div>
                     <strong>Minhas Aulas</strong>
-                    <b>—</b>
-                    <small>Aulas agendadas</small>
+                    <b id="lessonCount">0</b>
+                    <small>Aulas criadas</small>
                 </div>
             </a>
 
@@ -204,8 +204,8 @@
                 <span class="stat-icon">📄</span>
                 <div>
                     <strong>Materiais</strong>
-                    <b>—</b>
-                    <small>Materiais publicados</small>
+                    <b id="materialCount">0</b>
+                    <small>Materiais guardados</small>
                 </div>
             </a>
 
@@ -213,7 +213,7 @@
                 <span class="stat-icon">📊</span>
                 <div>
                     <strong>Agenda</strong>
-                    <b>—</b>
+                    <b id="agendaCount">0</b>
                     <small>Próximos compromissos</small>
                 </div>
             </a>
@@ -256,14 +256,19 @@
             <article class="professor-next-class" id="aulas">
 
                 <div>
-                    <span class="section-label">PRÓXIMA AULA</span>
-                    <h2>Inglês</h2>
-                    <p>Hoje · 19:00 — 20:00</p>
+                    <span class="section-label">MINHAS AULAS</span>
+                    <h2 id="nextLessonTitle">Nenhuma aula criada</h2>
+                    <p id="nextLessonInfo">Crie a sua primeira aula para ela aparecer aqui.</p>
                 </div>
 
-                <a class="primary-action" href="quadro.html">
-                    Entrar na aula
-                </a>
+                <div class="panel-actions">
+                    <button type="button" class="primary-action professor-modal-button" data-open-panel="lesson">
+                        + Criar aula
+                    </button>
+                    <a class="primary-action secondary-action" href="quadro.html">
+                        Abrir quadro
+                    </a>
+                </div>
 
             </article>
 
@@ -272,23 +277,13 @@
 
                 <div class="section-heading">
                     <h2>Agenda</h2>
-                    <a href="#agenda">Ver agenda</a>
+                    <button type="button" class="text-button professor-modal-button" data-open-panel="lesson">
+                        + Nova aula
+                    </button>
                 </div>
 
-                <div class="schedule-row">
-                    <span class="schedule-day">Hoje</span>
-                    <div>
-                        <strong>Inglês</strong>
-                        <small>19:00 — 20:00</small>
-                    </div>
-                </div>
-
-                <div class="schedule-row">
-                    <span class="schedule-day">—</span>
-                    <div>
-                        <strong>Próxima aula</strong>
-                        <small>Ainda não definida</small>
-                    </div>
+                <div id="agendaList">
+                    <p class="empty-state">Ainda não existem aulas agendadas.</p>
                 </div>
 
             </article>
@@ -301,30 +296,115 @@
             <article class="professor-list-card" id="alunos">
                 <div class="section-heading">
                     <h2>Meus Alunos</h2>
-                    <a href="#alunos">Ver todos</a>
+                    <span class="panel-badge" id="studentBadge">0</span>
                 </div>
-                <p class="empty-state">Os alunos oficiais aparecerão aqui após a matrícula e confirmação pela direção.</p>
+                <div id="studentsList">
+                    <p class="empty-state">Os alunos oficiais aparecerão aqui após a matrícula e confirmação pela direção.</p>
+                </div>
             </article>
 
             <article class="professor-list-card" id="materiais">
                 <div class="section-heading">
                     <h2>Materiais</h2>
-                    <a href="#materiais">Ver todos</a>
+                    <button type="button" class="text-button professor-modal-button" data-open-panel="material">
+                        + Adicionar
+                    </button>
                 </div>
-                <p class="empty-state">Os materiais publicados para as suas aulas aparecerão aqui.</p>
+                <div id="materialsList">
+                    <p class="empty-state">Ainda não existem materiais guardados.</p>
+                </div>
             </article>
 
-            <article class="professor-list-card">
+            <article class="professor-list-card" id="mensagens">
                 <div class="section-heading">
                     <h2>Mensagens</h2>
-                    <a href="#mensagens">Ver todas</a>
+                    <span class="panel-badge">0</span>
                 </div>
-                <p class="empty-state">As mensagens dos seus alunos aparecerão aqui.</p>
+                <p class="empty-state">As mensagens dos seus alunos aparecerão aqui quando o módulo de comunicação for ligado.</p>
             </article>
 
         </section>
 
     </main>
+
+    <!-- =====================================================
+         MODAIS DE AULAS E MATERIAIS
+         ===================================================== -->
+
+    <div class="professor-panel-overlay" id="lessonPanel">
+        <div class="professor-panel-modal">
+            <div class="profile-modal-header">
+                <div>
+                    <h2>Nova Aula</h2>
+                    <p>Crie uma aula que ficará disponível no seu painel.</p>
+                </div>
+                <button type="button" class="close-profile" data-close-panel="lesson">×</button>
+            </div>
+
+            <form id="lessonForm" class="professor-form">
+                <div class="form-group">
+                    <label for="lessonTitle">Disciplina / aula</label>
+                    <input id="lessonTitle" type="text" placeholder="Ex.: Inglês — Conversação" required>
+                </div>
+                <div class="professor-form-row">
+                    <div class="form-group">
+                        <label for="lessonDate">Data</label>
+                        <input id="lessonDate" type="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lessonTime">Hora</label>
+                        <input id="lessonTime" type="time" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="lessonDuration">Duração</label>
+                    <select id="lessonDuration">
+                        <option value="60">60 minutos</option>
+                        <option value="45">45 minutos</option>
+                        <option value="90">90 minutos</option>
+                        <option value="120">120 minutos</option>
+                    </select>
+                </div>
+                <button type="submit" class="login-button">Guardar aula</button>
+                <p id="lessonMessage" class="login-message"></p>
+            </form>
+        </div>
+    </div>
+
+    <div class="professor-panel-overlay" id="materialPanel">
+        <div class="professor-panel-modal">
+            <div class="profile-modal-header">
+                <div>
+                    <h2>Novo Material</h2>
+                    <p>Registe um material para as suas aulas.</p>
+                </div>
+                <button type="button" class="close-profile" data-close-panel="material">×</button>
+            </div>
+
+            <form id="materialForm" class="professor-form">
+                <div class="form-group">
+                    <label for="materialTitle">Nome do material</label>
+                    <input id="materialTitle" type="text" placeholder="Ex.: Aula 01 — Present Simple" required>
+                </div>
+                <div class="form-group">
+                    <label for="materialType">Tipo</label>
+                    <select id="materialType">
+                        <option value="PDF">PDF</option>
+                        <option value="Documento">Documento</option>
+                        <option value="Vídeo">Vídeo</option>
+                        <option value="Áudio">Áudio</option>
+                        <option value="Link">Link</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="materialLink">Link / localização</label>
+                    <input id="materialLink" type="url" placeholder="https://...">
+                </div>
+                <button type="submit" class="login-button">Guardar material</button>
+                <p id="materialMessage" class="login-message"></p>
+            </form>
+        </div>
+    </div>
 
     <!-- =====================================================
          MODAL DO PERFIL
