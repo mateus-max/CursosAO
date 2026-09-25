@@ -419,6 +419,37 @@
 
 
                 /* ==========================================
+                   REGISTAR CONTA NO CATÁLOGO DA PLATAFORMA
+                   ========================================== */
+
+                const accountsRegistry =
+                    JSON.parse(localStorage.getItem("apsan_accounts") || "[]");
+
+                const accounts =
+                    Array.isArray(accountsRegistry)
+                        ? accountsRegistry
+                        : [];
+
+                const accountExists = accounts.some(function (item) {
+                    return item.phone === account.phone;
+                });
+
+                if (!accountExists) {
+                    accounts.push(account);
+                } else {
+                    const existingIndex = accounts.findIndex(function (item) {
+                        return item.phone === account.phone;
+                    });
+                    accounts[existingIndex] = account;
+                }
+
+                localStorage.setItem(
+                    "apsan_accounts",
+                    JSON.stringify(accounts)
+                );
+
+
+                /* ==========================================
                    GUARDAR SESSÃO
                    ========================================== */
 
