@@ -1277,3 +1277,334 @@ button.dashboard-link {
         text-align: center;
     }
 }
+
+
+/* =========================================================
+   PESQUISA E MATRÍCULA DO ALUNO
+   ========================================================= */
+
+.student-content {
+    max-width: 1180px;
+}
+
+.student-hero {
+    margin: 28px 0 18px;
+    padding: 30px 34px;
+    border-radius: 22px;
+    color: #fff;
+    background:
+        radial-gradient(circle at 85% 20%,rgba(77,170,255,.30),transparent 30%),
+        linear-gradient(110deg,#071b36,#073f7e 62%,#0759a5);
+}
+
+.student-hero h1 {
+    margin: 9px 0 6px;
+    font-size: 31px;
+}
+
+.student-hero p {
+    margin: 0;
+    color: rgba(255,255,255,.80);
+}
+
+.teacher-search-panel,
+.student-enrollments {
+    margin-bottom: 18px;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #e5ebf3;
+    border-radius: 18px;
+    box-shadow: 0 7px 22px rgba(20,55,100,.06);
+}
+
+.teacher-search input {
+    width: 100%;
+    box-sizing: border-box;
+    height: 52px;
+    padding: 0 16px;
+    border: 1px solid #dce5ef;
+    border-radius: 13px;
+    background: #f9fbfe;
+    outline: none;
+    font-size: 14px;
+}
+
+.teacher-search input:focus {
+    border-color: #1769e0;
+    box-shadow: 0 0 0 4px rgba(23,105,224,.09);
+}
+
+.teacher-results {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+.teacher-card {
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #e5ebf3;
+    border-radius: 18px;
+    box-shadow: 0 7px 22px rgba(20,55,100,.06);
+}
+
+.teacher-cover {
+    width: 100%;
+    height: 150px;
+    display: block;
+    object-fit: cover;
+    background: #0b4d91;
+}
+
+.teacher-card-body {
+    position: relative;
+    padding: 40px 18px 18px;
+}
+
+.teacher-mini-avatar {
+    position: absolute;
+    top: -30px;
+    left: 18px;
+    width: 58px;
+    height: 58px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border: 4px solid #fff;
+    border-radius: 50%;
+    background: #1769e0;
+    color: #fff;
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.teacher-mini-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.teacher-card h3 {
+    margin: 0 0 4px;
+    color: #172033;
+}
+
+.teacher-card-body > strong {
+    color: #1769e0;
+    font-size: 13px;
+}
+
+.teacher-card-body > p {
+    min-height: 60px;
+    color: #718096;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.teacher-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin: 12px 0;
+}
+
+.teacher-tags span {
+    padding: 6px 8px;
+    border-radius: 8px;
+    background: #edf5ff;
+    color: #1769e0;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.teacher-view-button {
+    height: 44px;
+}
+
+.teacher-empty {
+    grid-column: 1/-1;
+    padding: 45px 20px;
+    text-align: center;
+    background: #fff;
+    border: 1px solid #e5ebf3;
+    border-radius: 18px;
+}
+
+.teacher-empty p {
+    color: #718096;
+}
+
+.teacher-detail-modal {
+    max-width: 680px;
+}
+
+.teacher-detail-cover {
+    width: 100%;
+    height: 190px;
+    object-fit: cover;
+    border-radius: 13px;
+    background: #0b4d91;
+}
+
+.teacher-detail-avatar {
+    width: 90px;
+    height: 90px;
+    margin: -35px 0 15px 18px;
+    position: relative;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border: 5px solid #fff;
+    border-radius: 50%;
+    background: #1769e0;
+    color: #fff;
+    font-size: 30px;
+    font-weight: 800;
+}
+
+.teacher-detail-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.teacher-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.teacher-detail-grid > div {
+    padding: 13px;
+    border-radius: 11px;
+    background: #f6f9fd;
+}
+
+.teacher-detail-grid small,
+.teacher-detail-grid strong {
+    display: block;
+}
+
+.teacher-detail-grid small {
+    color: #8290a3;
+    font-size: 10px;
+}
+
+.teacher-detail-grid strong {
+    margin-top: 4px;
+    color: #172033;
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.teacher-detail-section {
+    margin-top: 16px;
+}
+
+.teacher-detail-section h3 {
+    margin-bottom: 5px;
+    font-size: 15px;
+}
+
+.teacher-detail-section p {
+    color: #718096;
+    line-height: 1.55;
+    font-size: 13px;
+    white-space: pre-line;
+}
+
+.teacher-enroll-button {
+    margin-top: 12px;
+}
+
+.payment-summary {
+    display: grid;
+    gap: 5px;
+    margin-bottom: 18px;
+    padding: 18px;
+    border-radius: 13px;
+    background: #f3f8ff;
+}
+
+.payment-summary strong {
+    color: #172033;
+}
+
+.payment-summary span {
+    color: #718096;
+    font-size: 13px;
+}
+
+.payment-summary b {
+    margin-top: 7px;
+    color: #1769e0;
+    font-size: 22px;
+}
+
+.payment-note {
+    margin-top: 12px;
+    color: #8996a8;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.student-enrollment-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 13px 0;
+    border-bottom: 1px solid #edf1f6;
+}
+
+.student-enrollment-row:last-child {
+    border-bottom: 0;
+}
+
+.student-enrollment-row strong,
+.student-enrollment-row small {
+    display: block;
+}
+
+.student-enrollment-row strong {
+    color: #172033;
+}
+
+.student-enrollment-row small {
+    margin-top: 4px;
+    color: #8996a8;
+}
+
+.enrollment-status {
+    padding: 7px 9px;
+    border-radius: 8px;
+    background: #eaf8ef;
+    color: #16803c;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+@media(max-width:900px) {
+    .teacher-results {
+        grid-template-columns: repeat(2,1fr);
+    }
+}
+
+@media(max-width:620px) {
+    .teacher-results {
+        grid-template-columns: 1fr;
+    }
+
+    .teacher-detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .student-hero {
+        padding: 24px;
+    }
+
+    .student-hero h1 {
+        font-size: 25px;
+    }
+}
