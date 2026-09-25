@@ -1,126 +1,397 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>APSAN Academy - Aluno</title>
-
-    <link rel="stylesheet" href="Style/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APSAN Academy - Aluno</title>
+<link rel="stylesheet" href="../style.css?v=student-teachers-20260925">
 </head>
+<body class="app-page student-page">
 
-<body class="app-page">
+<header class="app-header">
+    <div class="header-left">
+        <button class="menu-button" id="studentMenuButton" type="button">☰</button>
+        <strong>APSAN Academy</strong>
+    </div>
+    <button class="profile-avatar-button" id="studentLogout" type="button" aria-label="Sair">↪</button>
+</header>
 
-    <!-- CABEÇALHO -->
+<main class="app-content student-content">
 
-    <header class="app-header">
-
+    <section class="student-hero">
         <div>
-            <strong>APSAN Academy</strong>
+            <span class="hero-kicker">ÁREA DO ALUNO</span>
+            <h1>Encontre o seu professor</h1>
+            <p>Pesquise professores publicados na APSAN Academy e consulte os cursos disponíveis.</p>
+        </div>
+    </section>
+
+    <section class="teacher-search-panel">
+        <div class="section-heading">
+            <h2>Pesquisar professores</h2>
+            <span id="teacherResultCount">0 professores</span>
+        </div>
+        <div class="teacher-search">
+            <input id="teacherSearch" type="search" placeholder="Pesquisar por nome, curso ou modalidade...">
+        </div>
+    </section>
+
+    <section id="teacherResults" class="teacher-results"></section>
+
+    <section class="student-enrollments">
+        <div class="section-heading">
+            <h2>Minhas matrículas</h2>
+            <span id="enrollmentCount">0</span>
+        </div>
+        <div id="myEnrollments">
+            <p class="empty-state">Ainda não tem matrículas.</p>
+        </div>
+    </section>
+
+</main>
+
+<div class="professor-panel-overlay" id="teacherProfilePanel">
+    <div class="professor-panel-modal teacher-detail-modal">
+        <div class="profile-modal-header">
+            <div>
+                <h2 id="detailTeacherName">Professor</h2>
+                <p id="detailTeacherCourse">Curso</p>
+            </div>
+            <button type="button" class="close-profile" id="closeTeacherProfile">×</button>
         </div>
 
-        <button
-            type="button"
-            data-back
-            class="login-button"
-            style="width:auto; height:40px; padding:0 16px;"
-        >
-            Sair
+        <div id="teacherDetailContent"></div>
+
+        <button type="button" class="login-button teacher-enroll-button" id="enrollTeacherButton">
+            Inscrever-me / Matricular
+        </button>
+        <p id="teacherDetailMessage" class="login-message"></p>
+    </div>
+</div>
+
+<div class="professor-panel-overlay" id="paymentPanel">
+    <div class="professor-panel-modal">
+        <div class="profile-modal-header">
+            <div>
+                <h2>Pagamento da matrícula</h2>
+                <p id="paymentDescription">Confirme os dados antes de continuar.</p>
+            </div>
+            <button type="button" class="close-profile" id="closePayment">×</button>
+        </div>
+
+        <div class="payment-summary">
+            <strong id="paymentTeacher">Professor</strong>
+            <span id="paymentCourse">Curso</span>
+            <b id="paymentPrice">0 Kz</b>
+        </div>
+
+        <div class="form-group">
+            <label for="paymentReference">Referência / comprovativo</label>
+            <input id="paymentReference" type="text" placeholder="Digite a referência ou identificação do pagamento" required>
+        </div>
+
+        <button type="button" class="login-button" id="confirmPaymentButton">
+            Confirmar pagamento
         </button>
 
-    </header>
+        <p class="payment-note">
+            Nesta versão da plataforma, a confirmação é registada no sistema.
+            A ligação a um gateway bancário/pagamento real pode ser integrada posteriormente.
+        </p>
 
+        <p id="paymentMessage" class="login-message"></p>
+    </div>
+</div>
 
-    <!-- CONTEÚDO -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
 
-    <main class="app-content">
+    const currentAccount =
+        JSON.parse(localStorage.getItem("apsan_account") || "null");
 
-        <div style="margin-bottom:25px;">
+    const searchInput = document.getElementById("teacherSearch");
+    const results = document.getElementById("teacherResults");
+    const count = document.getElementById("teacherResultCount");
+    const enrollmentCount = document.getElementById("enrollmentCount");
+    const myEnrollments = document.getElementById("myEnrollments");
 
-            <h1>Painel do Aluno</h1>
+    const detailPanel = document.getElementById("teacherProfilePanel");
+    const paymentPanel = document.getElementById("paymentPanel");
 
-            <p style="color:#718096; margin-top:6px;">
-                Aceda às suas aulas e acompanhe o seu progresso.
-            </p>
+    let selectedTeacher = null;
 
-        </div>
+    function getProfiles() {
+        try {
+            const profiles = JSON.parse(
+                localStorage.getItem("apsan_professors") || "[]"
+            );
+            return Array.isArray(profiles) ? profiles.filter(function (p) {
+                return p && p.published;
+            }) : [];
+        } catch (error) {
+            return [];
+        }
+    }
 
+    function getEnrollments() {
+        try {
+            const items = JSON.parse(
+                localStorage.getItem("apsan_enrollments") || "[]"
+            );
+            return Array.isArray(items) ? items : [];
+        } catch (error) {
+            return [];
+        }
+    }
 
-        <!-- ÁREA PRINCIPAL -->
+    function saveEnrollments(items) {
+        localStorage.setItem(
+            "apsan_enrollments",
+            JSON.stringify(items)
+        );
+    }
 
-        <section class="dashboard-grid">
+    function esc(value) {
+        return String(value || "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
 
-            <div class="dashboard-card">
+    function renderTeachers() {
 
-                <h3>Minhas Aulas</h3>
+        const query = (searchInput.value || "").trim().toLowerCase();
 
-                <p style="margin-top:10px; color:#718096;">
-                    Consulte as suas aulas online.
-                </p>
+        const profiles = getProfiles().filter(function (profile) {
+            const text = [
+                profile.teacherName,
+                profile.course,
+                profile.modality,
+                profile.description
+            ].join(" ").toLowerCase();
 
-            </div>
+            return !query || text.includes(query);
+        });
 
+        count.textContent =
+            profiles.length + (profiles.length === 1 ? " professor" : " professores");
 
-            <div class="dashboard-card">
+        if (!profiles.length) {
+            results.innerHTML =
+                '<div class="teacher-empty"><strong>Nenhum professor encontrado.</strong><p>Os professores publicados aparecerão aqui.</p></div>';
+            return;
+        }
 
-                <h3>Minhas Disciplinas</h3>
+        results.innerHTML = profiles.map(function (profile, index) {
 
-                <p style="margin-top:10px; color:#718096;">
-                    Veja as disciplinas em que está inscrito.
-                </p>
+            const cover =
+                profile.cover ||
+                "data:image/svg+xml;charset=UTF-8," +
+                encodeURIComponent(
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="300"><rect width="100%" height="100%" fill="#0b4d91"/></svg>'
+                );
 
-            </div>
+            return '<article class="teacher-card">' +
+                '<img class="teacher-cover" src="' + cover + '" alt="Capa do professor">' +
+                '<div class="teacher-card-body">' +
+                    '<div class="teacher-mini-avatar">' +
+                        (profile.teacherPhoto
+                            ? '<img src="' + profile.teacherPhoto + '" alt="Professor">'
+                            : esc((profile.teacherName || "P").charAt(0))) +
+                    '</div>' +
+                    '<h3>' + esc(profile.teacherName) + '</h3>' +
+                    '<strong>' + esc(profile.course) + '</strong>' +
+                    '<p>' + esc(profile.description) + '</p>' +
+                    '<div class="teacher-tags">' +
+                        '<span>' + esc(profile.modality) + '</span>' +
+                        '<span>' + esc(profile.price) + ' Kz matrícula</span>' +
+                    '</div>' +
+                    '<button type="button" class="login-button teacher-view-button" data-profile-index="' + index + '">' +
+                        'Ver perfil' +
+                    '</button>' +
+                '</div>' +
+            '</article>';
+        }).join("");
 
+        const filteredProfiles = profiles;
 
-            <div class="dashboard-card">
+        results.querySelectorAll("[data-profile-index]").forEach(function (button) {
+            button.addEventListener("click", function () {
+                openTeacher(filteredProfiles[
+                    Number(button.getAttribute("data-profile-index"))
+                ]);
+            });
+        });
+    }
 
-                <h3>Quadro Interativo</h3>
+    function openTeacher(profile) {
 
-                <p style="margin-top:10px; color:#718096;">
-                    Aceda ao quadro utilizado durante as aulas.
-                </p>
+        selectedTeacher = profile;
 
-            </div>
+        document.getElementById("detailTeacherName").textContent =
+            profile.teacherName || "Professor";
 
+        document.getElementById("detailTeacherCourse").textContent =
+            profile.course || "Curso";
 
-            <div class="dashboard-card">
+        document.getElementById("teacherDetailContent").innerHTML =
+            '<img class="teacher-detail-cover" src="' + (profile.cover || "") + '" alt="Capa">' +
+            '<div class="teacher-detail-avatar">' +
+                (profile.teacherPhoto
+                    ? '<img src="' + profile.teacherPhoto + '" alt="Professor">'
+                    : esc((profile.teacherName || "P").charAt(0))) +
+            '</div>' +
+            '<div class="teacher-detail-grid">' +
+                '<div><small>Modalidade</small><strong>' + esc(profile.modality) + '</strong></div>' +
+                '<div><small>Matrícula / inscrição</small><strong>' + esc(profile.price) + ' Kz</strong></div>' +
+                '<div><small>Horários</small><strong>' + esc(profile.schedules) + '</strong></div>' +
+                '<div><small>Experiência</small><strong>' + esc(profile.experience) + '</strong></div>' +
+            '</div>' +
+            '<div class="teacher-detail-section"><h3>Sobre o curso</h3><p>' + esc(profile.description) + '</p></div>' +
+            '<div class="teacher-detail-section"><h3>Vantagens</h3><p>' + esc(profile.advantages || "Informações não definidas.") + '</p></div>';
 
-                <h3>Materiais</h3>
+        detailPanel.classList.add("professor-panel-open");
+    }
 
-                <p style="margin-top:10px; color:#718096;">
-                    Consulte os materiais disponibilizados pelo professor.
-                </p>
+    document.getElementById("closeTeacherProfile").addEventListener("click", function () {
+        detailPanel.classList.remove("professor-panel-open");
+    });
 
-            </div>
+    document.getElementById("enrollTeacherButton").addEventListener("click", function () {
 
+        if (!selectedTeacher) return;
 
-            <div class="dashboard-card">
+        if (!currentAccount || currentAccount.type !== "aluno") {
+            document.getElementById("teacherDetailMessage").textContent =
+                "Entre numa conta de aluno para fazer a matrícula.";
+            return;
+        }
 
-                <h3>Meu Progresso</h3>
+        const enrollments = getEnrollments();
 
-                <p style="margin-top:10px; color:#718096;">
-                    Acompanhe o seu desenvolvimento nas aulas.
-                </p>
+        const existing = enrollments.find(function (item) {
+            return (
+                item.studentPhone === currentAccount.phone &&
+                item.teacherPhone === selectedTeacher.teacherPhone &&
+                item.status !== "cancelled"
+            );
+        });
 
-            </div>
+        if (existing) {
+            document.getElementById("teacherDetailMessage").textContent =
+                existing.status === "official"
+                    ? "Já é aluno oficial deste professor."
+                    : "Já existe uma matrícula pendente para este professor.";
+            return;
+        }
 
+        document.getElementById("paymentTeacher").textContent =
+            selectedTeacher.teacherName;
 
-            <div class="dashboard-card">
+        document.getElementById("paymentCourse").textContent =
+            selectedTeacher.course;
 
-                <h3>Meu Perfil</h3>
+        document.getElementById("paymentPrice").textContent =
+            selectedTeacher.price + " Kz";
 
-                <p style="margin-top:10px; color:#718096;">
-                    Consulte e atualize os seus dados.
-                </p>
+        document.getElementById("paymentReference").value = "";
+        document.getElementById("paymentMessage").textContent = "";
 
-            </div>
+        detailPanel.classList.remove("professor-panel-open");
+        paymentPanel.classList.add("professor-panel-open");
+    });
 
-        </section>
+    document.getElementById("closePayment").addEventListener("click", function () {
+        paymentPanel.classList.remove("professor-panel-open");
+    });
 
-    </main>
+    document.getElementById("confirmPaymentButton").addEventListener("click", function () {
 
+        if (!selectedTeacher || !currentAccount) return;
 
-    <script src="Apps/main.js"></script>
+        const reference =
+            document.getElementById("paymentReference").value.trim();
 
+        const message =
+            document.getElementById("paymentMessage");
+
+        if (!reference) {
+            message.style.color = "#d93025";
+            message.textContent =
+                "Informe a referência ou identificação do pagamento.";
+            return;
+        }
+
+        const enrollments = getEnrollments();
+
+        enrollments.push({
+            id: Date.now().toString(),
+            studentName: currentAccount.name,
+            studentPhone: currentAccount.phone,
+            teacherName: selectedTeacher.teacherName,
+            teacherPhone: selectedTeacher.teacherPhone,
+            course: selectedTeacher.course,
+            price: selectedTeacher.price,
+            paymentReference: reference,
+            paymentStatus: "confirmed",
+            status: "official",
+            createdAt: new Date().toISOString()
+        });
+
+        saveEnrollments(enrollments);
+
+        message.style.color = "#16803c";
+        message.textContent =
+            "Pagamento registado. Agora é aluno oficial deste professor.";
+
+        setTimeout(function () {
+            paymentPanel.classList.remove("professor-panel-open");
+            renderEnrollments();
+        }, 900);
+    });
+
+    function renderEnrollments() {
+
+        const all = getEnrollments();
+
+        const mine = all.filter(function (item) {
+            return currentAccount &&
+                item.studentPhone === currentAccount.phone;
+        });
+
+        enrollmentCount.textContent = mine.length;
+
+        if (!mine.length) {
+            myEnrollments.innerHTML =
+                '<p class="empty-state">Ainda não tem matrículas.</p>';
+            return;
+        }
+
+        myEnrollments.innerHTML = mine.map(function (item) {
+            return '<div class="student-enrollment-row">' +
+                '<div>' +
+                    '<strong>' + esc(item.course) + '</strong>' +
+                    '<small>' + esc(item.teacherName) + ' · ' + esc(item.price) + ' Kz</small>' +
+                '</div>' +
+                '<span class="enrollment-status">' +
+                    (item.status === "official" ? "Aluno oficial" : item.status) +
+                '</span>' +
+            '</div>';
+        }).join("");
+    }
+
+    searchInput.addEventListener("input", renderTeachers);
+
+    document.getElementById("studentLogout").addEventListener("click", function () {
+        localStorage.removeItem("apsan_logged_in");
+        window.location.href = "../../index.html";
+    });
+
+    renderTeachers();
+    renderEnrollments();
+});
+</script>
 </body>
 </html>
