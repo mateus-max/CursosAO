@@ -714,6 +714,16 @@ document.addEventListener("DOMContentLoaded", function () {
                     account = savedAccount;
                     pendingProfilePhoto = account.photo || null;
 
+                    const currentPublicProfile = getPublicProfile();
+
+                    if (currentPublicProfile.published) {
+                        currentPublicProfile.teacherName = account.name || "Professor";
+                        currentPublicProfile.teacherPhoto = account.photo || "";
+                        currentPublicProfile.updatedAt = new Date().toISOString();
+                        savePublicProfile(currentPublicProfile);
+                        renderPublicProfileStatus(currentPublicProfile);
+                    }
+
                     updateProfileDisplay();
 
                     if (profileMessage) {
