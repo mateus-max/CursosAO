@@ -252,6 +252,9 @@ document.addEventListener("DOMContentLoaded", function () {
             "topAvatarLetter"
         );
 
+    const professorPhotoElements =
+        document.querySelectorAll("[data-professor-photo]");
+
 
 
     /* =====================================================
@@ -264,68 +267,41 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-
         if (teacherName) {
-
-            teacherName.textContent =
-                account.name || "Professor";
-
+            teacherName.textContent = account.name || "Professor";
         }
 
+        const photo = account.photo || "";
 
         if (topAvatar) {
-
-            if (account.photo) {
-
-                topAvatar.src =
-                    account.photo;
-
-                topAvatar.style.display =
-                    "block";
-
+            if (photo) {
+                topAvatar.src = photo;
+                topAvatar.style.display = "block";
+            } else {
+                topAvatar.removeAttribute("src");
+                topAvatar.style.display = "none";
             }
-
-            else {
-
-                topAvatar.removeAttribute(
-                    "src"
-                );
-
-                topAvatar.style.display =
-                    "none";
-
-            }
-
         }
-
 
         if (topAvatarLetter) {
-
-            if (account.photo) {
-
-                topAvatarLetter.style.display =
-                    "none";
-
-            }
-
-            else {
-
-                const firstLetter =
-                    (account.name || "P")
-                    .charAt(0)
-                    .toUpperCase();
-
-
+            if (photo) {
+                topAvatarLetter.style.display = "none";
+            } else {
                 topAvatarLetter.textContent =
-                    firstLetter;
-
-                topAvatarLetter.style.display =
-                    "flex";
-
+                    (account.name || "P").charAt(0).toUpperCase();
+                topAvatarLetter.style.display = "flex";
             }
-
         }
 
+        professorPhotoElements.forEach(function (element) {
+            if (photo) {
+                element.src = photo;
+                element.style.display = "block";
+            } else {
+                element.removeAttribute("src");
+                element.style.display = "none";
+            }
+        });
     }
 
 
@@ -536,83 +512,85 @@ document.addEventListener("DOMContentLoaded", function () {
             "profilePhotoInput"
         );
 
-
     if (profilePhotoInput) {
 
         profilePhotoInput.addEventListener(
             "change",
             function (event) {
 
-                const file =
-                    event.target.files[0];
+                const file = event.target.files[0];
 
-
-                if (!file) {
+                if (!file || !file.type.startsWith("image/")) {
                     return;
                 }
 
+                const reader = new FileReader();
 
-                if (
-                    !file.type.startsWith(
-                        "image/"
-                    )
-                ) {
+                reader.onload = function (e) {
 
-                    return;
+                    const originalPhoto = e.target.result;
+                    const preview = document.getElementById("profilePhotoPreview");
+                    const letter = document.getElementById("profilePhotoLetter");
 
-                }
+                    /*
+                     * Reduz a imagem antes de guardar no localStorage.
+                     * Isto evita que fotos grandes façam o botão Salvar falhar.
+                     */
+                    const image = new Image();
 
+                    image.onload = function () {
 
-                const reader =
-                    new FileReader();
+                        const maxSize = 600;
+                        let width = image.naturalWidth;
+                        let height = image.naturalHeight;
 
+                        if (width > height && width > maxSize) {
+                            height = Math.round(height * maxSize / width);
+                            width = maxSize;
+                        } else if (height >= width && height > maxSize) {
+                            width = Math.round(width * maxSize / height);
+                            height = maxSize;
+                        }
 
-                reader.onload =
-                    function (e) {
+                        const canvas = document.createElement("canvas");
+                        canvas.width = width;
+                        canvas.height = height;
 
-                        const photo =
-                            e.target.result;
+                        const context = canvas.getContext("2d");
+                        context.drawImage(image, 0, 0, width, height);
 
+                        pendingProfilePhoto =
+                            canvas.toDataURL("image/jpeg", 0.82);
 
-                        const preview =
-                            document.getElementById(
-                                "profilePhotoPreview"
-                            );
+                        if (preview) {
+                            preview.src = pendingProfilePhoto;
+                            preview.style.display = "block";
+                        }
 
-
-                        const letter =
-                            document.getElementById(
-                                "profilePhotoLetter"
-                            );
-
-
-                        preview.src =
-                            photo;
-
-
-                        preview.style.display =
-                            "block";
-
-
-                        letter.style.display =
-                            "none";
-
-
-                        /*
-                         * Guardar imediatamente
-                         * na conta local.
-                         */
-
-                        pendingProfilePhoto = photo;
-
+                        if (letter) {
+                            letter.style.display = "none";
+                        }
                     };
 
+                    image.onerror = function () {
+                        pendingProfilePhoto = originalPhoto;
+
+                        if (preview) {
+                            preview.src = originalPhoto;
+                            preview.style.display = "block";
+                        }
+
+                        if (letter) {
+                            letter.style.display = "none";
+                        }
+                    };
+
+                    image.src = originalPhoto;
+                };
 
                 reader.readAsDataURL(file);
-
             }
         );
-
     }
 
 
@@ -626,7 +604,6 @@ document.addEventListener("DOMContentLoaded", function () {
             "profileForm"
         );
 
-
     if (profileForm) {
 
         profileForm.addEventListener(
@@ -635,117 +612,109 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 event.preventDefault();
 
+                const profileMessage =
+                    document.getElementById("profileMessage");
 
                 if (!account) {
+                    if (profileMessage) {
+                        profileMessage.style.color = "#d93025";
+                        profileMessage.textContent =
+                            "Não foi possível localizar a conta do professor.";
+                    }
                     return;
                 }
 
+                const nameInput =
+                    document.getElementById("profileName");
+
+                const passwordInput =
+                    document.getElementById("profilePassword");
 
                 const profileName =
-                    document.getElementById(
-                        "profileName"
-                    ).value.trim();
-
+                    nameInput ? nameInput.value.trim() : "";
 
                 const profilePassword =
-                    document.getElementById(
-                        "profilePassword"
-                    ).value.trim();
-
-
-                const profileBio =
-                    document.getElementById(
-                        "profileBio"
-                    ).value.trim();
-
-
-                const profileMessage =
-                    document.getElementById(
-                        "profileMessage"
-                    );
-
+                    passwordInput ? passwordInput.value.trim() : "";
 
                 if (!profileName) {
-
-                    profileMessage.style.color =
-                        "#d93025";
-
-                    profileMessage.textContent =
-                        "Digite o seu nome.";
-
+                    if (profileMessage) {
+                        profileMessage.style.color = "#d93025";
+                        profileMessage.textContent = "Digite o seu nome.";
+                    }
                     return;
-
                 }
 
-
-                account.name =
-                    profileName;
-
-                if (pendingProfilePhoto) {
-                    account.photo = pendingProfilePhoto;
-                }
-
-
-                if (profilePassword) {
-
-                    if (
-                        profilePassword.length < 6
-                    ) {
-
-                        profileMessage.style.color =
-                            "#d93025";
-
+                if (
+                    profilePassword &&
+                    profilePassword.length < 6
+                ) {
+                    if (profileMessage) {
+                        profileMessage.style.color = "#d93025";
                         profileMessage.textContent =
                             "A nova palavra-passe deve ter pelo menos 6 caracteres.";
-
-                        return;
-
                     }
-
-
-                    account.password =
-                        profilePassword;
-
-                }
-
-
-                try {
-                    localStorage.setItem(
-                        "apsan_account",
-                        JSON.stringify(account)
-                    );
-                } catch (error) {
-                    profileMessage.style.color = "#d93025";
-                    profileMessage.textContent = "Não foi possível guardar a foto. Tente uma imagem menor.";
                     return;
                 }
 
-                pendingProfilePhoto = account.photo || null;
-                updateProfileDisplay();
+                const updatedAccount = Object.assign({}, account);
+                updatedAccount.name = profileName;
 
+                if (pendingProfilePhoto) {
+                    updatedAccount.photo = pendingProfilePhoto;
+                }
 
-                profileMessage.style.color =
-                    "#16803c";
+                if (profilePassword) {
+                    updatedAccount.password = profilePassword;
+                }
 
+                try {
 
-                profileMessage.textContent =
-                    "Perfil atualizado com sucesso.";
+                    const serializedAccount =
+                        JSON.stringify(updatedAccount);
 
+                    localStorage.setItem(
+                        "apsan_account",
+                        serializedAccount
+                    );
 
-                setTimeout(
-                    function () {
-
-                        profileOverlay.classList.remove(
-                            "profile-open"
+                    const savedAccount =
+                        JSON.parse(
+                            localStorage.getItem("apsan_account")
                         );
 
-                    },
-                    1000
-                );
+                    if (!savedAccount) {
+                        throw new Error("Conta não foi guardada.");
+                    }
 
+                    account = savedAccount;
+                    pendingProfilePhoto = account.photo || null;
+
+                    updateProfileDisplay();
+
+                    if (profileMessage) {
+                        profileMessage.style.color = "#16803c";
+                        profileMessage.textContent =
+                            "Perfil guardado com sucesso!";
+                    }
+
+                    setTimeout(function () {
+                        if (profileOverlay) {
+                            profileOverlay.classList.remove("profile-open");
+                        }
+                    }, 900);
+
+                } catch (error) {
+
+                    console.error("Erro ao guardar perfil:", error);
+
+                    if (profileMessage) {
+                        profileMessage.style.color = "#d93025";
+                        profileMessage.textContent =
+                            "Não foi possível guardar. Se a foto for muito grande, escolha outra imagem.";
+                    }
+                }
             }
         );
-
     }
 
 
