@@ -587,7 +587,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                         if (material.type === "Vídeo" && youtube) {
                             media = '<div class="classroom-video"><iframe src="' + esc(youtube) + '" title="' + esc(material.title) + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>';
-                        } else if (material.type === "Vídeo" && safe && /.(mp4|webm|ogg)(?.*)?$/i.test(safe)) {
+                        } else if (material.type === "Vídeo" && safe && /\.(mp4|webm|ogg)(\?.*)?$/i.test(safe)) {
                             media = '<div class="classroom-video"><video controls preload="metadata" src="' + esc(safe) + '"></video></div>';
                         } else if (safe) {
                             media = '<a class="classroom-material-link" href="' + esc(safe) + '" target="_blank" rel="noopener">Abrir material</a>';
