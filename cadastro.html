@@ -352,7 +352,8 @@
                    ========================================== */
 
                 function normalizePhone(value) {
-                    return String(value || "").replace(/\D/g, "");
+                    const digits = String(value || "").replace(/\D/g, "");
+                    return digits.length > 9 ? digits.slice(-9) : digits;
                 }
 
                 let accounts = [];
