@@ -5,6 +5,67 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>APSAN Academy - Mensagens</title>
 <link rel="stylesheet" href="../style.css?v=messages-notifications-20260926">
+<style>
+/* Caixa de entrada estilo SMS: primeiro a lista, depois a conversa. */
+.messages-shell{
+  display:block;
+  min-height:650px;
+}
+.messages-contacts{
+  width:100%;
+  border-right:0;
+}
+.messages-chat{
+  display:none;
+}
+.messages-shell.conversation-open{
+  display:grid;
+  grid-template-columns:320px 1fr;
+}
+.messages-shell.conversation-open .messages-chat{
+  display:flex;
+}
+.messages-shell.conversation-open .messages-contacts{
+  border-right:1px solid #e5ebf2;
+}
+.messages-inbox-back{
+  display:none;
+  border:0;
+  background:#eaf3ff;
+  color:#1769e0;
+  border-radius:9px;
+  padding:8px 10px;
+  font-size:11px;
+  font-weight:800;
+  cursor:pointer;
+}
+@media(max-width:760px){
+  .messages-shell{
+    display:block;
+    min-height:0;
+  }
+  .messages-shell.conversation-open{
+    display:block;
+  }
+  .messages-shell.conversation-open .messages-contacts{
+    display:none;
+  }
+  .messages-shell.conversation-open .messages-chat{
+    display:flex;
+  }
+  .messages-inbox-back{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .messages-chat-header{
+    align-items:flex-start;
+  }
+  .messages-chat-header .messages-delete-conversation{
+    font-size:9px;
+  }
+}
+</style>
 </head>
 <body class="app-page messages-page">
 <header class="app-header">
@@ -37,6 +98,7 @@
 
       <div id="chatView" class="messages-chat-view" hidden>
         <div class="messages-chat-header">
+          <button type="button" class="messages-inbox-back" id="chatBackToInbox" aria-label="Voltar às conversas">← Conversas</button>
           <div class="messages-chat-person">
             <span id="chatAvatar" class="messages-chat-avatar">C</span>
             <div>
@@ -123,6 +185,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const deleteConversationButton = document.getElementById("deleteConversationButton");
   const globalUnreadBadge = document.getElementById("globalUnreadBadge");
   const back = document.getElementById("messagesBack");
+  const chatBackToInbox = document.getElementById("chatBackToInbox");
+  const messagesShell = document.querySelector(".messages-shell");
 
   back.href = role === "professor" ? "professor.html" : "aluno.html";
   contactsTitle.textContent = role === "professor" ? "Meus alunos" : "Meus professores";
@@ -315,6 +379,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
   let selectedContact = null;
 
+  function showInbox() {
+    selectedContact = null;
+    messagesShell.classList.remove("conversation-open");
+    chatView.hidden = true;
+    chatEmpty.hidden = true;
+  }
+
   function openConversation(phone) {
     selectedContact = getContacts().find(function (item) {
       return item.phone === normalizePhone(phone);
@@ -322,6 +393,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!selectedContact) return;
 
     markConversationRead(selectedContact.phone);
+    messagesShell.classList.add("conversation-open");
 
     chatEmpty.hidden = true;
     chatView.hidden = false;
@@ -467,6 +539,12 @@ document.addEventListener("DOMContentLoaded", function () {
     updateUnreadUI();
   });
 
+  chatBackToInbox.addEventListener("click", function () {
+    showInbox();
+    renderContacts();
+    updateUnreadUI();
+  });
+
   window.addEventListener("storage", function (event) {
     if (event.key === "apsan_messages" || event.key === "apsan_message_notifications") {
       renderContacts();
@@ -475,6 +553,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
+  showInbox();
   renderContacts();
   updateUnreadUI();
   setInterval(function () {
