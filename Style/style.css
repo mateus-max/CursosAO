@@ -3473,3 +3473,8 @@ button.dashboard-link {
     .teacher-card-balance strong{font-size:15px}
     .finance-form-row{grid-template-columns:1fr}
 }
+
+
+/* Single-panel navigation: hide dashboard sections while a menu area is open. */
+.single-panel-hidden{display:none!important}
+main.single-panel-mode{padding-bottom:110px}
