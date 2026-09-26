@@ -232,7 +232,7 @@
 
             <form id="loginForm">
 
-                <div class="form-group">
+                <div class="form-group" id="phoneGroup">
                     <label for="phone">Número de telefone</label>
                     <input
                         type="tel"
@@ -241,6 +241,16 @@
                         autocomplete="tel"
                         inputmode="tel"
                         required
+                    >
+                </div>
+
+                <div class="form-group" id="emailGroup" style="display:none">
+                    <label for="email">E-mail de acesso da Direção</label>
+                    <input
+                        type="email"
+                        id="email"
+                        placeholder="suporte@apsanlda.com"
+                        autocomplete="username"
                     >
                 </div>
 
@@ -270,7 +280,7 @@
                 <p id="loginMessage" class="login-message"></p>
             </form>
 
-            <div class="create-account">
+            <div class="create-account" id="createAccount">
                 <span>Ainda não tem uma conta?</span>
                 <a href="cadastro.html">Criar conta</a>
             </div>
@@ -283,6 +293,6 @@
         </section>
     </main>
 
-    <script src="Style/Apps/main.js?v=account-registry-fix-20260926"></script>
+    <script src="Style/Apps/main.js?v=direction-login-20260926"></script>
 </body>
 </html>
