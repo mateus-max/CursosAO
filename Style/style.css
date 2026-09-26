@@ -2329,3 +2329,244 @@ button.dashboard-link {
     from{transform:translateY(4px);opacity:.72}
     to{transform:translateY(0);opacity:1}
 }
+
+
+/* =========================================================
+   PAINEL DO PROFESSOR — AJUSTES FINAIS DO DASHBOARD
+   Mantém o cabeçalho existente intacto.
+   ========================================================= */
+
+.professor-option2{
+    max-width:760px;
+    padding:18px 14px 92px;
+}
+
+.professor-compact-stats{
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+    margin:14px 0;
+}
+
+.professor-compact-stats .professor-stat{
+    min-height:88px;
+    padding:13px;
+    gap:10px;
+    border-radius:14px;
+}
+
+.professor-compact-stats .stat-icon{
+    width:34px;
+    height:34px;
+    flex:0 0 34px;
+    font-size:17px;
+    border-radius:10px;
+}
+
+.professor-compact-stats .professor-stat strong{
+    font-size:11px;
+}
+
+.professor-compact-stats .professor-stat b{
+    margin-top:2px;
+    font-size:21px;
+}
+
+.professor-compact-stats .professor-stat small{
+    font-size:10px;
+}
+
+.professor-next-class-compact{
+    min-height:0;
+    padding:20px;
+    margin-bottom:12px;
+    border-radius:16px;
+}
+
+.professor-next-class-compact h2{
+    margin:7px 0 4px;
+    font-size:21px;
+}
+
+.professor-next-class-compact p{
+    font-size:13px;
+    line-height:1.45;
+}
+
+.professor-next-class-compact .panel-actions{
+    margin-top:15px;
+}
+
+.professor-next-class-compact .primary-action{
+    padding:10px 14px;
+    font-size:12px;
+}
+
+.professor-schedule-compact{
+    padding:18px;
+    margin-bottom:12px;
+    border-radius:16px;
+}
+
+.professor-schedule-compact .section-heading{
+    margin-bottom:8px;
+}
+
+.professor-schedule-compact .section-label,
+.professor-list-card .section-label,
+.professor-public-status-compact .section-label{
+    display:block;
+    margin-bottom:3px;
+    color:#1769e0;
+    font-size:10px;
+    font-weight:800;
+    letter-spacing:.8px;
+}
+
+.professor-schedule-compact .section-heading h2{
+    font-size:19px;
+}
+
+.professor-wide-card{
+    min-height:0;
+    padding:18px;
+    margin-bottom:12px;
+    border-radius:16px;
+}
+
+.professor-wide-card .section-heading{
+    margin-bottom:8px;
+}
+
+.professor-wide-card .section-heading h2{
+    font-size:19px;
+}
+
+.professor-wide-card .empty-state{
+    margin:7px 0;
+}
+
+.professor-public-status-compact{
+    padding:18px;
+    margin:0 0 18px;
+    border-radius:16px;
+    gap:14px;
+}
+
+.professor-public-status-compact h2{
+    margin:4px 0;
+    font-size:18px;
+}
+
+.professor-public-status-compact p{
+    margin:0;
+    font-size:12px;
+    line-height:1.45;
+}
+
+.professor-public-status-compact .primary-action{
+    padding:10px 14px;
+    font-size:12px;
+    white-space:nowrap;
+}
+
+.professor-message-button{
+    margin-top:5px;
+    padding:0;
+}
+
+.professor-wide-card .module-row{
+    min-height:48px;
+    padding:8px 0;
+}
+
+.professor-wide-card .module-row-icon{
+    width:32px;
+    height:32px;
+    flex-basis:32px;
+}
+
+.professor-wide-card .module-row strong{
+    font-size:13px;
+}
+
+.professor-wide-card .module-row small{
+    font-size:10px;
+}
+
+.professor-wide-card .module-row p{
+    margin:4px 0 0;
+    color:#718096;
+    font-size:11px;
+}
+
+.professor-schedule-compact .schedule-row{
+    gap:10px;
+    padding:9px 0;
+}
+
+.professor-schedule-compact .schedule-day{
+    min-width:70px;
+    padding:6px 5px;
+    font-size:10px;
+}
+
+.professor-schedule-compact .schedule-row strong{
+    font-size:12px;
+}
+
+.professor-schedule-compact .schedule-row small{
+    font-size:10px;
+}
+
+.professor-schedule-compact .schedule-row p{
+    margin:3px 0 0;
+    color:#718096;
+    font-size:10px;
+    line-height:1.35;
+}
+
+@media(max-width:620px){
+    .professor-option2{
+        max-width:100%;
+        padding:14px 10px 90px;
+    }
+
+    .professor-compact-stats{
+        grid-template-columns:repeat(2,1fr);
+        gap:8px;
+        margin:10px 0;
+    }
+
+    .professor-compact-stats .professor-stat{
+        min-height:78px;
+        padding:10px;
+    }
+
+    .professor-compact-stats .professor-stat b{
+        font-size:20px;
+    }
+
+    .professor-next-class-compact{
+        padding:17px;
+    }
+
+    .professor-next-class-compact .panel-actions{
+        width:100%;
+    }
+
+    .professor-next-class-compact .primary-action{
+        flex:1 1 auto;
+        width:auto;
+        text-align:center;
+    }
+
+    .professor-public-status-compact{
+        flex-direction:column;
+        align-items:stretch;
+    }
+
+    .professor-public-status-compact .primary-action{
+        width:100%;
+        text-align:center;
+    }
+}
