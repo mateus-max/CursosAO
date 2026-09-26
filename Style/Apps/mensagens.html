@@ -371,7 +371,9 @@ document.addEventListener("DOMContentLoaded", function () {
         saveMessages(remaining);
 
         const notifications = readNotifications().filter(function (item) {
-          return item.messageId !== id;
+          if (item.messageId !== id) return true;
+          /* A notificação do outro participante permanece até ele abrir a conversa. */
+          return normalizePhone(item.recipientPhone) !== myPhone && !item.readAt;
         });
         saveNotifications(notifications);
 
@@ -393,7 +395,9 @@ document.addEventListener("DOMContentLoaded", function () {
       return item.conversationKey !== key;
     }));
     saveNotifications(readNotifications().filter(function (item) {
-      return item.conversationKey !== key;
+      if (item.conversationKey !== key) return true;
+      /* Só removemos a notificação desta conta; a do outro lado só desaparece ao abrir. */
+      return normalizePhone(item.recipientPhone) !== myPhone && !item.readAt;
     }));
 
     renderMessages();
