@@ -592,6 +592,59 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     /* =====================================================
+       DADOS VISUAIS DO PERFIL DO PROFESSOR
+       ===================================================== */
+
+    function getStoredProfessorProfileData() {
+        const data = {
+            name: "",
+            photo: ""
+        };
+
+        if (account) {
+            data.name = account.name || "";
+            data.photo =
+                account.photo ||
+                account.profilePhoto ||
+                account.avatar ||
+                account.teacherPhoto ||
+                account.photoURL ||
+                "";
+        }
+
+        /*
+         * Compatibilidade com o perfil público já existente:
+         * se a foto/nome já foi guardada ali, ela também passa a alimentar
+         * o avatar e o editor do perfil principal.
+         */
+        try {
+            const phoneKey = account && (account.phone || account.username);
+            if (phoneKey) {
+                const profileKey = "apsan_professor_profile_" + phoneKey;
+                const publicProfile = JSON.parse(
+                    localStorage.getItem(profileKey) || "null"
+                );
+
+                if (publicProfile) {
+                    if (!data.name || data.name === "Professor") {
+                        data.name = publicProfile.teacherName || data.name;
+                    }
+                    if (!data.photo) {
+                        data.photo =
+                            publicProfile.teacherPhoto ||
+                            publicProfile.photo ||
+                            "";
+                    }
+                }
+            }
+        } catch (error) {
+            /* mantém os dados principais da conta */
+        }
+
+        return data;
+    }
+
+    /* =====================================================
        MOSTRAR DADOS NO PAINEL
        ===================================================== */
 
@@ -601,10 +654,12 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
+        const storedProfile = getStoredProfessorProfileData();
+
         const professorDisplayName =
-            account.name && String(account.name).trim() &&
-            String(account.name).trim().toLowerCase() !== "professor"
-                ? String(account.name).trim()
+            storedProfile.name && String(storedProfile.name).trim() &&
+            String(storedProfile.name).trim().toLowerCase() !== "professor"
+                ? String(storedProfile.name).trim()
                 : "Eduardo Ngongoyove Gabriel";
 
         if (teacherName) {
@@ -616,16 +671,7 @@ document.addEventListener("DOMContentLoaded", function () {
             signatureName.textContent = professorDisplayName;
         }
 
-        /*
-         * Preserva a fotografia já guardada na conta. Não substitui a foto
-         * existente por um avatar genérico; apenas usa os campos antigos
-         * compatíveis se a conta tiver sido guardada com outro nome.
-         */
-        const photo =
-            account.photo ||
-            account.profilePhoto ||
-            account.avatar ||
-            "";
+        const photo = storedProfile.photo;
 
         if (topAvatar) {
             if (photo) {
@@ -739,12 +785,13 @@ document.addEventListener("DOMContentLoaded", function () {
             );
 
 
-        pendingProfilePhoto = account && account.photo ? account.photo : null;
+        const storedProfile = getStoredProfessorProfileData();
+        pendingProfilePhoto = storedProfile.photo || null;
 
         if (account) {
 
             profileName.value =
-                account.name || "";
+                storedProfile.name || "Eduardo Ngongoyove Gabriel";
 
 
             profileUsername.value =
@@ -759,10 +806,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 "";
 
 
-            if (account.photo) {
+            if (storedProfile.photo) {
 
                 profilePhotoPreview.src =
-                    account.photo;
+                    storedProfile.photo;
 
                 profilePhotoPreview.style.display =
                     "block";
@@ -1013,8 +1060,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 const updatedAccount = Object.assign({}, account);
                 updatedAccount.name = profileName;
 
-                if (pendingProfilePhoto) {
-                    updatedAccount.photo = pendingProfilePhoto;
+                /*
+                 * Sempre grava a foto final no campo principal "photo".
+                 * Isto sincroniza fotos antigas e novas com o avatar.
+                 */
+                const finalPhoto =
+                    pendingProfilePhoto ||
+                    getStoredProfessorProfileData().photo ||
+                    "";
+
+                if (finalPhoto) {
+                    updatedAccount.photo = finalPhoto;
                 }
 
                 if (profilePassword) {
@@ -1074,13 +1130,16 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
 
                     account = savedAccount;
-                    pendingProfilePhoto = account.photo || null;
+                    pendingProfilePhoto = account.photo || getStoredProfessorProfileData().photo || null;
 
                     const currentPublicProfile = getPublicProfile();
 
                     if (currentPublicProfile.published) {
                         currentPublicProfile.teacherName = account.name || "Professor";
-                        currentPublicProfile.teacherPhoto = account.photo || "";
+                        currentPublicProfile.teacherPhoto =
+                            account.photo ||
+                            getStoredProfessorProfileData().photo ||
+                            "";
                         currentPublicProfile.updatedAt = new Date().toISOString();
                         savePublicProfile(currentPublicProfile);
                         renderPublicProfileStatus(currentPublicProfile);
