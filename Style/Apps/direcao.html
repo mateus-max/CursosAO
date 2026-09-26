@@ -1,126 +1,136 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>APSAN Academy - Direção</title>
-
-    <link rel="stylesheet" href="Style/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APSAN Academy - Administração</title>
+<link rel="stylesheet" href="../style.css?v=admin-dashboard-20260926">
 </head>
+<body class="app-page admin-page">
 
-<body class="app-page">
+<header class="app-header admin-header">
+    <div class="header-left">
+        <button class="menu-button" id="adminMenuButton" type="button" aria-label="Abrir menu">☰</button>
+        <strong>APSAN Academy</strong>
+    </div>
+    <button class="profile-avatar-button admin-settings" id="adminLogout" type="button" aria-label="Sair">⚙</button>
+</header>
 
-    <!-- CABEÇALHO -->
+<aside class="admin-sidebar" id="adminSidebar">
+    <div class="admin-sidebar-brand">PAINEL DE ADMINISTRAÇÃO</div>
+    <nav>
+        <a class="active" href="#admin-dashboard">🏠 <span>Painel</span></a>
+        <a href="#admin-users">👤 <span>Utilizadores</span></a>
+        <a href="#admin-teachers">👨‍🏫 <span>Professores</span></a>
+        <a href="#admin-students">👥 <span>Alunos</span></a>
+        <a href="#admin-courses">🎓 <span>Cursos</span></a>
+        <a href="#admin-enrollments">▣ <span>Matrículas</span></a>
+        <a href="#admin-payments">💳 <span>Pagamentos</span></a>
+        <a href="#admin-reports">📊 <span>Relatórios</span></a>
+    </nav>
+    <button class="admin-logout" id="adminLogoutSide" type="button">🚪 Sair</button>
+</aside>
 
-    <header class="app-header">
+<main class="app-content admin-content" id="admin-dashboard">
 
+    <section class="admin-hero">
         <div>
-            <strong>APSAN Academy</strong>
+            <span>PAINEL DE ADMINISTRAÇÃO</span>
+            <h1>Visão geral da plataforma</h1>
+            <p>Gerir utilizadores, professores, alunos, cursos, matrículas e pagamentos.</p>
         </div>
+        <div class="admin-hero-icon">⚙</div>
+    </section>
 
-        <button
-            type="button"
-            data-back
-            class="login-button"
-            style="width:auto; height:40px; padding:0 16px;"
-        >
-            Sair
-        </button>
+    <section class="admin-metrics" id="admin-users">
+        <article class="admin-metric"><span>👥</span><div><strong id="adminUserCount">0</strong><small>Utilizadores</small></div></article>
+        <article class="admin-metric"><span>🎓</span><div><strong id="adminTeacherCount">0</strong><small>Professores</small></div></article>
+        <article class="admin-metric"><span>👤</span><div><strong id="adminStudentCount">0</strong><small>Alunos</small></div></article>
+        <article class="admin-metric"><span>📚</span><div><strong id="adminCourseCount">0</strong><small>Cursos publicados</small></div></article>
+    </section>
 
-    </header>
+    <section class="admin-grid">
+        <article class="admin-panel" id="admin-teachers">
+            <div class="admin-panel-title"><h2>Professores</h2><span id="adminTeacherStatus">0 publicados</span></div>
+            <div id="adminTeachersList" class="admin-list"></div>
+        </article>
 
+        <article class="admin-panel" id="admin-students">
+            <div class="admin-panel-title"><h2>Alunos</h2><span id="adminEnrollmentCount">0 matrículas</span></div>
+            <div id="adminStudentsList" class="admin-list"></div>
+        </article>
 
-    <!-- CONTEÚDO -->
+        <article class="admin-panel" id="admin-courses">
+            <div class="admin-panel-title"><h2>Cursos</h2><span>Publicados pelos professores</span></div>
+            <div id="adminCoursesList" class="admin-list"></div>
+        </article>
 
-    <main class="app-content">
+        <article class="admin-panel" id="admin-enrollments">
+            <div class="admin-panel-title"><h2>Matrículas</h2><span>Estado atual</span></div>
+            <div id="adminEnrollmentsList" class="admin-list"></div>
+        </article>
 
-        <div style="margin-bottom:25px;">
+        <article class="admin-panel admin-wide" id="admin-payments">
+            <div class="admin-panel-title"><h2>Pagamentos</h2><span>Registos de matrícula</span></div>
+            <div id="adminPaymentsList" class="admin-list"></div>
+        </article>
 
-            <h1>Painel da Direção</h1>
+        <article class="admin-panel admin-wide" id="admin-reports">
+            <div class="admin-panel-title"><h2>Atividades recentes</h2><span>Dados reais guardados no navegador</span></div>
+            <div id="adminActivityList" class="admin-list"></div>
+        </article>
+    </section>
+</main>
 
-            <p style="color:#718096; margin-top:6px;">
-                Gestão e acompanhamento da plataforma.
-            </p>
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+    function read(key, fallback){
+        try{
+            const value=JSON.parse(localStorage.getItem(key)||JSON.stringify(fallback));
+            return Array.isArray(value)?value:(value||fallback);
+        }catch(e){return fallback;}
+    }
+    function esc(v){return String(v||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");}
 
-        </div>
+    const accounts=read("apsan_accounts",[]);
+    const profiles=read("apsan_professors",[]);
+    const enrollments=read("apsan_enrollments",[]);
+    const lessonsKeys=Object.keys(localStorage).filter(k=>k.indexOf("apsan_professor_lessons_")===0);
+    let lessons=[];
+    lessonsKeys.forEach(k=>{const x=read(k,[]); lessons=lessons.concat(x);});
 
+    const teachers=accounts.filter(a=>a&&a.type==="professor");
+    const students=accounts.filter(a=>a&&a.type==="aluno");
+    const courses=profiles.filter(p=>p&&p.published);
 
-        <!-- CARTÕES PRINCIPAIS -->
+    document.getElementById("adminUserCount").textContent=accounts.length;
+    document.getElementById("adminTeacherCount").textContent=teachers.length;
+    document.getElementById("adminStudentCount").textContent=students.length;
+    document.getElementById("adminCourseCount").textContent=courses.length;
+    document.getElementById("adminTeacherStatus").textContent=courses.length+" publicados";
+    document.getElementById("adminEnrollmentCount").textContent=enrollments.length+" matrículas";
 
-        <section class="dashboard-grid">
+    document.getElementById("adminTeachersList").innerHTML=teachers.length?teachers.map(a=>'<div class="admin-row"><div class="admin-row-avatar">'+esc((a.name||"P").charAt(0))+'</div><div><strong>'+esc(a.name||"Professor")+'</strong><small>'+esc(a.phone||"")+'</small></div><span class="admin-status">'+(courses.some(p=>p.teacherPhone===a.phone)?"Publicado":"Sem perfil")+'</span></div>').join(""):'<p class="admin-empty">Nenhum professor registado.</p>';
 
-            <div class="dashboard-card">
+    document.getElementById("adminStudentsList").innerHTML=students.length?students.map(a=>'<div class="admin-row"><div class="admin-row-avatar">👤</div><div><strong>'+esc(a.name||"Aluno")+'</strong><small>'+esc(a.phone||"")+'</small></div></div>').join(""):'<p class="admin-empty">Nenhum aluno registado.</p>';
 
-                <h3>Professores</h3>
+    document.getElementById("adminCoursesList").innerHTML=courses.length?courses.map(p=>'<div class="admin-row"><div class="admin-row-icon">📚</div><div><strong>'+esc(p.course)+'</strong><small>'+esc(p.teacherName)+' · '+esc(p.modality)+'</small></div><span class="admin-status">'+esc(p.price)+' Kz</span></div>').join(""):'<p class="admin-empty">Nenhum curso publicado.</p>';
 
-                <p style="margin-top:10px; color:#718096;">
-                    Gerir professores e atividades docentes.
-                </p>
+    document.getElementById("adminEnrollmentsList").innerHTML=enrollments.length?enrollments.map(e=>'<div class="admin-row"><div class="admin-row-icon">✓</div><div><strong>'+esc(e.course)+'</strong><small>'+esc(e.studentName)+' → '+esc(e.teacherName)+'</small></div><span class="admin-status">'+esc(e.status||"pendente")+'</span></div>').join(""):'<p class="admin-empty">Nenhuma matrícula registada.</p>';
 
-            </div>
+    document.getElementById("adminPaymentsList").innerHTML=enrollments.length?enrollments.map(e=>'<div class="admin-row"><div class="admin-row-icon">💳</div><div><strong>'+esc(e.price)+' Kz</strong><small>'+esc(e.studentName)+' · Ref.: '+esc(e.paymentReference)+'</small></div><span class="admin-status">'+esc(e.paymentStatus||"pendente")+'</span></div>').join(""):'<p class="admin-empty">Nenhum pagamento registado.</p>';
 
+    const activities=[];
+    courses.forEach(p=>activities.push({date:p.updatedAt||"",text:"Perfil publicado: "+(p.teacherName||"Professor")}));
+    enrollments.forEach(e=>activities.push({date:e.createdAt||"",text:(e.studentName||"Aluno")+" matriculou-se em "+(e.course||"curso")}));
+    lessons.slice(-20).forEach(l=>activities.push({date:"",text:"Aula criada: "+(l.title||"Aula")}));
+    document.getElementById("adminActivityList").innerHTML=activities.length?activities.slice(-12).reverse().map(a=>'<div class="admin-row"><div class="admin-row-icon">•</div><div><strong>'+esc(a.text)+'</strong><small>'+esc(a.date?new Date(a.date).toLocaleString("pt-PT"):"")+'</small></div></div>').join(""):'<p class="admin-empty">Ainda não existem atividades.</p>';
 
-            <div class="dashboard-card">
-
-                <h3>Alunos</h3>
-
-                <p style="margin-top:10px; color:#718096;">
-                    Consultar e acompanhar os alunos.
-                </p>
-
-            </div>
-
-
-            <div class="dashboard-card">
-
-                <h3>Aulas</h3>
-
-                <p style="margin-top:10px; color:#718096;">
-                    Acompanhar as aulas da plataforma.
-                </p>
-
-            </div>
-
-
-            <div class="dashboard-card">
-
-                <h3>Pagamentos</h3>
-
-                <p style="margin-top:10px; color:#718096;">
-                    Consultar pagamentos e transações.
-                </p>
-
-            </div>
-
-
-            <div class="dashboard-card">
-
-                <h3>Quadro Informativo</h3>
-
-                <p style="margin-top:10px; color:#718096;">
-                    Publicar e consultar informações.
-                </p>
-
-            </div>
-
-
-            <div class="dashboard-card">
-
-                <h3>Relatórios</h3>
-
-                <p style="margin-top:10px; color:#718096;">
-                    Visualizar informações gerais da plataforma.
-                </p>
-
-            </div>
-
-        </section>
-
-    </main>
-
-
-    <script src="Apps/main.js"></script>
-
+    function logout(){localStorage.removeItem("apsan_logged_in");window.location.href="../../index.html";}
+    document.getElementById("adminLogout").addEventListener("click",logout);
+    document.getElementById("adminLogoutSide").addEventListener("click",logout);
+    document.getElementById("adminMenuButton").addEventListener("click",function(){document.getElementById("adminSidebar").classList.toggle("admin-sidebar-open");});
+});
+</script>
 </body>
 </html>
