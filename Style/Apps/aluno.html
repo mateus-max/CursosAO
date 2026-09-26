@@ -26,6 +26,13 @@
         </div>
     </section>
 
+    <section class="student-summary-cards">
+        <article><span>🎓</span><strong id="studentCourseCount">0</strong><small>Meus Cursos</small></article>
+        <article><span>📅</span><strong id="studentLessonCount">0</strong><small>Aulas agendadas</small></article>
+        <article><span>📈</span><strong id="studentProgress">0%</strong><small>Meu progresso</small></article>
+        <article><span>✓</span><strong id="studentOfficialCount">0</strong><small>Matrículas oficiais</small></article>
+    </section>
+
     <section class="teacher-search-panel">
         <div class="section-heading">
             <h2>Pesquisar professores</h2>
@@ -49,6 +56,14 @@
     </section>
 
 </main>
+
+    <nav class="student-bottom-nav">
+        <a class="active" href="#top">⌂<small>Início</small></a>
+        <a href="#teacherResults">🎓<small>Professores</small></a>
+        <a href="#myEnrollments">▣<small>Meus Cursos</small></a>
+        <a href="#teacherResults">▶<small>Aulas</small></a>
+        <a href="#myEnrollments">●<small>Perfil</small></a>
+    </nav>
 
 <div class="professor-panel-overlay" id="teacherProfilePanel">
     <div class="professor-panel-modal teacher-detail-modal">
@@ -360,6 +375,11 @@ document.addEventListener("DOMContentLoaded", function () {
             return currentAccount &&
                 item.studentPhone === currentAccount.phone;
         });
+
+        document.getElementById("studentCourseCount").textContent = mine.length;
+        document.getElementById("studentOfficialCount").textContent = mine.filter(function(item){ return item.status === "official"; }).length;
+        document.getElementById("studentLessonCount").textContent = mine.length;
+        document.getElementById("studentProgress").textContent = mine.length ? "100%" : "0%";
 
         enrollmentCount.textContent = mine.length;
 
