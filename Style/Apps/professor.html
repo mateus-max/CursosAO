@@ -164,6 +164,7 @@
 
     <main class="app-content professor-content professor-option2">
 
+        <!-- O cabeçalho/hero existente foi preservado sem alterações. -->
         <section class="professor-hero">
 
             <div class="professor-hero-copy">
@@ -180,21 +181,22 @@
         </section>
 
 
-        <section class="professor-stats">
+        <!-- RESUMO RÁPIDO -->
+        <section class="professor-stats professor-compact-stats" aria-label="Resumo da atividade">
 
             <a href="#alunos" class="professor-stat">
                 <span class="stat-icon">👥</span>
                 <div>
-                    <strong>Meus Alunos</strong>
+                    <strong>Alunos</strong>
                     <b id="studentCount">0</b>
-                    <small>Alunos confirmados</small>
+                    <small>Alunos ativos</small>
                 </div>
             </a>
 
             <a href="#aulas" class="professor-stat">
-                <span class="stat-icon">📅</span>
+                <span class="stat-icon">📚</span>
                 <div>
-                    <strong>Minhas Aulas</strong>
+                    <strong>Aulas</strong>
                     <b id="lessonCount">0</b>
                     <small>Aulas criadas</small>
                 </div>
@@ -205,138 +207,135 @@
                 <div>
                     <strong>Materiais</strong>
                     <b id="materialCount">0</b>
-                    <small>Materiais guardados</small>
+                    <small>Guardados</small>
                 </div>
             </a>
 
-            <a href="#agenda" class="professor-stat">
-                <span class="stat-icon">📊</span>
+            <a href="#mensagens" class="professor-stat">
+                <span class="stat-icon">💬</span>
                 <div>
-                    <strong>Agenda</strong>
-                    <b id="agendaCount">0</b>
-                    <small>Próximos compromissos</small>
+                    <strong>Mensagens</strong>
+                    <b id="messageCount">0</b>
+                    <small>Novas mensagens</small>
                 </div>
             </a>
 
         </section>
 
 
-        <section class="professor-actions">
+        <!-- PRÓXIMA AULA -->
+        <section class="professor-next-class professor-next-class-compact" id="aulas">
 
-            <a href="#aulas" class="professor-action">
-                <span>📚</span>
-                <strong>Minhas Aulas</strong>
-            </a>
+            <div class="next-class-content">
+                <span class="section-label">PRÓXIMA AULA</span>
+                <h2 id="nextLessonTitle">Nenhuma aula criada</h2>
+                <p id="nextLessonInfo">Crie a sua primeira aula para ela aparecer aqui.</p>
+            </div>
 
-            <a href="#alunos" class="professor-action">
-                <span>👥</span>
-                <strong>Meus Alunos</strong>
-            </a>
+            <div class="panel-actions">
+                <button type="button" class="primary-action professor-modal-button" data-open-panel="lesson">
+                    + Nova aula
+                </button>
+                <a class="primary-action secondary-action" href="#agenda">
+                    Ver agenda →
+                </a>
+            </div>
 
-            <a href="#materiais" class="professor-action">
-                <span>📄</span>
-                <strong>Materiais</strong>
-            </a>
+        </section>
 
-            <a href="#agenda" class="professor-action">
-                <span>📅</span>
-                <strong>Agenda</strong>
-            </a>
 
-            <a href="quadro.html" class="professor-action">
-                <span>🖥</span>
-                <strong>Quadro</strong>
-            </a>
-            
-            <button type="button" class="professor-action professor-modal-button" data-open-panel="publicProfile">
-                <span>🌐</span>
-                <strong>Meu Perfil Público</strong>
+        <!-- AGENDA COMPACTA -->
+        <section class="professor-schedule professor-schedule-compact" id="agenda">
+
+            <div class="section-heading">
+                <div>
+                    <span class="section-label">CALENDÁRIO</span>
+                    <h2>Agenda</h2>
+                </div>
+                <button type="button" class="text-button professor-modal-button" data-open-panel="lesson">
+                    + Nova aula
+                </button>
+            </div>
+
+            <div id="agendaList">
+                <p class="empty-state">Ainda não existem aulas agendadas.</p>
+            </div>
+
+        </section>
+
+
+        <!-- ALUNOS -->
+        <section class="professor-list-card professor-wide-card" id="alunos">
+
+            <div class="section-heading">
+                <div>
+                    <span class="section-label">ACOMPANHAMENTO</span>
+                    <h2>Meus Alunos</h2>
+                </div>
+                <span class="panel-badge" id="studentBadge">0</span>
+            </div>
+
+            <div id="studentsList">
+                <p class="empty-state">Os alunos oficiais aparecerão aqui após a matrícula e confirmação pela direção.</p>
+            </div>
+
+        </section>
+
+
+        <!-- MATERIAIS -->
+        <section class="professor-list-card professor-wide-card" id="materiais">
+
+            <div class="section-heading">
+                <div>
+                    <span class="section-label">RECURSOS</span>
+                    <h2>Materiais</h2>
+                </div>
+                <button type="button" class="text-button professor-modal-button" data-open-panel="material">
+                    + Adicionar
+                </button>
+            </div>
+
+            <div id="materialsList">
+                <p class="empty-state">Ainda não existem materiais guardados.</p>
+            </div>
+
+        </section>
+
+
+        <!-- MENSAGENS -->
+        <section class="professor-list-card professor-wide-card" id="mensagens">
+
+            <div class="section-heading">
+                <div>
+                    <span class="section-label">COMUNICAÇÃO</span>
+                    <h2>Mensagens</h2>
+                </div>
+                <span class="panel-badge" id="messageBadge">0</span>
+            </div>
+
+            <div id="messagesContent">
+                <p class="empty-state">Você ainda não tem mensagens.</p>
+            </div>
+
+            <button type="button" class="text-button professor-message-button">
+                Abrir mensagens →
             </button>
 
         </section>
 
 
-        <section class="professor-main-grid">
+        <!-- PERFIL PÚBLICO: BLOCO PEQUENO -->
+        <section class="professor-public-status professor-public-status-compact" id="perfil-publico">
 
-            <article class="professor-next-class" id="aulas">
-
-                <div>
-                    <span class="section-label">MINHAS AULAS</span>
-                    <h2 id="nextLessonTitle">Nenhuma aula criada</h2>
-                    <p id="nextLessonInfo">Crie a sua primeira aula para ela aparecer aqui.</p>
-                </div>
-
-                <div class="panel-actions">
-                    <button type="button" class="primary-action professor-modal-button" data-open-panel="lesson">
-                        + Criar aula
-                    </button>
-                    <a class="primary-action secondary-action" href="quadro.html">
-                        Abrir quadro
-                    </a>
-                </div>
-
-            </article>
-
-
-            <article class="professor-schedule" id="agenda">
-
-                <div class="section-heading">
-                    <h2>Agenda</h2>
-                    <button type="button" class="text-button professor-modal-button" data-open-panel="lesson">
-                        + Nova aula
-                    </button>
-                </div>
-
-                <div id="agendaList">
-                    <p class="empty-state">Ainda não existem aulas agendadas.</p>
-                </div>
-
-            </article>
-
-        </section>
-
-
-
-        <section class="professor-public-status" id="perfil-publico">
             <div>
-                <span class="section-label">PERFIL PÚBLICO</span>
+                <span class="section-label">PERFIL</span>
                 <h2 id="publicProfileStatusTitle">Perfil ainda não publicado</h2>
-                <p id="publicProfileStatusText">Configure as suas informações profissionais e publique para que os alunos o encontrem.</p>
+                <p id="publicProfileStatusText">Configure as suas informações profissionais para que os alunos o encontrem.</p>
             </div>
-            <button type="button" class="primary-action professor-modal-button" data-open-panel="publicProfile">Configurar perfil</button>
-        </section>
 
-        <section class="professor-lower-grid">
-
-            <article class="professor-list-card" id="alunos">
-                <div class="section-heading">
-                    <h2>Meus Alunos</h2>
-                    <span class="panel-badge" id="studentBadge">0</span>
-                </div>
-                <div id="studentsList">
-                    <p class="empty-state">Os alunos oficiais aparecerão aqui após a matrícula e confirmação pela direção.</p>
-                </div>
-            </article>
-
-            <article class="professor-list-card" id="materiais">
-                <div class="section-heading">
-                    <h2>Materiais</h2>
-                    <button type="button" class="text-button professor-modal-button" data-open-panel="material">
-                        + Adicionar
-                    </button>
-                </div>
-                <div id="materialsList">
-                    <p class="empty-state">Ainda não existem materiais guardados.</p>
-                </div>
-            </article>
-
-            <article class="professor-list-card" id="mensagens">
-                <div class="section-heading">
-                    <h2>Mensagens</h2>
-                    <span class="panel-badge">0</span>
-                </div>
-                <p class="empty-state">As mensagens dos seus alunos aparecerão aqui quando o módulo de comunicação for ligado.</p>
-            </article>
+            <button type="button" class="primary-action professor-modal-button" data-open-panel="publicProfile">
+                Editar perfil →
+            </button>
 
         </section>
 
