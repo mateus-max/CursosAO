@@ -2140,3 +2140,167 @@ button.dashboard-link {
     .student-menu-backdrop{inset:58px 0 0 0}
     .menu-button{position:relative;z-index:250}
 }
+
+
+/* =========================================================
+   SALA DE AULA DO ALUNO
+   ========================================================= */
+.student-classroom{
+    margin-top:24px;
+    padding:22px;
+    background:#fff;
+    border:1px solid #e2eaf3;
+    border-radius:20px;
+    box-shadow:0 8px 24px rgba(17,45,80,.07);
+}
+.student-classroom .section-heading{
+    align-items:flex-start;
+}
+.section-subtitle{
+    margin:5px 0 0;
+    color:#718096;
+    font-size:13px;
+}
+#classroomContent{
+    display:grid;
+    gap:18px;
+}
+.classroom-course{
+    overflow:hidden;
+    border:1px solid #dfe8f2;
+    border-radius:18px;
+    background:#f8fbff;
+}
+.classroom-course-header{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:18px;
+    background:linear-gradient(135deg,#071f40,#0b63c7);
+    color:#fff;
+}
+.classroom-course-header img,
+.classroom-course-avatar{
+    width:54px;
+    height:54px;
+    flex:0 0 54px;
+    border-radius:50%;
+    object-fit:cover;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#eaf3ff;
+    color:#1769e0;
+    font-weight:900;
+    font-size:22px;
+}
+.classroom-course-header span{
+    font-size:10px;
+    font-weight:800;
+    letter-spacing:.12em;
+    opacity:.75;
+}
+.classroom-course-header h3{
+    margin:3px 0 2px;
+    font-size:20px;
+}
+.classroom-course-header p{
+    margin:0;
+    font-size:12px;
+    opacity:.82;
+}
+.classroom-block{
+    padding:18px;
+    border-top:1px solid #e3ebf4;
+}
+.classroom-block h4{
+    margin:0 0 12px;
+    color:#152842;
+}
+.classroom-lesson,
+.classroom-material{
+    padding:13px;
+    margin-top:9px;
+    border:1px solid #e3ebf4;
+    border-radius:13px;
+    background:#fff;
+}
+.classroom-lesson{
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+}
+.classroom-icon{
+    width:38px;
+    height:38px;
+    border-radius:10px;
+    background:#eaf3ff;
+    color:#1769e0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex:0 0 38px;
+}
+.classroom-lesson strong,
+.classroom-material strong{
+    display:block;
+    color:#182b46;
+}
+.classroom-lesson small{
+    display:block;
+    margin-top:4px;
+    color:#718096;
+}
+.classroom-lesson p,
+.classroom-material p{
+    margin:7px 0 0;
+    color:#5d6d82;
+    font-size:13px;
+}
+.classroom-material-type{
+    display:inline-block;
+    margin-bottom:6px;
+    padding:4px 8px;
+    border-radius:999px;
+    background:#eaf3ff;
+    color:#1769e0;
+    font-size:10px;
+    font-weight:800;
+}
+.classroom-video{
+    margin-top:12px;
+    overflow:hidden;
+    border-radius:13px;
+    background:#081c35;
+    aspect-ratio:16/9;
+}
+.classroom-video iframe,
+.classroom-video video{
+    width:100%;
+    height:100%;
+    display:block;
+    border:0;
+}
+.classroom-material-link{
+    display:inline-flex;
+    margin-top:11px;
+    padding:9px 13px;
+    border-radius:10px;
+    background:#1769e0;
+    color:#fff;
+    text-decoration:none;
+    font-size:12px;
+    font-weight:800;
+}
+@media(max-width:560px){
+    .student-classroom{
+        padding:15px;
+        border-radius:17px;
+    }
+    .classroom-course-header{
+        padding:15px;
+    }
+    .classroom-course-header h3{
+        font-size:17px;
+    }
+}
