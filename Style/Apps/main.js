@@ -72,25 +72,69 @@ document.addEventListener("DOMContentLoaded", function () {
         const phone = normalizePhone(localStorage.getItem("apsan_phone"));
         const type = localStorage.getItem("apsan_user_type") || "";
 
+        let legacy = null;
+
+        try {
+            legacy = JSON.parse(localStorage.getItem("apsan_account") || "null");
+        } catch (error) {
+            legacy = null;
+        }
+
         if (phone) {
-            const registered = accounts.find(function (item) {
+            const registeredIndex = accounts.findIndex(function (item) {
                 return normalizePhone(item && item.phone) === phone &&
                     (!type || String(item.type || "") === type);
             });
 
-            if (registered) {
-                localStorage.setItem("apsan_account", JSON.stringify(registered));
-                return registered;
+            if (registeredIndex >= 0) {
+                const registered = accounts[registeredIndex];
+
+                /*
+                 * A conta principal e o registo da conta representam o mesmo
+                 * professor. Ao iniciar sessão, juntamos os dados de perfil
+                 * dos dois locais para não perder nome ou fotografia já
+                 * atualizados no perfil.
+                 */
+                const merged = Object.assign({}, registered);
+
+                if (legacy && (!type || legacy.type === type)) {
+                    if (legacy.name && (!registered.name || registered.name === "Professor")) {
+                        merged.name = legacy.name;
+                    }
+
+                    if (legacy.photo) {
+                        merged.photo = legacy.photo;
+                    } else if (legacy.profilePhoto) {
+                        merged.photo = legacy.profilePhoto;
+                    } else if (legacy.avatar) {
+                        merged.photo = legacy.avatar;
+                    }
+
+                    if (legacy.bio && !registered.bio) {
+                        merged.bio = legacy.bio;
+                    }
+
+                    if (legacy.username && !registered.username) {
+                        merged.username = legacy.username;
+                    }
+
+                    if (legacy.password) {
+                        merged.password = legacy.password;
+                    }
+                }
+
+                merged.id = registered.id || legacy && legacy.id || ("acc_" + Date.now());
+
+                accounts[registeredIndex] = Object.assign({}, registered, merged);
+                saveAccountsRegistry(accounts);
+
+                localStorage.setItem("apsan_account", JSON.stringify(merged));
+                return merged;
             }
         }
 
-        try {
-            const legacy = JSON.parse(localStorage.getItem("apsan_account") || "null");
-            if (legacy && (!type || legacy.type === type)) {
-                return legacy;
-            }
-        } catch (error) {
-            /* sessão inválida */
+        if (legacy && (!type || legacy.type === type)) {
+            return legacy;
         }
 
         return null;
