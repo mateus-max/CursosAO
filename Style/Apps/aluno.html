@@ -150,8 +150,58 @@
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
-    const currentAccount =
-        JSON.parse(localStorage.getItem("apsan_account") || "null");
+    /*
+     * O catálogo apsan_accounts é a fonte principal das contas.
+     * O aluno é recuperado pelo telefone/tipo da sessão para que
+     * alterações de outra conta nunca façam este painel abrir com
+     * o utilizador errado.
+     */
+    function normalizePhone(value) {
+        return String(value || "").replace(/\D/g, "");
+    }
+
+    function getStudentAccount() {
+        let accounts = [];
+        try {
+            const stored = JSON.parse(localStorage.getItem("apsan_accounts") || "[]");
+            accounts = Array.isArray(stored) ? stored : [];
+        } catch (error) {
+            accounts = [];
+        }
+
+        const phone = normalizePhone(localStorage.getItem("apsan_phone"));
+        const sessionType = localStorage.getItem("apsan_user_type") || "aluno";
+
+        let account = accounts.find(function (item) {
+            return item &&
+                item.type === "aluno" &&
+                sessionType === "aluno" &&
+                normalizePhone(item.phone) === phone;
+        }) || null;
+
+        if (!account) {
+            try {
+                const legacy = JSON.parse(localStorage.getItem("apsan_account") || "null");
+                if (legacy && legacy.type === "aluno") {
+                    account = legacy;
+                    if (phone && normalizePhone(legacy.phone) === phone) {
+                        accounts.push(account);
+                        localStorage.setItem("apsan_accounts", JSON.stringify(accounts));
+                    }
+                }
+            } catch (error) {
+                account = null;
+            }
+        }
+
+        if (account) {
+            localStorage.setItem("apsan_account", JSON.stringify(account));
+        }
+
+        return account;
+    }
+
+    const currentAccount = getStudentAccount();
 
     if (!currentAccount || currentAccount.type !== "aluno") {
         window.location.href = "../../index.html";
