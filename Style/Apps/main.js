@@ -254,6 +254,12 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    /* O login é uma página própria. Depois de registar o evento de entrada,
+       não executamos o código dos painéis nesta página. */
+    if (loginForm) {
+        return;
+    }
+
 
     /* =====================================================
        MENU LATERAL
@@ -1569,7 +1575,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    renderProfessorModules();
+    if (document.body.classList.contains("professor-page")) {
+        renderProfessorModules();
+    }
 
 
     /* =====================================================
