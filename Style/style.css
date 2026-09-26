@@ -3056,6 +3056,7 @@ button.dashboard-link {
 }
 .teacher-virtual-card{
     position:relative;
+    width:min(100%,460px);
     min-height:270px;
     aspect-ratio:1.586/1;
     box-sizing:border-box;
