@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>APSAN Academy - Aluno</title>
-<link rel="stylesheet" href="../style.css?v=messages-notifications-20260926">
+<link rel="stylesheet" href="../style.css?v=student-profile-20260926">
 </head>
 <body class="app-page student-page">
 
@@ -13,7 +13,10 @@
         <button class="menu-button" id="studentMenuButton" type="button" aria-label="Abrir menu" aria-expanded="false">☰</button>
         <strong>APSAN Academy</strong>
     </div>
-    <button class="profile-avatar-button" id="studentLogout" type="button" aria-label="Sair">↪</button>
+    <button class="profile-avatar-button" id="studentProfileButton" type="button" aria-label="Abrir perfil">
+        <img id="studentTopAvatar" class="profile-avatar" src="" alt="Perfil">
+        <span id="studentTopAvatarLetter" class="avatar-letter">A</span>
+    </button>
 </header>
 
 <aside class="student-side-menu" id="studentSideMenu" aria-hidden="true">
@@ -156,6 +159,48 @@
     </div>
 </div>
 
+
+
+<div class="profile-overlay" id="studentProfileOverlay">
+    <div class="profile-modal">
+        <div class="profile-modal-header">
+            <div>
+                <h2>Meu Perfil</h2>
+                <p>Altere a sua foto, nome ou palavra-passe.</p>
+            </div>
+            <button id="studentCloseProfile" class="close-profile" type="button">×</button>
+        </div>
+
+        <div class="profile-photo-area">
+            <div class="large-avatar">
+                <img id="studentProfilePhotoPreview" src="" alt="Foto de perfil">
+                <span id="studentProfilePhotoLetter">A</span>
+            </div>
+
+            <label for="studentProfilePhotoInput" class="upload-photo-button">
+                Carregar foto
+            </label>
+
+            <input type="file" id="studentProfilePhotoInput" accept="image/*" hidden>
+        </div>
+
+        <form id="studentProfileForm">
+            <div class="form-group">
+                <label for="studentProfileName">Nome</label>
+                <input type="text" id="studentProfileName" required>
+            </div>
+
+            <div class="form-group">
+                <label for="studentProfilePassword">Nova palavra-passe</label>
+                <input type="password" id="studentProfilePassword" autocomplete="new-password" placeholder="Deixe vazio para manter a atual">
+            </div>
+
+            <button type="submit" class="login-button">Salvar alterações</button>
+            <p id="studentProfileMessage" class="login-message"></p>
+        </form>
+    </div>
+</div>
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -222,6 +267,254 @@ document.addEventListener("DOMContentLoaded", function () {
     if (studentName) {
         studentName.textContent = currentAccount.name || currentAccount.fullName || "Aluno";
     }
+
+
+    /* =====================================================
+       PERFIL DO ALUNO
+       Mantém a mesma experiência de atualização de foto
+       usada no painel do professor.
+       ===================================================== */
+
+    let pendingStudentProfilePhoto = currentAccount.photo || null;
+
+    const studentProfileButton = document.getElementById("studentProfileButton");
+    const studentProfileOverlay = document.getElementById("studentProfileOverlay");
+    const studentCloseProfile = document.getElementById("studentCloseProfile");
+    const studentProfileForm = document.getElementById("studentProfileForm");
+    const studentProfilePhotoInput = document.getElementById("studentProfilePhotoInput");
+    const studentProfilePhotoPreview = document.getElementById("studentProfilePhotoPreview");
+    const studentProfilePhotoLetter = document.getElementById("studentProfilePhotoLetter");
+    const studentTopAvatar = document.getElementById("studentTopAvatar");
+    const studentTopAvatarLetter = document.getElementById("studentTopAvatarLetter");
+
+    function updateStudentProfileDisplay() {
+        const name = currentAccount.name || currentAccount.fullName || "Aluno";
+        const photo = currentAccount.photo || "";
+
+        if (studentName) studentName.textContent = name;
+
+        if (studentTopAvatar) {
+            if (photo) {
+                studentTopAvatar.src = photo;
+                studentTopAvatar.style.display = "block";
+            } else {
+                studentTopAvatar.removeAttribute("src");
+                studentTopAvatar.style.display = "none";
+            }
+        }
+
+        if (studentTopAvatarLetter) {
+            if (photo) {
+                studentTopAvatarLetter.style.display = "none";
+            } else {
+                studentTopAvatarLetter.textContent = name.charAt(0).toUpperCase();
+                studentTopAvatarLetter.style.display = "flex";
+            }
+        }
+
+        if (studentProfilePhotoPreview) {
+            if (photo) {
+                studentProfilePhotoPreview.src = photo;
+                studentProfilePhotoPreview.style.display = "block";
+            } else {
+                studentProfilePhotoPreview.removeAttribute("src");
+                studentProfilePhotoPreview.style.display = "none";
+            }
+        }
+
+        if (studentProfilePhotoLetter) {
+            if (photo) {
+                studentProfilePhotoLetter.style.display = "none";
+            } else {
+                studentProfilePhotoLetter.textContent = name.charAt(0).toUpperCase();
+                studentProfilePhotoLetter.style.display = "flex";
+            }
+        }
+    }
+
+    function openStudentProfile() {
+        if (!studentProfileOverlay) return;
+
+        const nameInput = document.getElementById("studentProfileName");
+        const passwordInput = document.getElementById("studentProfilePassword");
+
+        pendingStudentProfilePhoto = currentAccount.photo || null;
+
+        if (nameInput) nameInput.value = currentAccount.name || currentAccount.fullName || "";
+        if (passwordInput) passwordInput.value = "";
+
+        updateStudentProfileDisplay();
+        studentProfileOverlay.classList.add("profile-open");
+    }
+
+    if (studentProfileButton) {
+        studentProfileButton.addEventListener("click", openStudentProfile);
+    }
+
+    if (studentCloseProfile) {
+        studentCloseProfile.addEventListener("click", function () {
+            studentProfileOverlay.classList.remove("profile-open");
+        });
+    }
+
+    if (studentProfileOverlay) {
+        studentProfileOverlay.addEventListener("click", function (event) {
+            if (event.target === studentProfileOverlay) {
+                studentProfileOverlay.classList.remove("profile-open");
+            }
+        });
+    }
+
+    if (studentProfilePhotoInput) {
+        studentProfilePhotoInput.addEventListener("change", function (event) {
+            const file = event.target.files && event.target.files[0];
+
+            if (!file || !file.type.startsWith("image/")) {
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                const originalPhoto = e.target.result;
+                const image = new Image();
+
+                image.onload = function () {
+                    const maxSize = 600;
+                    let width = image.naturalWidth;
+                    let height = image.naturalHeight;
+
+                    if (width > height && width > maxSize) {
+                        height = Math.round(height * maxSize / width);
+                        width = maxSize;
+                    } else if (height >= width && height > maxSize) {
+                        width = Math.round(width * maxSize / height);
+                        height = maxSize;
+                    }
+
+                    const canvas = document.createElement("canvas");
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    const context = canvas.getContext("2d");
+                    context.drawImage(image, 0, 0, width, height);
+
+                    pendingStudentProfilePhoto = canvas.toDataURL("image/jpeg", 0.82);
+                    updateStudentProfileDisplayPreview(pendingStudentProfilePhoto);
+                };
+
+                image.onerror = function () {
+                    pendingStudentProfilePhoto = originalPhoto;
+                    updateStudentProfileDisplayPreview(pendingStudentProfilePhoto);
+                };
+
+                image.src = originalPhoto;
+            };
+
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function updateStudentProfileDisplayPreview(photo) {
+        if (studentProfilePhotoPreview) {
+            studentProfilePhotoPreview.src = photo;
+            studentProfilePhotoPreview.style.display = "block";
+        }
+        if (studentProfilePhotoLetter) {
+            studentProfilePhotoLetter.style.display = "none";
+        }
+    }
+
+    if (studentProfileForm) {
+        studentProfileForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const message = document.getElementById("studentProfileMessage");
+            const nameInput = document.getElementById("studentProfileName");
+            const passwordInput = document.getElementById("studentProfilePassword");
+            const name = nameInput ? nameInput.value.trim() : "";
+            const password = passwordInput ? passwordInput.value.trim() : "";
+
+            if (!name) {
+                message.style.color = "#d93025";
+                message.textContent = "Digite o seu nome.";
+                return;
+            }
+
+            if (password && password.length < 6) {
+                message.style.color = "#d93025";
+                message.textContent = "A nova palavra-passe deve ter pelo menos 6 caracteres.";
+                return;
+            }
+
+            const updatedAccount = Object.assign({}, currentAccount);
+            updatedAccount.name = name;
+
+            if (pendingStudentProfilePhoto) {
+                updatedAccount.photo = pendingStudentProfilePhoto;
+            }
+
+            if (password) {
+                updatedAccount.password = password;
+            }
+
+            try {
+                localStorage.setItem("apsan_account", JSON.stringify(updatedAccount));
+
+                let registry = [];
+                try {
+                    const stored = JSON.parse(localStorage.getItem("apsan_accounts") || "[]");
+                    registry = Array.isArray(stored) ? stored : [];
+                } catch (error) {
+                    registry = [];
+                }
+
+                const accountIndex = registry.findIndex(function (item) {
+                    return (
+                        (updatedAccount.id && item.id === updatedAccount.id) ||
+                        normalizePhone(item.phone) === normalizePhone(updatedAccount.phone)
+                    ) && item.type === "aluno";
+                });
+
+                if (accountIndex >= 0) {
+                    registry[accountIndex] = Object.assign(
+                        {},
+                        registry[accountIndex],
+                        updatedAccount,
+                        { id: registry[accountIndex].id || updatedAccount.id }
+                    );
+                } else {
+                    registry.push(Object.assign({}, updatedAccount, {
+                        id: updatedAccount.id || ("acc_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8))
+                    }));
+                }
+
+                localStorage.setItem("apsan_accounts", JSON.stringify(registry));
+                localStorage.setItem("apsan_account", JSON.stringify(updatedAccount));
+
+                Object.keys(currentAccount).forEach(function (key) {
+                    delete currentAccount[key];
+                });
+                Object.assign(currentAccount, updatedAccount);
+
+                pendingStudentProfilePhoto = currentAccount.photo || null;
+                updateStudentProfileDisplay();
+
+                message.style.color = "#16803c";
+                message.textContent = "Perfil guardado com sucesso!";
+
+                setTimeout(function () {
+                    studentProfileOverlay.classList.remove("profile-open");
+                }, 900);
+            } catch (error) {
+                console.error("Erro ao guardar perfil do aluno:", error);
+                message.style.color = "#d93025";
+                message.textContent = "Não foi possível guardar. Se a foto for muito grande, escolha outra imagem.";
+            }
+        });
+    }
+
+    updateStudentProfileDisplay();
 
 
     function readMessageNotifications() {
@@ -740,7 +1033,6 @@ document.addEventListener("DOMContentLoaded", function () {
         window.location.href = "../../index.html";
     }
 
-    document.getElementById("studentLogout").addEventListener("click", logoutStudent);
     document.getElementById("studentMenuLogout").addEventListener("click", logoutStudent);
 
     renderTeachers();
