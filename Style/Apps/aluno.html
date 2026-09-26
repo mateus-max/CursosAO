@@ -10,13 +10,28 @@
 
 <header class="app-header">
     <div class="header-left">
-        <button class="menu-button" id="studentMenuButton" type="button">☰</button>
+        <button class="menu-button" id="studentMenuButton" type="button" aria-label="Abrir menu" aria-expanded="false">☰</button>
         <strong>APSAN Academy</strong>
     </div>
     <button class="profile-avatar-button" id="studentLogout" type="button" aria-label="Sair">↪</button>
 </header>
 
-<main class="app-content student-content">
+<aside class="student-side-menu" id="studentSideMenu" aria-hidden="true">
+    <div class="student-side-menu-header">
+        <strong>APSAN ACADEMY</strong>
+        <span>Área do aluno</span>
+    </div>
+    <nav aria-label="Menu do aluno">
+        <a href="#top" data-student-menu-link>⌂ <span>Início</span></a>
+        <a href="#teacherResults" data-student-menu-link>🎓 <span>Professores</span></a>
+        <a href="#myEnrollments" data-student-menu-link>▣ <span>Minhas matrículas</span></a>
+        <a href="#teacherResults" data-student-menu-link>▶ <span>Aulas</span></a>
+    </nav>
+    <button type="button" class="student-side-menu-logout" id="studentMenuLogout">↪ Sair da conta</button>
+</aside>
+<div class="student-menu-backdrop" id="studentMenuBackdrop"></div>
+
+<main class="app-content student-content" id="top">
 
     <section class="student-hero">
         <div>
@@ -128,6 +143,46 @@ document.addEventListener("DOMContentLoaded", function () {
         window.location.href = "../../index.html";
         return;
     }
+
+    const menuButton = document.getElementById("studentMenuButton");
+    const sideMenu = document.getElementById("studentSideMenu");
+    const menuBackdrop = document.getElementById("studentMenuBackdrop");
+
+    function closeStudentMenu() {
+        if (!sideMenu) return;
+        sideMenu.classList.remove("menu-open");
+        if (menuBackdrop) menuBackdrop.classList.remove("menu-open");
+        if (menuButton) {
+            menuButton.setAttribute("aria-expanded", "false");
+            menuButton.setAttribute("aria-label", "Abrir menu");
+        }
+        sideMenu.setAttribute("aria-hidden", "true");
+    }
+
+    function toggleStudentMenu() {
+        if (!sideMenu) return;
+        const open = !sideMenu.classList.contains("menu-open");
+        sideMenu.classList.toggle("menu-open", open);
+        if (menuBackdrop) menuBackdrop.classList.toggle("menu-open", open);
+        if (menuButton) {
+            menuButton.setAttribute("aria-expanded", String(open));
+            menuButton.setAttribute("aria-label", open ? "Fechar menu" : "Abrir menu");
+        }
+        sideMenu.setAttribute("aria-hidden", String(!open));
+    }
+
+    if (menuButton) {
+        menuButton.addEventListener("click", toggleStudentMenu);
+    }
+    if (menuBackdrop) {
+        menuBackdrop.addEventListener("click", closeStudentMenu);
+    }
+    document.querySelectorAll("[data-student-menu-link]").forEach(function(link) {
+        link.addEventListener("click", closeStudentMenu);
+    });
+    document.addEventListener("keydown", function(event) {
+        if (event.key === "Escape") closeStudentMenu();
+    });
 
     const searchInput = document.getElementById("teacherSearch");
     const results = document.getElementById("teacherResults");
@@ -402,10 +457,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     searchInput.addEventListener("input", renderTeachers);
 
-    document.getElementById("studentLogout").addEventListener("click", function () {
+    function logoutStudent() {
         localStorage.removeItem("apsan_logged_in");
+        localStorage.removeItem("apsan_phone");
+        localStorage.removeItem("apsan_user_type");
+        closeStudentMenu();
         window.location.href = "../../index.html";
-    });
+    }
+
+    document.getElementById("studentLogout").addEventListener("click", logoutStudent);
+    document.getElementById("studentMenuLogout").addEventListener("click", logoutStudent);
 
     renderTeachers();
     renderEnrollments();
