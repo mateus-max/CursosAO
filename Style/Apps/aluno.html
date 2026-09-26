@@ -24,8 +24,9 @@
     <nav aria-label="Menu do aluno">
         <a href="#top" data-student-menu-link>⌂ <span>Início</span></a>
         <a href="#teacherSearchPanel" data-student-menu-link>🔎 <span>Pesquisar professores</span></a>
+        <a href="#classroom" data-student-menu-link>📚 <span>Meus cursos</span></a>
         <a href="#myEnrollments" data-student-menu-link>▣ <span>Minhas matrículas</span></a>
-        <a href="#teacherResults" data-student-menu-link>▶ <span>Aulas</span></a>
+        <a href="#classroom" data-student-menu-link>▶ <span>Aulas</span></a>
     </nav>
     <button type="button" class="student-side-menu-logout" id="studentMenuLogout">↪ Sair da conta</button>
 </aside>
@@ -60,6 +61,19 @@
 
     <section id="teacherResults" class="teacher-results"></section>
 
+    <section class="student-classroom" id="classroom">
+        <div class="section-heading">
+            <div>
+                <h2>Meus Cursos</h2>
+                <p class="section-subtitle">Aulas, vídeo-aulas e materiais publicados pelos seus professores.</p>
+            </div>
+            <span id="classroomCount">0</span>
+        </div>
+        <div id="classroomContent">
+            <div class="empty-state">Depois da confirmação da matrícula pela direção, os conteúdos dos seus cursos aparecerão aqui.</div>
+        </div>
+    </section>
+
     <section class="student-enrollments">
         <div class="section-heading">
             <h2>Minhas matrículas</h2>
@@ -75,8 +89,8 @@
     <nav class="student-bottom-nav">
         <a class="active" href="#top">⌂<small>Início</small></a>
         <a href="#teacherSearchPanel">🔎<small>Pesquisar</small></a>
-        <a href="#myEnrollments">▣<small>Meus Cursos</small></a>
-        <a href="#teacherResults">▶<small>Aulas</small></a>
+        <a href="#classroom">▣<small>Meus Cursos</small></a>
+        <a href="#classroom">▶<small>Aulas</small></a>
         <a href="#myEnrollments">●<small>Perfil</small></a>
     </nav>
 
@@ -420,6 +434,134 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 900);
     });
 
+    function getPublishedTeacherProfile(teacherPhone) {
+        return getProfiles().find(function (profile) {
+            return profile.teacherPhone === teacherPhone;
+        }) || null;
+    }
+
+    function safeHttpUrl(value) {
+        try {
+            const url = new URL(value);
+            return (url.protocol === "http:" || url.protocol === "https:")
+                ? url.href
+                : "";
+        } catch (error) {
+            return "";
+        }
+    }
+
+    function youtubeEmbedUrl(value) {
+        const safe = safeHttpUrl(value);
+        if (!safe) return "";
+        try {
+            const url = new URL(safe);
+            if (url.hostname.includes("youtube.com")) {
+                const id = url.searchParams.get("v");
+                return id ? "https://www.youtube.com/embed/" + encodeURIComponent(id) : "";
+            }
+            if (url.hostname === "youtu.be") {
+                return "https://www.youtube.com/embed/" + encodeURIComponent(url.pathname.slice(1));
+            }
+        } catch (error) {}
+        return "";
+    }
+
+    function renderClassroom() {
+        const classroom = document.getElementById("classroomContent");
+        const classroomCount = document.getElementById("classroomCount");
+        if (!classroom) return;
+
+        const official = getEnrollments().filter(function (item) {
+            return currentAccount &&
+                item.studentPhone === currentAccount.phone &&
+                item.status === "official";
+        });
+
+        if (classroomCount) classroomCount.textContent = official.length;
+
+        if (!official.length) {
+            classroom.innerHTML =
+                '<div class="empty-state"><strong>A sua sala de aula ainda está vazia.</strong><p>Os conteúdos ficam disponíveis depois da confirmação da matrícula pela direção.</p></div>';
+            return;
+        }
+
+        let totalContent = 0;
+
+        classroom.innerHTML = official.map(function (enrollment) {
+            const teacher = getPublishedTeacherProfile(enrollment.teacherPhone);
+            const teacherName = enrollment.teacherName || (teacher && teacher.teacherName) || "Professor";
+            const course = enrollment.course || (teacher && teacher.course) || "Curso";
+
+            let lessons = [];
+            let materials = [];
+
+            try {
+                lessons = JSON.parse(localStorage.getItem("apsan_professor_lessons_" + enrollment.teacherPhone) || "[]");
+                materials = JSON.parse(localStorage.getItem("apsan_professor_materials_" + enrollment.teacherPhone) || "[]");
+            } catch (error) {}
+
+            lessons = Array.isArray(lessons) ? lessons.filter(function (item) {
+                return item && item.published !== false;
+            }) : [];
+            materials = Array.isArray(materials) ? materials.filter(function (item) {
+                return item && item.published !== false;
+            }) : [];
+
+            totalContent += lessons.length + materials.length;
+
+            const lessonHtml = lessons.length
+                ? '<div class="classroom-block"><h4>📖 Aulas</h4>' +
+                    lessons.map(function (lesson) {
+                        return '<article class="classroom-lesson">' +
+                            '<div class="classroom-icon">▶</div>' +
+                            '<div><strong>' + esc(lesson.title) + '</strong>' +
+                            '<small>' + esc(lesson.date || "") + (lesson.time ? " · " + esc(lesson.time) : "") + '</small>' +
+                            (lesson.description ? '<p>' + esc(lesson.description) + '</p>' : '') +
+                            '</div></article>';
+                    }).join("") +
+                  '</div>'
+                : '<div class="classroom-block"><h4>📖 Aulas</h4><p class="empty-state">Nenhuma aula publicada ainda.</p></div>';
+
+            const materialHtml = materials.length
+                ? '<div class="classroom-block"><h4>📚 Materiais e vídeo-aulas</h4>' +
+                    materials.map(function (material) {
+                        const safe = safeHttpUrl(material.link || "");
+                        const youtube = youtubeEmbedUrl(material.link || "");
+                        let media = "";
+
+                        if (material.type === "Vídeo" && youtube) {
+                            media = '<div class="classroom-video"><iframe src="' + esc(youtube) + '" title="' + esc(material.title) + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>';
+                        } else if (material.type === "Vídeo" && safe && /.(mp4|webm|ogg)(?.*)?$/i.test(safe)) {
+                            media = '<div class="classroom-video"><video controls preload="metadata" src="' + esc(safe) + '"></video></div>';
+                        } else if (safe) {
+                            media = '<a class="classroom-material-link" href="' + esc(safe) + '" target="_blank" rel="noopener">Abrir material</a>';
+                        }
+
+                        return '<article class="classroom-material">' +
+                            '<div><span class="classroom-material-type">' + esc(material.type || "Material") + '</span>' +
+                            '<strong>' + esc(material.title) + '</strong>' +
+                            (material.description ? '<p>' + esc(material.description) + '</p>' : '') +
+                            media + '</div></article>';
+                    }).join("") +
+                  '</div>'
+                : '<div class="classroom-block"><h4>📚 Materiais e vídeo-aulas</h4><p class="empty-state">Nenhum material publicado ainda.</p></div>';
+
+            return '<article class="classroom-course">' +
+                '<div class="classroom-course-header">' +
+                    (teacher && teacher.teacherPhoto ? '<img src="' + esc(teacher.teacherPhoto) + '" alt="Professor">' : '<div class="classroom-course-avatar">' + esc(teacherName.charAt(0)) + '</div>') +
+                    '<div><span>CURSO</span><h3>' + esc(course) + '</h3><p>Professor: ' + esc(teacherName) + '</p></div>' +
+                '</div>' +
+                lessonHtml + materialHtml +
+            '</article>';
+        }).join("");
+
+        const badge = document.getElementById("studentCourseCount");
+        if (badge) badge.textContent = official.length;
+
+        return totalContent;
+    }
+
     function renderEnrollments() {
 
         const all = getEnrollments();
@@ -470,6 +612,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     renderTeachers();
     renderEnrollments();
+    renderClassroom();
 });
 </script>
 </body>
