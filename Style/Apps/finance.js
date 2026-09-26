@@ -182,7 +182,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const last4 = document.getElementById("teacherCardLast4");
 
         if (cardName) cardName.textContent = account.name || "Professor";
-        if (balance) balance.textContent = money(totals.balance);
+        const availableBalance = Math.max(0, totals.balance - pendingTotal);
+        if (balance) balance.textContent = money(availableBalance);
         if (income) income.textContent = money(totals.income);
         if (expense) expense.textContent = money(totals.expense);
         if (pendingEl) pendingEl.textContent = money(pendingTotal);
@@ -381,8 +382,12 @@ document.addEventListener("DOMContentLoaded", function () {
             '</div>';
         }).join("");
 
+        const pendingCount = withdrawals.filter(function (item) {
+            return item.status === "pending";
+        }).length;
+
         list.innerHTML =
-            '<div class="admin-finance-withdrawals"><div class="admin-panel-title"><h3>Pedidos de saque</h3><span>' + pendingRows.split('<div class="admin-finance-withdrawal">').length - 1 + ' pendentes</span></div>' +
+            '<div class="admin-finance-withdrawals"><div class="admin-panel-title"><h3>Pedidos de saque</h3><span>' + pendingCount + ' pendentes</span></div>' +
             (pendingRows || '<p class="admin-empty">Não existem pedidos de saque pendentes.</p>') +
             '</div>' +
             '<div class="admin-finance-teachers"><div class="admin-panel-title"><h3>Carteiras dos professores</h3><span>Atualização automática após confirmação do pagamento</span></div>' +
