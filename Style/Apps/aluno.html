@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>APSAN Academy - Aluno</title>
-<link rel="stylesheet" href="../style.css?v=student-menu-fix-20260926">
+<link rel="stylesheet" href="../style.css?v=menu-navigation-20260926">
 </head>
 <body class="app-page student-page">
 
@@ -157,7 +157,8 @@ document.addEventListener("DOMContentLoaded", function () {
      * o utilizador errado.
      */
     function normalizePhone(value) {
-        return String(value || "").replace(/\D/g, "");
+        const digits = String(value || "").replace(/\D/g, "");
+        return digits.length > 9 ? digits.slice(-9) : digits;
     }
 
     function getStudentAccount() {
@@ -247,7 +248,22 @@ document.addEventListener("DOMContentLoaded", function () {
         menuBackdrop.addEventListener("click", closeStudentMenu);
     }
     document.querySelectorAll("[data-student-menu-link]").forEach(function(link) {
-        link.addEventListener("click", closeStudentMenu);
+        link.addEventListener("click", function(event) {
+            const href = link.getAttribute("href") || "";
+            if (href.charAt(0) !== "#") return;
+            event.preventDefault();
+            closeStudentMenu();
+            const target = document.getElementById(href.slice(1));
+            if (target) {
+                document.querySelectorAll("[data-student-menu-focus]").forEach(function(item) {
+                    item.classList.remove("menu-focus-active");
+                });
+                target.setAttribute("data-student-menu-focus", "true");
+                target.classList.add("menu-focus-active");
+                target.scrollIntoView({behavior:"smooth", block:"start"});
+                window.history.replaceState(null, "", href);
+            }
+        });
     });
     document.addEventListener("keydown", function(event) {
         if (event.key === "Escape") closeStudentMenu();
