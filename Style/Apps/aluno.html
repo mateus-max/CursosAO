@@ -27,7 +27,7 @@
         <a href="#classroom" data-student-menu-link>📚 <span>Meus cursos</span></a>
         <a href="#myEnrollments" data-student-menu-link>▣ <span>Minhas matrículas</span></a>
         <a href="#classroom" data-student-menu-link>▶ <span>Aulas</span></a>
-        <a href="mensagens.html" data-student-menu-link>Mensagens</a>
+        <a href="mensagens.html" data-student-menu-link class="messages-menu-link">💬 <span>Mensagens</span> <span id="studentMessageMenuBadge" class="menu-notification-badge" hidden>0</span></a>
     </nav>
     <button type="button" class="student-side-menu-logout" id="studentMenuLogout">↪ Sair da conta</button>
 </aside>
@@ -49,6 +49,14 @@
         <article><span>📈</span><strong id="studentProgress">0%</strong><small>Meu progresso</small></article>
         <article><span>✓</span><strong id="studentOfficialCount">0</strong><small>Matrículas oficiais</small></article>
     </section>
+
+    <div id="studentMessageNotice" class="student-message-notice" hidden>
+        <div>
+            <strong id="studentMessageNoticeTitle">Nova mensagem</strong>
+            <small id="studentMessageNoticeText">Tem mensagens novas do seu professor.</small>
+        </div>
+        <a href="mensagens.html">Abrir mensagens →</a>
+    </div>
 
     <section class="teacher-search-panel" id="teacherSearchPanel">
         <div class="section-heading">
@@ -214,6 +222,59 @@ document.addEventListener("DOMContentLoaded", function () {
     if (studentName) {
         studentName.textContent = currentAccount.name || currentAccount.fullName || "Aluno";
     }
+
+
+    function readMessageNotifications() {
+        try {
+            const items = JSON.parse(localStorage.getItem("apsan_message_notifications") || "[]");
+            return Array.isArray(items) ? items : [];
+        } catch (error) {
+            return [];
+        }
+    }
+
+    function studentPhoneKey(value) {
+        const digits = String(value || "").replace(/\D/g, "");
+        return digits.length > 9 ? digits.slice(-9) : digits;
+    }
+
+    const studentMessagePhone = studentPhoneKey(currentAccount.phone);
+
+    function updateStudentMessageNotifications() {
+        const unread = readMessageNotifications().filter(function (item) {
+            return studentPhoneKey(item.recipientPhone) === studentMessagePhone && !item.readAt;
+        });
+
+        const count = unread.length;
+        const badge = document.getElementById("studentMessageMenuBadge");
+        const notice = document.getElementById("studentMessageNotice");
+        const title = document.getElementById("studentMessageNoticeTitle");
+        const text = document.getElementById("studentMessageNoticeText");
+
+        if (badge) {
+            badge.textContent = count;
+            badge.hidden = count === 0;
+        }
+
+        if (notice) {
+            notice.hidden = count === 0;
+            if (count) {
+                title.textContent = count === 1 ? "Você recebeu uma nova mensagem" : "Você recebeu novas mensagens";
+                text.textContent = count === 1
+                    ? "O seu professor enviou uma mensagem."
+                    : "Os seus professores enviaram " + count + " novas mensagens.";
+            }
+        }
+    }
+
+    window.addEventListener("storage", function (event) {
+        if (event.key === "apsan_message_notifications") {
+            updateStudentMessageNotifications();
+        }
+    });
+
+    updateStudentMessageNotifications();
+    setInterval(updateStudentMessageNotifications, 2000);
 
     const menuButton = document.getElementById("studentMenuButton");
     const sideMenu = document.getElementById("studentSideMenu");
