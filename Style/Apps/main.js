@@ -100,171 +100,159 @@ document.addEventListener("DOMContentLoaded", function () {
        LOGIN
        ===================================================== */
 
-    const loginForm =
-        document.getElementById("loginForm");
-
+    const loginForm = document.getElementById("loginForm");
 
     if (loginForm) {
+        const userTypeInput = document.getElementById("userType");
+        const phoneGroup = document.getElementById("phoneGroup");
+        const phoneInput = document.getElementById("phone");
+        const emailGroup = document.getElementById("emailGroup");
+        const emailInput = document.getElementById("email");
+        const passwordInput = document.getElementById("password");
+        const createAccount = document.getElementById("createAccount");
 
-        loginForm.addEventListener(
-            "submit",
-            function (event) {
+        function configureLoginByRole() {
+            const isDirection = userTypeInput && userTypeInput.value === "direcao";
 
-                event.preventDefault();
+            if (phoneGroup) phoneGroup.style.display = isDirection ? "none" : "grid";
+            if (emailGroup) emailGroup.style.display = isDirection ? "grid" : "none";
 
+            if (phoneInput) phoneInput.required = !isDirection;
+            if (emailInput) emailInput.required = isDirection;
 
-                const phoneInput =
-                    document
-                    .getElementById("phone")
-                    .value
-                    .trim();
+            if (passwordInput) {
+                passwordInput.placeholder = isDirection
+                    ? "Digite a palavra-passe da Direção"
+                    : "Digite a sua palavra-passe";
+            }
 
-                const phone =
-                    phoneInput.replace(/\D/g, "");
+            if (createAccount) {
+                createAccount.style.display = isDirection ? "none" : "block";
+            }
+        }
 
-                const password =
-                    document
-                    .getElementById("password")
-                    .value
-                    .trim();
+        if (userTypeInput) {
+            userTypeInput.addEventListener("change", configureLoginByRole);
+        }
 
+        configureLoginByRole();
 
-                const userType =
-                    document
-                    .getElementById("userType")
-                    .value;
+        loginForm.addEventListener("submit", function (event) {
+            event.preventDefault();
 
+            const userType = userTypeInput ? userTypeInput.value : "";
+            const password = passwordInput ? passwordInput.value.trim() : "";
+            const message = document.getElementById("loginMessage");
 
-                const message =
-                    document
-                    .getElementById("loginMessage");
+            /*
+             * A Direção possui uma entrada própria.
+             * Não usa o cadastro de alunos/professores.
+             */
+            if (userType === "direcao") {
+                const email = emailInput
+                    ? emailInput.value.trim().toLowerCase()
+                    : "";
 
-
-                if (
-                    !phone ||
-                    !password ||
-                    !userType
-                ) {
-
-                    message.textContent =
-                        "Preencha todos os campos.";
-
+                if (!email || !password) {
+                    message.textContent = "Informe o e-mail e a palavra-passe da Direção.";
                     return;
                 }
 
+                if (
+                    email !== "suporte@apsanlda.com" ||
+                    password !== "12suporte45"
+                ) {
+                    message.textContent = "E-mail ou palavra-passe da Direção incorretos.";
+                    return;
+                }
 
-                /*
-                 * Cada conta deve ser carregada pelo número de telefone.
-                 * Antes usávamos apenas "apsan_account", que continha
-                 * somente a última conta criada. Isso fazia um aluno
-                 * aparecer como outro utilizador ao entrar.
-                 */
+                const directionAccount = {
+                    id: "direction_support",
+                    name: "Direção APSAN Academy",
+                    email: "suporte@apsanlda.com",
+                    phone: "suporte@apsanlda.com",
+                    type: "direcao"
+                };
 
-                let loginAccount = null;
+                localStorage.setItem(
+                    "apsan_account",
+                    JSON.stringify(directionAccount)
+                );
+                localStorage.setItem("apsan_phone", "suporte@apsanlda.com");
+                localStorage.setItem("apsan_user_type", "direcao");
+                localStorage.setItem("apsan_logged_in", "true");
 
+                window.location.href = "Style/Apps/direcao.html";
+                return;
+            }
+
+            const phoneInputValue = phoneInput
+                ? phoneInput.value.trim()
+                : "";
+            const phone = normalizePhone(phoneInputValue);
+
+            if (!phone || !password || !userType) {
+                message.textContent = "Preencha todos os campos.";
+                return;
+            }
+
+            let loginAccount = null;
+
+            try {
+                const accounts = ensureAccountRegistry();
+
+                loginAccount = accounts.find(function (item) {
+                    return (
+                        item &&
+                        normalizePhone(item.phone) === phone &&
+                        item.password === password &&
+                        item.type === userType
+                    );
+                }) || null;
+            } catch (error) {
+                loginAccount = null;
+            }
+
+            if (!loginAccount) {
                 try {
-                    const accounts = ensureAccountRegistry();
+                    const legacy = JSON.parse(
+                        localStorage.getItem("apsan_account") || "null"
+                    );
 
-                    loginAccount = accounts.find(function (item) {
-                        return (
-                            item &&
-                            normalizePhone(item.phone) === phone &&
-                            item.password === password &&
-                            item.type === userType
-                        );
-                    }) || null;
+                    if (
+                        legacy &&
+                        legacy.password === password &&
+                        legacy.type === userType &&
+                        normalizePhone(legacy.phone) === phone
+                    ) {
+                        loginAccount = legacy;
+                    }
                 } catch (error) {
                     loginAccount = null;
                 }
-
-
-                /*
-                 * Compatibilidade com contas antigas que ainda não
-                 * foram colocadas no catálogo.
-                 */
-                if (!loginAccount) {
-
-                    try {
-
-                        const legacy =
-                            JSON.parse(
-                                localStorage.getItem("apsan_account") || "null"
-                            );
-
-                        if (
-                            legacy &&
-                            legacy.password === password &&
-                            legacy.type === userType &&
-                            String(legacy.phone || "").replace(/\D/g, "") === phone
-                        ) {
-                            loginAccount = legacy;
-                        }
-
-                    } catch (error) {
-                        loginAccount = null;
-                    }
-                }
-
-
-                if (!loginAccount) {
-
-                    message.textContent =
-                        "Número de telefone, palavra-passe ou perfil incorreto.";
-
-                    return;
-                }
-
-
-                /*
-                 * A partir deste momento, apsan_account representa
-                 * exatamente a conta que acabou de entrar.
-                 */
-                localStorage.setItem(
-                    "apsan_account",
-                    JSON.stringify(loginAccount)
-                );
-
-
-                localStorage.setItem(
-                    "apsan_phone",
-                    phone
-                );
-
-                localStorage.setItem(
-                    "apsan_user_type",
-                    userType
-                );
-
-
-                localStorage.setItem(
-                    "apsan_logged_in",
-                    "true"
-                );
-
-
-                if (userType === "direcao") {
-
-                    window.location.href = "Style/Apps/direcao.html";
-
-                }
-
-                else if (userType === "professor") {
-
-                    window.location.href = "Style/Apps/professor.html";
-
-                }
-
-                else if (userType === "aluno") {
-
-                    window.location.href = "Style/Apps/aluno.html";
-
-                }
-
             }
-        );
 
+            if (!loginAccount) {
+                message.textContent =
+                    "Número de telefone, palavra-passe ou perfil incorreto.";
+                return;
+            }
+
+            localStorage.setItem(
+                "apsan_account",
+                JSON.stringify(loginAccount)
+            );
+            localStorage.setItem("apsan_phone", phone);
+            localStorage.setItem("apsan_user_type", userType);
+            localStorage.setItem("apsan_logged_in", "true");
+
+            if (userType === "professor") {
+                window.location.href = "Style/Apps/professor.html";
+            } else if (userType === "aluno") {
+                window.location.href = "Style/Apps/aluno.html";
+            }
+        });
     }
-
 
 
     /* =====================================================
@@ -356,6 +344,14 @@ document.addEventListener("DOMContentLoaded", function () {
     if (
         document.body.classList.contains("student-page") &&
         (!account || account.type !== "aluno")
+    ) {
+        window.location.href = "../../index.html";
+        return;
+    }
+
+    if (
+        document.body.classList.contains("admin-page") &&
+        (!account || account.type !== "direcao")
     ) {
         window.location.href = "../../index.html";
         return;
