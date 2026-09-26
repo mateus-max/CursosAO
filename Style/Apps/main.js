@@ -2,6 +2,101 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     /* =====================================================
+       CONTAS DA PLATAFORMA — FONTE PRINCIPAL
+       ===================================================== */
+
+    function normalizePhone(value) {
+        return String(value || "").replace(/\D/g, "");
+    }
+
+    function readAccountsRegistry() {
+        try {
+            const raw = JSON.parse(localStorage.getItem("apsan_accounts") || "[]");
+            return Array.isArray(raw) ? raw : [];
+        } catch (error) {
+            return [];
+        }
+    }
+
+    function saveAccountsRegistry(accounts) {
+        localStorage.setItem("apsan_accounts", JSON.stringify(accounts));
+        return accounts;
+    }
+
+    function ensureAccountRegistry() {
+        let accounts = readAccountsRegistry();
+
+        /* Migração segura: a conta antiga entra somente se ainda não existir. */
+        try {
+            const legacy = JSON.parse(localStorage.getItem("apsan_account") || "null");
+            if (legacy && legacy.phone) {
+                const legacyPhone = normalizePhone(legacy.phone);
+                const exists = accounts.some(function (item) {
+                    return normalizePhone(item && item.phone) === legacyPhone &&
+                        String(item && item.type || "") === String(legacy.type || "");
+                });
+
+                if (!exists) {
+                    accounts.push(Object.assign({}, legacy, {
+                        id: legacy.id || ("acc_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8))
+                    }));
+                }
+            }
+        } catch (error) {
+            /* mantém o catálogo existente */
+        }
+
+        let changed = false;
+        accounts = accounts.filter(function (item) {
+            return item && typeof item === "object";
+        }).map(function (item) {
+            if (!item.id) {
+                changed = true;
+                return Object.assign({}, item, {
+                    id: "acc_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8)
+                });
+            }
+            return item;
+        });
+
+        if (changed || localStorage.getItem("apsan_accounts") === null) {
+            saveAccountsRegistry(accounts);
+        }
+
+        return accounts;
+    }
+
+    function resolveCurrentAccount() {
+        const accounts = ensureAccountRegistry();
+        const phone = normalizePhone(localStorage.getItem("apsan_phone"));
+        const type = localStorage.getItem("apsan_user_type") || "";
+
+        if (phone) {
+            const registered = accounts.find(function (item) {
+                return normalizePhone(item && item.phone) === phone &&
+                    (!type || String(item.type || "") === type);
+            });
+
+            if (registered) {
+                localStorage.setItem("apsan_account", JSON.stringify(registered));
+                return registered;
+            }
+        }
+
+        try {
+            const legacy = JSON.parse(localStorage.getItem("apsan_account") || "null");
+            if (legacy && (!type || legacy.type === type)) {
+                return legacy;
+            }
+        } catch (error) {
+            /* sessão inválida */
+        }
+
+        return null;
+    }
+
+
+    /* =====================================================
        LOGIN
        ===================================================== */
 
@@ -68,30 +163,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 let loginAccount = null;
 
                 try {
-
-                    const accountsRegistry =
-                        JSON.parse(
-                            localStorage.getItem("apsan_accounts") || "[]"
-                        );
-
-                    const accounts =
-                        Array.isArray(accountsRegistry)
-                            ? accountsRegistry
-                            : [];
+                    const accounts = ensureAccountRegistry();
 
                     loginAccount = accounts.find(function (item) {
                         return (
                             item &&
-                            String(item.phone || "").replace(/\D/g, "") === phone &&
+                            normalizePhone(item.phone) === phone &&
                             item.password === password &&
                             item.type === userType
                         );
                     }) || null;
-
                 } catch (error) {
-
                     loginAccount = null;
-
                 }
 
 
@@ -255,30 +338,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let account = null;
     let pendingProfilePhoto = null;
 
-
-    const accountData =
-        localStorage.getItem(
-            "apsan_account"
-        );
-
-
-    if (accountData) {
-
-        try {
-
-            account =
-                JSON.parse(accountData);
-
-        }
-
-        catch (error) {
-
-            account = null;
-
-        }
-
-    }
-
+    account = resolveCurrentAccount();
 
 
     /* =====================================================
@@ -757,15 +817,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     const accountIndex = registry.findIndex(function (item) {
                         return (
-                            item.phone === updatedAccount.phone ||
-                            item.username === updatedAccount.username
+                            (updatedAccount.id && item.id === updatedAccount.id) ||
+                            normalizePhone(item.phone) === normalizePhone(updatedAccount.phone)
                         );
                     });
 
                     if (accountIndex >= 0) {
-                        registry[accountIndex] = updatedAccount;
+                        /* Atualiza a mesma conta sem apagar nenhuma outra. */
+                        registry[accountIndex] = Object.assign(
+                            {},
+                            registry[accountIndex],
+                            updatedAccount,
+                            { id: registry[accountIndex].id || updatedAccount.id }
+                        );
                     } else {
-                        registry.push(updatedAccount);
+                        registry.push(Object.assign({}, updatedAccount, {
+                            id: updatedAccount.id || ("acc_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8))
+                        }));
                     }
 
                     localStorage.setItem(
