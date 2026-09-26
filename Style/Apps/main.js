@@ -18,11 +18,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 event.preventDefault();
 
 
-                const phone =
+                const phoneInput =
                     document
                     .getElementById("phone")
                     .value
                     .trim();
+
+                const phone =
+                    phoneInput.replace(/\D/g, "");
 
                 const password =
                     document
@@ -79,7 +82,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     loginAccount = accounts.find(function (item) {
                         return (
                             item &&
-                            item.phone === phone &&
+                            String(item.phone || "").replace(/\D/g, "") === phone &&
                             item.password === password &&
                             item.type === userType
                         );
@@ -109,7 +112,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             legacy &&
                             legacy.password === password &&
                             legacy.type === userType &&
-                            legacy.phone === phone
+                            String(legacy.phone || "").replace(/\D/g, "") === phone
                         ) {
                             loginAccount = legacy;
                         }
