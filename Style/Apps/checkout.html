@@ -1,212 +1,202 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>APSAN Academy - Pagamento</title>
-
-    <link rel="stylesheet" href="Style/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>APSAN Academy — Checkout</title>
+<style>
+*{box-sizing:border-box}
+:root{--blue:#075bd1;--dark:#0a2852;--green:#17684f;--muted:#6b7280;--line:#e1e8ee;--bg:#f6f9fc}
+body{margin:0;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:#101828}
+button,input,textarea{font:inherit}
+.checkout-app{width:min(100%,520px);min-height:100vh;margin:auto;background:#fff}
+.checkout-header{height:70px;padding:10px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #e9eef4;background:#fff;position:sticky;top:0;z-index:20}
+.back-btn{width:40px;height:40px;border:0;background:#eef5ff;color:var(--blue);border-radius:12px;font-size:25px;cursor:pointer}
+.brand{display:flex;align-items:center;gap:9px;color:#083b84;font-weight:900}
+.brand-mark{width:38px;height:32px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,#063d9c,#1478ec);clip-path:polygon(50% 0,100% 20%,100% 72%,50% 100%,0 72%,0 20%);font-weight:900}
+.brand small{display:block;color:#60738d;font-size:8px;letter-spacing:1px}
+main{padding:18px 16px 38px}
+.step{margin-bottom:16px;border:1px solid var(--line);border-radius:22px;padding:18px;background:#fff;box-shadow:0 5px 18px rgba(19,48,82,.045)}
+.step-title{display:flex;align-items:center;gap:9px;margin:0 0 14px;color:var(--green);font-size:20px;font-weight:900}
+.step-title .num{width:29px;height:29px;border-radius:50%;display:grid;place-items:center;background:var(--blue);color:#fff;font-size:14px}
+.subtitle{margin:-5px 0 15px;color:var(--muted);line-height:1.45;font-size:14px}
+.summary{background:#edf5ff;border:1px solid #dbe9fb;border-radius:14px;padding:14px;margin-bottom:17px}
+.summary h3{margin:0 0 8px;color:var(--dark);font-size:15px}
+.summary-row{display:flex;justify-content:space-between;gap:10px;margin:6px 0;font-size:13px}
+.summary-row strong{color:#101828}
+.method-grid{display:grid;gap:12px}
+.method{width:100%;text-align:left;border:2px solid #e4e9ed;border-radius:20px;background:#fff;padding:17px;display:flex;align-items:center;gap:15px;cursor:pointer;transition:.15s}
+.method.selected{border-color:var(--blue);background:#f4f8ff;box-shadow:0 4px 15px rgba(7,91,209,.10)}
+.method-icon{width:62px;height:62px;flex:0 0 62px;border-radius:17px;display:grid;place-items:center;background:#f5f7f8;font-size:33px}
+.method h3{margin:0 0 5px;font-size:17px}
+.method p{margin:0;color:#7b8490;font-size:13px;line-height:1.35}
+.radio{margin-left:auto;width:22px;height:22px;border:2px solid #9aa7b5;border-radius:50%;position:relative}
+.method.selected .radio{border-color:var(--blue)}
+.method.selected .radio:after{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--blue)}
+.payment-data{margin-top:13px;border:1px solid #dfe8e5;border-radius:18px;padding:15px;background:#fbfdfc}
+.payment-brand{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.bfa-logo{width:70px;height:38px;display:grid;place-items:center;background:#fff;border:1px solid #edf0f3;font-size:22px;font-weight:900;color:#173d73}
+.express-logo{width:62px;height:55px;border-radius:13px;background:#ff8b00;color:#fff;display:grid;place-items:center;font-weight:900;font-size:10px;text-align:center}
+.data-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 0;border-top:1px solid #edf0f1}
+.data-label{font-size:12px;color:#687583}
+.data-value{font-size:16px;font-weight:900;color:#172033;white-space:nowrap;word-break:normal;overflow:visible}
+.copy-btn{flex:0 0 auto;border:1px solid #6a9f8c;background:#fff;color:var(--green);border-radius:12px;padding:8px 11px;font-size:11px;font-weight:900;cursor:pointer}
+.instructions{margin-top:13px;padding:14px;border-radius:15px;background:#fff7e7;border:1px solid #f5dfae}
+.instructions h3{margin:0 0 9px;font-size:15px}
+.instructions p{margin:7px 0;font-size:13px;line-height:1.4}
+.hidden{display:none!important}
+.upload-box{border:2px dashed #9ac6b8;border-radius:18px;padding:22px 14px;text-align:center;background:#fbfefd;cursor:pointer}
+.upload-box strong{display:block;font-size:16px;margin:7px 0}
+.upload-box span{color:#718096;font-size:12px}
+.upload-box input{display:none}
+.preview{margin-top:12px;display:none;position:relative;text-align:center}
+.preview img{max-width:100%;max-height:210px;border-radius:12px;object-fit:contain}
+.field{margin-top:13px}
+.field label{display:block;margin-bottom:7px;font-weight:800;font-size:12px}
+.field input,.field textarea{width:100%;border:1px solid #d8e0e8;border-radius:12px;padding:12px;outline:0}
+.field textarea{min-height:75px;resize:vertical}
+.primary{width:100%;border:0;border-radius:14px;padding:15px;background:linear-gradient(135deg,#0870ed,#084bb8);color:#fff;font-weight:900;font-size:15px;cursor:pointer;margin-top:14px}
+.secondary{width:100%;border:1px solid #dbe3eb;border-radius:14px;padding:13px;background:#fff;color:#31506f;font-weight:800;cursor:pointer;margin-top:8px}
+.notice{display:none;margin-top:13px;border-radius:15px;padding:14px;background:#e9f9ef;color:#17643e;font-size:13px;line-height:1.45}
+@media(max-width:380px){.data-value{font-size:14px}.copy-btn{padding:7px 8px}.step{padding:15px}.method{padding:14px}}
+</style>
 </head>
-
-<body class="app-page">
-
-    <!-- CABEÇALHO -->
-
-    <header class="app-header">
-
-        <div>
-            <strong>APSAN Academy</strong>
-        </div>
-
-        <button
-            type="button"
-            data-back
-            class="login-button"
-            style="width:auto; height:40px; padding:0 16px;"
-        >
-            Voltar
-        </button>
-
-    </header>
-
-
-    <!-- CHECKOUT -->
-
-    <main class="app-content">
-
-        <div style="margin-bottom:25px;">
-
-            <h1>Pagamento</h1>
-
-            <p style="color:#718096; margin-top:6px;">
-                Confirme os dados antes de realizar o pagamento.
-            </p>
-
-        </div>
-
-
-        <section class="dashboard-grid">
-
-            <!-- RESUMO -->
-
-            <div class="dashboard-card">
-
-                <h3>Resumo da Inscrição</h3>
-
-                <div style="margin-top:18px;">
-
-                    <p style="margin-bottom:10px;">
-                        <strong>Curso:</strong>
-                        <span id="courseName">
-                            Curso Online
-                        </span>
-                    </p>
-
-                    <p style="margin-bottom:10px;">
-                        <strong>Aluno:</strong>
-                        <span id="studentName">
-                            —
-                        </span>
-                    </p>
-
-                    <p>
-                        <strong>Valor:</strong>
-                        <span id="coursePrice">
-                            0 Kz
-                        </span>
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <!-- PAGAMENTO -->
-
-            <div class="dashboard-card">
-
-                <h3>Método de Pagamento</h3>
-
-                <form id="checkoutForm" style="margin-top:18px;">
-
-                    <div class="form-group">
-
-                        <label for="paymentMethod">
-                            Selecione o método
-                        </label>
-
-                        <select
-                            id="paymentMethod"
-                            required
-                        >
-
-                            <option value="">
-                                Selecione
-                            </option>
-
-                            <option value="transferencia">
-                                Transferência Bancária
-                            </option>
-
-                            <option value="multicaixa">
-                                Multicaixa Express
-                            </option>
-
-                            <option value="outro">
-                                Outro método
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label for="paymentReference">
-                            Referência / Comprovativo
-                        </label>
-
-                        <input
-                            type="text"
-                            id="paymentReference"
-                            placeholder="Digite a referência"
-                        >
-
-                    </div>
-
-
-                    <button
-                        type="submit"
-                        class="login-button"
-                    >
-                        Confirmar Pagamento
-                    </button>
-
-                    <p
-                        id="paymentMessage"
-                        class="login-message"
-                    ></p>
-
-                </form>
-
-            </div>
-
-        </section>
-
-    </main>
-
-
-    <script src="Apps/main.js"></script>
-
-    <script>
-
-        const checkoutForm =
-            document.getElementById("checkoutForm");
-
-        if (checkoutForm) {
-
-            checkoutForm.addEventListener(
-                "submit",
-                function(event) {
-
-                    event.preventDefault();
-
-                    const method =
-                        document.getElementById(
-                            "paymentMethod"
-                        ).value;
-
-                    const reference =
-                        document.getElementById(
-                            "paymentReference"
-                        ).value.trim();
-
-                    const message =
-                        document.getElementById(
-                            "paymentMessage"
-                        );
-
-                    if (!method || !reference) {
-
-                        message.textContent =
-                            "Preencha todos os dados do pagamento.";
-
-                        return;
-                    }
-
-                    message.style.color = "#16803c";
-
-                    message.textContent =
-                        "Pagamento registado com sucesso.";
-
-                }
-            );
-
-        }
-
-    </script>
-
+<body>
+<div class="checkout-app">
+<header class="checkout-header">
+<button class="back-btn" id="backButton" type="button">‹</button>
+<div class="brand"><div class="brand-mark">A</div><div>APSAN ACADEMY<small>AULAS ONLINE</small></div></div>
+</header>
+
+<main>
+<section class="step">
+<h2 class="step-title"><span class="num">1</span> Checkout de Matrícula</h2>
+<p class="subtitle">Escolha o método de pagamento para concluir a sua matrícula.</p>
+<div class="summary">
+<h3>Resumo da Matrícula</h3>
+<div class="summary-row"><span>Curso</span><strong id="courseName">—</strong></div>
+<div class="summary-row"><span>Professor</span><strong id="teacherName">—</strong></div>
+<div class="summary-row"><span>Modalidade</span><strong id="modality">—</strong></div>
+<div class="summary-row"><span>Valor</span><strong id="coursePrice">—</strong></div>
+</div>
+<h3 style="color:var(--green);margin:0 0 12px">💳 ESCOLHA O MÉTODO DE PAGAMENTO</h3>
+<div class="method-grid">
+<button class="method" data-method="transferencia" type="button">
+<div class="method-icon">🏦</div><div><h3>TRANSFERÊNCIA BFA</h3><p>Pagamento por transferência bancária</p></div><span class="radio"></span>
+</button>
+<button class="method" data-method="multicaixa" type="button">
+<div class="method-icon" style="background:#fff1df">☀️</div><div><h3>MULTICAIXA EXPRESS</h3><p>Pagamento via MULTICAIXA Express</p></div><span class="radio"></span>
+</button>
+</div>
+</section>
+
+<section class="step hidden" id="paymentDetails">
+<h2 class="step-title"><span class="num">2</span> Detalhes do pagamento</h2>
+<div id="bfaDetails" class="payment-data hidden">
+<div class="payment-brand"><div class="bfa-logo">BFA</div><div><strong>Transferência bancária BFA</strong><br><small style="color:#718096">Dados para pagamento</small></div></div>
+<div class="data-row"><span class="data-label">Titular</span><strong class="data-value">APSAN, LDA</strong></div>
+<div class="data-row"><span class="data-label">Banco</span><strong class="data-value">BFA</strong></div>
+<div class="data-row"><span class="data-label">Número de conta</span><strong class="data-value">36350302130001</strong><button class="copy-btn" data-copy="36350302130001" type="button">COPIAR</button></div>
+<div class="data-row"><span class="data-label">Moeda</span><strong class="data-value">AKZ</strong></div>
+<div class="data-row"><span class="data-label">NIB</span><strong class="data-value">000600006350302130157</strong><button class="copy-btn" data-copy="000600006350302130157" type="button">COPIAR</button></div>
+<div class="data-row"><span class="data-label">IBAN</span><strong class="data-value">000600006350302130157</strong><button class="copy-btn" data-copy="000600006350302130157" type="button">COPIAR</button></div>
+</div>
+<div id="expressDetails" class="payment-data hidden">
+<div class="payment-brand"><div class="express-logo">MULTICAIXA<br>EXPRESS</div><div><strong>Multicaixa Express</strong><br><small style="color:#718096">Pagamento via MULTICAIXA Express</small></div></div>
+<div class="data-row"><span class="data-label">Número</span><strong class="data-value">931 057 760</strong><button class="copy-btn" data-copy="931057760" type="button">COPIAR</button></div>
+<div class="data-row"><span class="data-label">Entidade</span><strong class="data-value">APSAN, LDA</strong></div>
+<div class="data-row"><span class="data-label">Valor</span><strong class="data-value" id="expressAmount">—</strong></div>
+<div class="instructions"><h3>Como pagar</h3><p><b>1.</b> Abra o Multicaixa Express.</p><p><b>2.</b> Utilize o número <b>931 057 760</b>.</p><p><b>3.</b> Introduza o valor da matrícula.</p><p><b>4.</b> Confirme o pagamento e guarde o comprovativo.</p></div>
+</div>
+<button class="primary" id="paidButton" type="button">Já efetuei o pagamento →</button>
+</section>
+
+<section class="step hidden" id="receiptSection">
+<h2 class="step-title"><span class="num">3</span> Comprovativo de Pagamento</h2>
+<p class="subtitle">Depois de efetuar o pagamento, carregue aqui o comprovativo. Ele será enviado para confirmação da administração.</p>
+<label class="upload-box" for="receiptFile"><div style="font-size:38px">📎</div><strong>CARREGAR COMPROVATIVO</strong><span>PNG, JPG ou PDF · tamanho máximo recomendado: 5 MB</span><input id="receiptFile" type="file" accept="image/*,.pdf"></label>
+<div class="preview" id="receiptPreview"><img id="receiptImage" alt="Comprovativo"></div>
+<div class="field"><label for="paymentReference">Referência / identificação (opcional)</label><input id="paymentReference" type="text" placeholder="Ex.: referência, data ou observação"></div>
+<div class="field"><label for="paymentNote">Informação adicional (opcional)</label><textarea id="paymentNote" placeholder="Observações sobre o pagamento..."></textarea></div>
+<button class="primary" id="sendButton" type="button">Enviar para confirmação ↗</button>
+<p id="checkoutMessage" class="notice"></p>
+</section>
+
+<section class="step hidden" id="successSection">
+<h2 class="step-title"><span class="num">✓</span> Conclusão</h2>
+<div style="padding:24px 15px;text-align:center;background:#e9f9ef;border-radius:16px;color:#17643e">
+<div style="font-size:44px">✓</div><h2 style="margin:5px 0">Pagamento enviado com sucesso!</h2>
+<p style="line-height:1.5">O comprovativo foi enviado para confirmação.</p>
+</div>
+<div class="summary" style="margin-top:14px"><h3>Estado da matrícula</h3><strong style="font-size:18px">🕐 Aguardando confirmação</strong><p style="font-size:12px;color:#667085;line-height:1.45">A administração da APSAN Academy irá verificar o pagamento. Após a confirmação, a matrícula será ativada como oficial.</p></div>
+<button class="primary" id="finishButton" type="button">⌂ Voltar para o painel</button>
+</section>
+</main>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded",function(){
+ const account=JSON.parse(localStorage.getItem("apsan_account")||"null");
+ if(!account || account.type!=="aluno"){location.href="../../index.html";return;}
+ let selectedMethod="";
+ let selectedTeacher=JSON.parse(localStorage.getItem("apsan_checkout_selection")||"null");
+ const courseName=document.getElementById("courseName"), teacherName=document.getElementById("teacherName"), modality=document.getElementById("modality"), price=document.getElementById("coursePrice");
+ if(selectedTeacher){
+   courseName.textContent=selectedTeacher.course||"—";
+   teacherName.textContent=selectedTeacher.teacherName||"—";
+   modality.textContent=selectedTeacher.modality||"—";
+   price.textContent=(selectedTeacher.price||"0")+" Kz";
+   document.getElementById("expressAmount").textContent=(selectedTeacher.price||"0")+" Kz";
+ }
+ function show(id){document.getElementById(id).classList.remove("hidden")}
+ document.getElementById("backButton").onclick=function(){history.length>1?history.back():location.href="aluno.html";};
+ document.querySelectorAll(".method").forEach(function(btn){
+   btn.onclick=function(){
+     selectedMethod=btn.dataset.method;
+     document.querySelectorAll(".method").forEach(x=>x.classList.remove("selected"));
+     btn.classList.add("selected");
+     show("paymentDetails");
+     document.getElementById("bfaDetails").classList.toggle("hidden",selectedMethod!=="transferencia");
+     document.getElementById("expressDetails").classList.toggle("hidden",selectedMethod!=="multicaixa");
+   };
+ });
+ document.querySelectorAll("[data-copy]").forEach(function(btn){
+   btn.onclick=function(){
+     navigator.clipboard.writeText(btn.dataset.copy).then(function(){
+       const old=btn.textContent;btn.textContent="COPIADO ✓";setTimeout(()=>btn.textContent=old,1300);
+     }).catch(function(){prompt("Copie o número:",btn.dataset.copy);});
+   };
+ });
+ document.getElementById("paidButton").onclick=function(){show("receiptSection");document.getElementById("receiptSection").scrollIntoView({behavior:"smooth"});};
+ let receiptData="";
+ document.getElementById("receiptFile").onchange=function(e){
+   const file=e.target.files[0]; if(!file)return;
+   if(file.size>5*1024*1024){alert("O comprovativo deve ter no máximo 5 MB.");e.target.value="";return;}
+   const reader=new FileReader();reader.onload=function(ev){
+     receiptData=ev.target.result;
+     if(file.type.startsWith("image/")){document.getElementById("receiptImage").src=receiptData;document.getElementById("receiptPreview").style.display="block";}
+   };reader.readAsDataURL(file);
+ };
+ document.getElementById("sendButton").onclick=function(){
+   const msg=document.getElementById("checkoutMessage");
+   if(!selectedTeacher){msg.style.display="block";msg.textContent="Não foi possível identificar a matrícula.";return;}
+   if(!receiptData){msg.style.display="block";msg.textContent="Carregue o comprovativo antes de enviar.";return;}
+   const items=JSON.parse(localStorage.getItem("apsan_enrollments")||"[]");
+   const existing=items.find(x=>x.studentPhone===account.phone&&x.teacherPhone===selectedTeacher.teacherPhone&&x.status!=="cancelled");
+   if(existing){msg.style.display="block";msg.textContent="Já existe uma matrícula para este professor.";return;}
+   items.push({
+     id:Date.now().toString(),studentName:account.name,studentPhone:account.phone,
+     teacherName:selectedTeacher.teacherName,teacherPhone:selectedTeacher.teacherPhone,
+     course:selectedTeacher.course,price:selectedTeacher.price,modality:selectedTeacher.modality,
+     paymentMethod:selectedMethod,paymentReference:document.getElementById("paymentReference").value.trim(),
+     paymentNote:document.getElementById("paymentNote").value.trim(),receipt:receiptData,
+     paymentStatus:"pending_confirmation",status:"pending",createdAt:new Date().toISOString()
+   });
+   localStorage.setItem("apsan_enrollments",JSON.stringify(items));
+   document.getElementById("receiptSection").classList.add("hidden");show("successSection");localStorage.removeItem("apsan_checkout_selection");document.getElementById("successSection").scrollIntoView({behavior:"smooth"});
+ };
+ document.getElementById("finishButton").onclick=function(){location.href="aluno.html";};
+});
+</script>
 </body>
 </html>
