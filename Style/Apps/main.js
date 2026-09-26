@@ -1280,12 +1280,24 @@ document.addEventListener("DOMContentLoaded", function () {
                 studentsList.innerHTML =
                     '<p class="empty-state">Os alunos oficiais aparecerão aqui após a matrícula e confirmação pela direção.</p>';
             } else {
+                const upcomingLesson = lessons
+                    .slice()
+                    .sort(function (a, b) {
+                        return (a.date + a.time).localeCompare(b.date + b.time);
+                    })[0];
+
                 studentsList.innerHTML = students.map(function (student) {
                     const name = student.name || student.studentName || "Aluno";
+                    const course = student.course || student.courseName || "Curso em acompanhamento";
+                    const nextInfo = upcomingLesson
+                        ? "Próxima aula: " + formatLessonDate(upcomingLesson.date) + " · " + upcomingLesson.time
+                        : "Sem próxima aula agendada";
+
                     return '<div class="module-row">' +
                         '<span class="module-row-icon">👤</span>' +
                         '<div><strong>' + escapeModuleText(name) + '</strong>' +
-                        '<small>Aluno confirmado</small></div>' +
+                        '<small>🟢 Aluno ativo · ' + escapeModuleText(course) + '</small>' +
+                        '<small>' + escapeModuleText(nextInfo) + '</small></div>' +
                         '</div>';
                 }).join("");
             }
