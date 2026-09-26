@@ -12,7 +12,7 @@
     <a class="messages-back" id="messagesBack" href="professor.html" aria-label="Voltar">←</a>
     <strong>APSAN Academy</strong>
   </div>
-  <strong class="messages-title">Mensagens</strong>
+  <strong class="messages-title">Mensagens <span id="globalUnreadBadge" class="messages-unread-badge" hidden>0</span></strong>
 </header>
 
 <main class="app-content messages-content">
@@ -22,6 +22,7 @@
         <div>
           <span class="hero-kicker">COMUNICAÇÃO</span>
           <h1 id="contactsTitle">Conversas</h1>
+          <small id="contactsUnreadLabel" class="messages-unread-label"></small>
         </div>
         <span class="panel-badge" id="contactsCount">0</span>
       </div>
@@ -36,20 +37,29 @@
 
       <div id="chatView" class="messages-chat-view" hidden>
         <div class="messages-chat-header">
-          <div>
-            <span class="section-label">CONVERSA PARTICULAR</span>
-            <h2 id="chatName">Contacto</h2>
-            <small id="chatMeta"></small>
+          <div class="messages-chat-person">
+            <span id="chatAvatar" class="messages-chat-avatar">C</span>
+            <div>
+              <span class="section-label">CONVERSA PARTICULAR</span>
+              <h2 id="chatName">Contacto</h2>
+              <small id="chatMeta"></small>
+            </div>
           </div>
+          <button type="button" class="messages-delete-conversation" id="deleteConversationButton">
+            Eliminar mensagens
+          </button>
         </div>
 
         <div id="chatMessages" class="messages-list" aria-live="polite"></div>
+        <div id="chatNotice" class="messages-chat-notice" hidden>
+          Conversa privada. Somente mensagens de texto.
+        </div>
 
         <form id="messageForm" class="messages-composer" autocomplete="off">
           <textarea id="messageInput" rows="3" maxlength="1000"
             placeholder="Escreva apenas uma mensagem de texto." required></textarea>
           <div class="messages-composer-footer">
-            <small>Somente texto. Não envie dados bancários, comprovativos de pagamento, imagens, vídeos ou ficheiros.</small>
+            <small>Somente texto. Não envie dados bancários, pagamentos, comprovativos ou ficheiros.</small>
             <button type="submit" class="login-button">Enviar</button>
           </div>
           <p id="messageWarning" class="login-message"></p>
@@ -75,6 +85,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  function writeJson(key, value) {
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+
   const accounts = Array.isArray(readJson("apsan_accounts", [])) ? readJson("apsan_accounts", []) : [];
   const sessionType = localStorage.getItem("apsan_user_type") || "";
   const sessionPhone = normalizePhone(localStorage.getItem("apsan_phone"));
@@ -83,9 +97,7 @@ document.addEventListener("DOMContentLoaded", function () {
     return item && item.type === sessionType && normalizePhone(item.phone) === sessionPhone;
   }) || null;
 
-  if (!account) {
-    account = readJson("apsan_account", null);
-  }
+  if (!account) account = readJson("apsan_account", null);
 
   if (!account || (account.type !== "professor" && account.type !== "aluno")) {
     window.location.href = "../../index.html";
@@ -97,14 +109,19 @@ document.addEventListener("DOMContentLoaded", function () {
   const contactsList = document.getElementById("contactsList");
   const contactsCount = document.getElementById("contactsCount");
   const contactsTitle = document.getElementById("contactsTitle");
+  const contactsUnreadLabel = document.getElementById("contactsUnreadLabel");
   const chatEmpty = document.getElementById("chatEmpty");
   const chatView = document.getElementById("chatView");
+  const chatAvatar = document.getElementById("chatAvatar");
   const chatName = document.getElementById("chatName");
   const chatMeta = document.getElementById("chatMeta");
   const chatMessages = document.getElementById("chatMessages");
+  const chatNotice = document.getElementById("chatNotice");
   const messageForm = document.getElementById("messageForm");
   const messageInput = document.getElementById("messageInput");
   const messageWarning = document.getElementById("messageWarning");
+  const deleteConversationButton = document.getElementById("deleteConversationButton");
+  const globalUnreadBadge = document.getElementById("globalUnreadBadge");
   const back = document.getElementById("messagesBack");
 
   back.href = role === "professor" ? "professor.html" : "aluno.html";
@@ -137,13 +154,12 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!contact) return;
       const phone = normalizePhone(contact.phone || contact.studentPhone || contact.teacherPhone);
       if (!phone || phone === myPhone) return;
-      const key = phone || String(contact.id || contact.name || "");
-      if (seen[key]) return;
-      seen[key] = true;
+      if (seen[phone]) return;
+      seen[phone] = true;
       result.push({
         phone: phone,
         name: contact.name || contact.studentName || contact.teacherName || "Contacto",
-        course: contact.course || ""
+        course: contact.course || contact.courseName || ""
       });
     }
 
@@ -161,7 +177,7 @@ document.addEventListener("DOMContentLoaded", function () {
       getLegacyStudents().forEach(function (item) {
         if (item && normalizePhone(item.teacherPhone) === myPhone &&
             (item.status === "confirmed" || item.status === "official")) {
-          add({ phone: item.studentPhone, name: item.studentName || item.name });
+          add({ phone: item.studentPhone, name: item.studentName || item.name, course: item.course });
         }
       });
     }
@@ -177,7 +193,16 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function saveMessages(items) {
-    localStorage.setItem("apsan_messages", JSON.stringify(items));
+    writeJson("apsan_messages", items);
+  }
+
+  function readNotifications() {
+    const items = readJson("apsan_message_notifications", []);
+    return Array.isArray(items) ? items : [];
+  }
+
+  function saveNotifications(items) {
+    writeJson("apsan_message_notifications", items);
   }
 
   function conversationKey(a, b) {
@@ -198,36 +223,84 @@ document.addEventListener("DOMContentLoaded", function () {
       "referencia de pagamento", "cartão bancário", "cartao bancario",
       "número da conta", "numero da conta", "código bancário", "codigo bancario"
     ];
+    return terms.some(function (term) { return value.includes(term); }) || /\b\d{10,}\b/.test(value);
+  }
 
-    if (terms.some(function (term) { return value.includes(term); })) return true;
-    if (/\b\d{10,}\b/.test(value)) return true;
-    return false;
+  function unreadForMe() {
+    return readNotifications().filter(function (item) {
+      return normalizePhone(item.recipientPhone) === myPhone && !item.readAt;
+    });
+  }
+
+  function unreadForConversation(phone) {
+    const key = conversationKey(myPhone, phone);
+    return unreadForMe().filter(function (item) {
+      return item.conversationKey === key;
+    });
+  }
+
+  function updateUnreadUI() {
+    const unread = unreadForMe();
+    const count = unread.length;
+    globalUnreadBadge.textContent = count;
+    globalUnreadBadge.hidden = count === 0;
+
+    contactsUnreadLabel.textContent = count
+      ? count + (count === 1 ? " nova mensagem" : " novas mensagens")
+      : "";
+
+    const professorBadge = window.parent && window.parent.document
+      ? window.parent.document.getElementById("professorMessageMenuBadge")
+      : null;
+    if (professorBadge) {
+      professorBadge.textContent = count;
+      professorBadge.hidden = count === 0;
+    }
+  }
+
+  function markConversationRead(phone) {
+    const key = conversationKey(myPhone, phone);
+    const now = new Date().toISOString();
+    const notifications = readNotifications().map(function (item) {
+      if (
+        normalizePhone(item.recipientPhone) === myPhone &&
+        item.conversationKey === key &&
+        !item.readAt
+      ) {
+        return Object.assign({}, item, { readAt: now });
+      }
+      return item;
+    });
+    saveNotifications(notifications);
+    updateUnreadUI();
   }
 
   function renderContacts() {
     const contacts = getContacts();
     contactsCount.textContent = contacts.length;
+    const all = readMessages();
 
     if (!contacts.length) {
       contactsList.innerHTML =
         '<div class="messages-no-contacts"><strong>Nenhuma conversa disponível.</strong><p>As conversas aparecem quando existir uma matrícula oficial entre os perfis.</p></div>';
+      updateUnreadUI();
       return;
     }
-
-    const all = readMessages();
 
     contactsList.innerHTML = contacts.map(function (contact) {
       const key = conversationKey(myPhone, contact.phone);
       const conversation = all.filter(function (item) { return item.conversationKey === key; });
       const last = conversation.length ? conversation[conversation.length - 1] : null;
+      const unread = unreadForConversation(contact.phone).length;
 
-      return '<button type="button" class="messages-contact" data-contact-phone="' + esc(contact.phone) + '">' +
+      return '<button type="button" class="messages-contact' + (unread ? ' has-unread' : '') + '" data-contact-phone="' + esc(contact.phone) + '">' +
         '<span class="messages-contact-avatar">' + esc((contact.name || "C").charAt(0).toUpperCase()) + '</span>' +
         '<span class="messages-contact-copy">' +
           '<strong>' + esc(contact.name) + '</strong>' +
           '<small>' + esc(contact.course || "Conversa particular") + '</small>' +
           (last ? '<em>' + esc(last.text.slice(0, 52)) + '</em>' : '') +
         '</span>' +
+        (unread ? '<span class="messages-contact-unread">' + unread + '</span>' : '') +
       '</button>';
     }).join("");
 
@@ -236,6 +309,8 @@ document.addEventListener("DOMContentLoaded", function () {
         openConversation(button.getAttribute("data-contact-phone"));
       });
     });
+
+    updateUnreadUI();
   }
 
   let selectedContact = null;
@@ -244,15 +319,19 @@ document.addEventListener("DOMContentLoaded", function () {
     selectedContact = getContacts().find(function (item) {
       return item.phone === normalizePhone(phone);
     }) || null;
-
     if (!selectedContact) return;
+
+    markConversationRead(selectedContact.phone);
 
     chatEmpty.hidden = true;
     chatView.hidden = false;
+    chatAvatar.textContent = (selectedContact.name || "C").charAt(0).toUpperCase();
     chatName.textContent = selectedContact.name;
     chatMeta.textContent = selectedContact.course || "Conversa particular";
     messageWarning.textContent = "";
+    chatNotice.hidden = false;
     renderMessages();
+    renderContacts();
     messageInput.focus();
   }
 
@@ -277,11 +356,50 @@ document.addEventListener("DOMContentLoaded", function () {
           '<span>' + esc(item.text).replace(/\n/g, "<br>") + '</span>' +
           '<small>' + new Date(item.createdAt).toLocaleString("pt-PT", { dateStyle:"short", timeStyle:"short" }) + '</small>' +
         '</div>' +
+        '<button type="button" class="message-delete" data-delete-message="' + esc(item.id) + '" aria-label="Eliminar mensagem">Eliminar</button>' +
       '</div>';
     }).join("");
 
+    chatMessages.querySelectorAll("[data-delete-message]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        const id = button.getAttribute("data-delete-message");
+        if (!window.confirm("Eliminar esta mensagem?")) return;
+
+        const remaining = readMessages().filter(function (item) {
+          return item.id !== id;
+        });
+        saveMessages(remaining);
+
+        const notifications = readNotifications().filter(function (item) {
+          return item.messageId !== id;
+        });
+        saveNotifications(notifications);
+
+        renderMessages();
+        renderContacts();
+        updateUnreadUI();
+      });
+    });
+
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
+
+  deleteConversationButton.addEventListener("click", function () {
+    if (!selectedContact) return;
+    if (!window.confirm("Eliminar todas as mensagens desta conversa?")) return;
+
+    const key = conversationKey(myPhone, selectedContact.phone);
+    saveMessages(readMessages().filter(function (item) {
+      return item.conversationKey !== key;
+    }));
+    saveNotifications(readNotifications().filter(function (item) {
+      return item.conversationKey !== key;
+    }));
+
+    renderMessages();
+    renderContacts();
+    updateUnreadUI();
+  });
 
   messageForm.addEventListener("submit", function (event) {
     event.preventDefault();
@@ -294,21 +412,23 @@ document.addEventListener("DOMContentLoaded", function () {
       messageWarning.textContent = "Escreva uma mensagem.";
       return;
     }
-
     if (hasEmoji(text)) {
       messageWarning.textContent = "Emojis não são permitidos nesta conversa.";
       return;
     }
-
     if (hasRestrictedData(text)) {
       messageWarning.textContent = "Não é permitido enviar dados bancários, informações de pagamento ou comprovativos nesta conversa.";
       return;
     }
 
+    const now = new Date().toISOString();
+    const messageId = "msg_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
+    const key = conversationKey(myPhone, selectedContact.phone);
     const items = readMessages();
+
     items.push({
-      id: "msg_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8),
-      conversationKey: conversationKey(myPhone, selectedContact.phone),
+      id: messageId,
+      conversationKey: key,
       senderPhone: myPhone,
       senderType: role,
       senderName: account.name || (role === "professor" ? "Professor" : "Aluno"),
@@ -316,17 +436,47 @@ document.addEventListener("DOMContentLoaded", function () {
       receiverType: role === "professor" ? "aluno" : "professor",
       receiverName: selectedContact.name,
       text: text,
-      createdAt: new Date().toISOString()
+      createdAt: now
     });
-
     saveMessages(items);
+
+    const notifications = readNotifications();
+    notifications.push({
+      id: "notif_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8),
+      messageId: messageId,
+      conversationKey: key,
+      recipientPhone: selectedContact.phone,
+      recipientType: role === "professor" ? "aluno" : "professor",
+      senderPhone: myPhone,
+      senderType: role,
+      senderName: account.name || (role === "professor" ? "Professor" : "Aluno"),
+      textPreview: text.slice(0, 80),
+      createdAt: now,
+      readAt: null
+    });
+    saveNotifications(notifications);
+
     messageInput.value = "";
     messageWarning.textContent = "";
     renderMessages();
     renderContacts();
+    updateUnreadUI();
+  });
+
+  window.addEventListener("storage", function (event) {
+    if (event.key === "apsan_messages" || event.key === "apsan_message_notifications") {
+      renderContacts();
+      updateUnreadUI();
+      if (selectedContact) renderMessages();
+    }
   });
 
   renderContacts();
+  updateUnreadUI();
+  setInterval(function () {
+    renderContacts();
+    if (selectedContact) renderMessages();
+  }, 2000);
 });
 </script>
 </body>
