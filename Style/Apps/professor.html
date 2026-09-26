@@ -146,8 +146,9 @@
             <a
                 href="mensagens.html"
                 data-menu-link
+                class="messages-menu-link"
             >
-                Mensagens
+                💬 Mensagens <span id="professorMessageMenuBadge" class="menu-notification-badge" hidden>0</span>
             </a>
 
         </nav>
@@ -324,7 +325,7 @@
                 <p class="empty-state">Você ainda não tem mensagens.</p>
             </div>
 
-            <button type="button" class="text-button professor-message-button">
+            <button type="button" class="text-button professor-message-button" id="openMessagesButton">
                 Abrir mensagens →
             </button>
 
@@ -651,7 +652,7 @@
 
 
 
-    <script src="main.js?v=messages-20260926"></script>
+    <script src="main.js?v=messages-notifications-20260926"></script>
 
 </body>
 </html>
