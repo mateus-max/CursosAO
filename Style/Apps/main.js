@@ -317,17 +317,32 @@ document.addEventListener("DOMContentLoaded", function () {
         const viewSections = main.querySelectorAll("[data-view-section], section[id]");
         const target = document.getElementById(targetId);
 
+        if (targetId === "admin-dashboard" && isAdmin) {
+            viewSections.forEach(function (section) {
+                section.classList.remove("single-panel-hidden");
+            });
+            main.classList.remove("single-panel-mode");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            if (!(options && options.keepHash)) {
+                window.history.replaceState(null, "", window.location.pathname);
+            }
+            return true;
+        }
+
         if (!target) return false;
 
+        const targetView = target.getAttribute("data-view-section");
+        const isHomeTarget = targetView === "home";
+
         viewSections.forEach(function (section) {
-            const isTarget = section === target ||
-                (target.getAttribute("data-view-section") === "home" &&
-                 section.getAttribute("data-view-section") === "home");
+            const isTarget = isHomeTarget
+                ? section.getAttribute("data-view-section") === "home"
+                : section === target;
 
             section.classList.toggle("single-panel-hidden", !isTarget);
         });
 
-        main.classList.toggle("single-panel-mode", target.getAttribute("data-view-section") !== "home");
+        main.classList.toggle("single-panel-mode", !isHomeTarget);
 
         if (target.getAttribute("data-view-section") !== "home") {
             target.classList.add("menu-focus-active");
@@ -395,12 +410,9 @@ document.addEventListener("DOMContentLoaded", function () {
             const homeSections = document.querySelectorAll('[data-view-section="home"]');
             const allSections = document.querySelectorAll(".professor-view-section");
             allSections.forEach(function (section) {
-                section.classList.toggle("single-panel-hidden", !section.hasAttribute("data-view-section") ||
-                    section.getAttribute("data-view-section") !== "home");
+                section.classList.remove("single-panel-hidden");
             });
-            if (main) {
-                main.classList.remove("single-panel-mode");
-            }
+            if (main) main.classList.remove("single-panel-mode");
         }
     }
 
