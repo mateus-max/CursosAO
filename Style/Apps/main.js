@@ -6,7 +6,8 @@ document.addEventListener("DOMContentLoaded", function () {
        ===================================================== */
 
     function normalizePhone(value) {
-        return String(value || "").replace(/\D/g, "");
+        const digits = String(value || "").replace(/\D/g, "");
+        return digits.length > 9 ? digits.slice(-9) : digits;
     }
 
     function readAccountsRegistry() {
@@ -305,22 +306,26 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     menuLinks.forEach(function (link) {
+        link.addEventListener("click", function (event) {
+            const href = link.getAttribute("href") || "";
+            const targetId = href.charAt(0) === "#" ? href.slice(1) : "";
 
-        link.addEventListener(
-            "click",
-            function () {
+            if (sideMenu) sideMenu.classList.remove("menu-open");
 
-                if (sideMenu) {
-
-                    sideMenu.classList.remove(
-                        "menu-open"
-                    );
-
+            if (targetId) {
+                event.preventDefault();
+                const target = document.getElementById(targetId);
+                if (target) {
+                    document.querySelectorAll("[data-menu-focus]").forEach(function (item) {
+                        item.classList.remove("menu-focus-active");
+                    });
+                    target.setAttribute("data-menu-focus", "true");
+                    target.classList.add("menu-focus-active");
+                    target.scrollIntoView({ behavior: "smooth", block: "start" });
+                    window.history.replaceState(null, "", "#" + targetId);
                 }
-
             }
-        );
-
+        });
     });
 
 
