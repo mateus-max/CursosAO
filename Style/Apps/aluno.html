@@ -307,20 +307,13 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        document.getElementById("paymentTeacher").textContent =
-            selectedTeacher.teacherName;
-
-        document.getElementById("paymentCourse").textContent =
-            selectedTeacher.course;
-
-        document.getElementById("paymentPrice").textContent =
-            selectedTeacher.price + " Kz";
-
-        document.getElementById("paymentReference").value = "";
-        document.getElementById("paymentMessage").textContent = "";
+        localStorage.setItem(
+            "apsan_checkout_selection",
+            JSON.stringify(selectedTeacher)
+        );
 
         detailPanel.classList.remove("professor-panel-open");
-        paymentPanel.classList.add("professor-panel-open");
+        window.location.href = "checkout.html?v=checkout-20260926";
     });
 
     document.getElementById("closePayment").addEventListener("click", function () {
