@@ -3478,3 +3478,80 @@ button.dashboard-link {
 /* Single-panel navigation: hide dashboard sections while a menu area is open. */
 .single-panel-hidden{display:none!important}
 main.single-panel-mode{padding-bottom:110px}
+
+
+/* =========================================================
+   IDENTIDADE VISUAL DO DASHBOARD DO PROFESSOR
+   Fica apenas na página inicial; não pertence ao menu.
+   ========================================================= */
+.professor-dashboard-signature{
+    margin:22px 4px 28px;
+    padding:18px 18px 20px;
+    border-radius:18px;
+    background:rgba(255,255,255,.88);
+    border:1px solid #e3ebf4;
+    box-shadow:0 10px 28px rgba(18,54,91,.06);
+}
+.signature-line{
+    width:72px;
+    height:3px;
+    margin-bottom:14px;
+    border-radius:999px;
+    background:linear-gradient(90deg,#0b63c7,#8fc3ff);
+}
+.signature-brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+.signature-logo{
+    width:38px;
+    height:38px;
+    display:grid;
+    place-items:center;
+    border-radius:11px;
+    background:linear-gradient(135deg,#0a58a9,#1684e8);
+    color:#fff;
+    font-size:21px;
+    font-weight:900;
+    box-shadow:0 7px 16px rgba(10,88,169,.18);
+}
+.signature-brand strong,
+.signature-brand span,
+.signature-name,
+.signature-name small{
+    display:block;
+}
+.signature-brand strong{
+    color:#18324d;
+    font-size:14px;
+}
+.signature-brand span{
+    margin-top:2px;
+    color:#8291a2;
+    font-size:9px;
+}
+.signature-name{
+    margin-top:15px;
+    padding-top:12px;
+    border-top:1px solid #edf2f7;
+    color:#23415f;
+    font-family:Georgia,serif;
+    font-size:17px;
+    font-style:italic;
+}
+.signature-name small{
+    margin-top:3px;
+    color:#8a98a8;
+    font-family:inherit;
+    font-size:9px;
+    font-style:normal;
+    letter-spacing:.8px;
+    text-transform:uppercase;
+}
+@media(max-width:560px){
+    .professor-dashboard-signature{
+        margin:18px 2px 24px;
+        padding:16px;
+    }
+}
