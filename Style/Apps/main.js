@@ -794,12 +794,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 storedProfile.name || "Eduardo Ngongoyove Gabriel";
 
 
-            profileUsername.value =
-                account.username || "";
+            if (profileUsername) {
+                profileUsername.value =
+                    account.username || "";
+            }
 
-
-            profileBio.value =
-                account.bio || "";
+            if (profileBio) {
+                profileBio.value =
+                    account.bio || "";
+            }
 
 
             profilePassword.value =
