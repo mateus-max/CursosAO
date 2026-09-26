@@ -279,6 +279,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     /* =====================================================
+       PROTEÇÃO POR PERFIL
+       ===================================================== */
+
+    if (
+        document.body.classList.contains("professor-page") &&
+        (!account || account.type !== "professor")
+    ) {
+        window.location.href = "../../index.html";
+        return;
+    }
+
+    if (
+        document.body.classList.contains("student-page") &&
+        (!account || account.type !== "aluno")
+    ) {
+        window.location.href = "../../index.html";
+        return;
+    }
+
+
+    /* =====================================================
        ELEMENTOS DO PROFESSOR
        ===================================================== */
 
@@ -1105,22 +1126,59 @@ document.addEventListener("DOMContentLoaded", function () {
         const lessons = getStoredList(lessonsKey);
         const materials = getStoredList(materialsKey);
 
-        const studentSource =
+        const legacyStudentSource =
             JSON.parse(localStorage.getItem("apsan_teacher_students") || "[]");
 
-        const students =
-            Array.isArray(studentSource)
-                ? studentSource.filter(function (student) {
-                    return (
-                        student &&
-                        (
-                            student.teacherPhone === professorPhone ||
-                            student.teacherPhone === (account && account.phone) ||
-                            student.status === "confirmed"
-                        )
-                    );
-                })
-                : [];
+        let students = Array.isArray(legacyStudentSource)
+            ? legacyStudentSource.filter(function (student) {
+                return (
+                    student &&
+                    student.teacherPhone === professorPhone &&
+                    (student.status === "confirmed" || student.status === "official")
+                );
+            })
+            : [];
+
+        /*
+         * Matrículas oficiais confirmadas pela administração são a
+         * fonte principal dos alunos do professor.
+         */
+        try {
+            const enrollments = JSON.parse(
+                localStorage.getItem("apsan_enrollments") || "[]"
+            );
+
+            if (Array.isArray(enrollments)) {
+                const official = enrollments
+                    .filter(function (item) {
+                        return (
+                            item &&
+                            item.teacherPhone === professorPhone &&
+                            item.status === "official"
+                        );
+                    })
+                    .map(function (item) {
+                        return {
+                            id: item.id,
+                            name: item.studentName,
+                            studentName: item.studentName,
+                            teacherPhone: item.teacherPhone,
+                            status: "official"
+                        };
+                    });
+
+                const combined = students.concat(official);
+                const seen = {};
+                students = combined.filter(function (item) {
+                    const key = item.studentPhone || item.name || item.studentName;
+                    if (seen[key]) return false;
+                    seen[key] = true;
+                    return true;
+                });
+            }
+        } catch (error) {
+            /* mantém os dados antigos se existirem */
+        }
 
         const studentCount = document.getElementById("studentCount");
         const lessonCount = document.getElementById("lessonCount");
