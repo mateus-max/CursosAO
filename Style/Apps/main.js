@@ -1240,6 +1240,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             id: item.id,
                             name: item.studentName,
                             studentName: item.studentName,
+                            studentPhone: item.studentPhone,
                             teacherPhone: item.teacherPhone,
                             status: "official"
                         };
@@ -1248,7 +1249,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 const combined = students.concat(official);
                 const seen = {};
                 students = combined.filter(function (item) {
-                    const key = item.studentPhone || item.name || item.studentName;
+                    const phoneKey = String(item.studentPhone || "").replace(/\D/g, "");
+                    const nameKey = String(item.studentName || item.name || "").trim().toLowerCase().replace(/\s+/g, " ");
+                    const key = phoneKey ? "phone:" + phoneKey : (nameKey ? "name:" + nameKey : "id:" + String(item.id || ""));
                     if (seen[key]) return false;
                     seen[key] = true;
                     return true;
