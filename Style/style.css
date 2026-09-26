@@ -752,8 +752,8 @@ button.dashboard-link {
 }
 
 .professor-hero{
-    min-height:190px;
-    padding:30px 34px;
+    min-height:132px;
+    padding:22px 26px;
     border-radius:22px;
     display:flex;
     align-items:center;
@@ -775,19 +775,20 @@ button.dashboard-link {
 }
 
 .professor-hero h1{
-    margin:10px 0 7px;
-    font-size:32px;
-    letter-spacing:-.7px;
+    margin:7px 0 5px;
+    font-size:26px;
+    line-height:1.12;
+    letter-spacing:-.5px;
 }
 
 .professor-hero p{
     margin:0;
     color:rgba(255,255,255,.78);
-    font-size:15px;
+    font-size:13px;
 }
 
 .hero-brand{
-    min-width:190px;
+    min-width:150px;
     display:flex;
     flex-direction:column;
     align-items:center;
@@ -796,15 +797,15 @@ button.dashboard-link {
 }
 
 .hero-logo{
-    width:72px;
-    height:72px;
+    width:54px;
+    height:54px;
     display:grid;
     place-items:center;
     border-radius:20px;
     background:linear-gradient(145deg,#1976ed,#0b4da4);
     border:1px solid rgba(255,255,255,.25);
     box-shadow:0 12px 28px rgba(0,0,0,.20);
-    font-size:31px;
+    font-size:24px;
     font-weight:900;
 }
 
@@ -1023,10 +1024,10 @@ button.dashboard-link {
 }
 
 @media(max-width:620px){
-    .professor-option2{padding-top:18px}
-    .professor-hero{padding:24px;min-height:175px}
+    .professor-option2{padding-top:14px}
+    .professor-hero{padding:18px 20px;min-height:124px;border-radius:19px}
     .hero-brand{display:none}
-    .professor-hero h1{font-size:26px}
+    .professor-hero h1{font-size:23px;line-height:1.1}
     .professor-stats{grid-template-columns:1fr 1fr;gap:10px}
     .professor-stat{padding:13px;min-height:98px}
     .professor-actions{grid-template-columns:1fr 1fr}
