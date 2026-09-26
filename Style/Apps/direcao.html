@@ -92,6 +92,12 @@ document.addEventListener("DOMContentLoaded", function(){
     }
     function esc(v){return String(v||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");}
 
+    const currentAccount=JSON.parse(localStorage.getItem("apsan_account")||"null");
+    if(!currentAccount || currentAccount.type!=="direcao"){
+        window.location.href="../../index.html";
+        return;
+    }
+
     const accounts=read("apsan_accounts",[]);
     const profiles=read("apsan_professors",[]);
     const enrollments=read("apsan_enrollments",[]);
@@ -116,9 +122,53 @@ document.addEventListener("DOMContentLoaded", function(){
 
     document.getElementById("adminCoursesList").innerHTML=courses.length?courses.map(p=>'<div class="admin-row"><div class="admin-row-icon">📚</div><div><strong>'+esc(p.course)+'</strong><small>'+esc(p.teacherName)+' · '+esc(p.modality)+'</small></div><span class="admin-status">'+esc(p.price)+' Kz</span></div>').join(""):'<p class="admin-empty">Nenhum curso publicado.</p>';
 
-    document.getElementById("adminEnrollmentsList").innerHTML=enrollments.length?enrollments.map(e=>'<div class="admin-row"><div class="admin-row-icon">✓</div><div><strong>'+esc(e.course)+'</strong><small>'+esc(e.studentName)+' → '+esc(e.teacherName)+'</small></div><span class="admin-status">'+esc(e.status||"pendente")+'</span></div>').join(""):'<p class="admin-empty">Nenhuma matrícula registada.</p>';
+    function enrollmentActions(e){
+        if(e.status==="official"){
+            return '<span class="admin-status">Confirmado</span>';
+        }
+        return '<button type="button" class="admin-confirm-button" data-confirm-enrollment="'+esc(e.id)+'">Confirmar pagamento</button>';
+    }
 
-    document.getElementById("adminPaymentsList").innerHTML=enrollments.length?enrollments.map(e=>'<div class="admin-row"><div class="admin-row-icon">💳</div><div><strong>'+esc(e.price)+' Kz</strong><small>'+esc(e.studentName)+' · Ref.: '+esc(e.paymentReference)+'</small></div><span class="admin-status">'+esc(e.paymentStatus||"pendente")+'</span></div>').join(""):'<p class="admin-empty">Nenhum pagamento registado.</p>';
+    document.getElementById("adminEnrollmentsList").innerHTML=enrollments.length?enrollments.map(e=>'<div class="admin-row"><div class="admin-row-icon">✓</div><div><strong>'+esc(e.course)+'</strong><small>'+esc(e.studentName)+' → '+esc(e.teacherName)+'</small></div>'+enrollmentActions(e)+'</div>').join(""):'<p class="admin-empty">Nenhuma matrícula registada.</p>';
+
+    document.getElementById("adminPaymentsList").innerHTML=enrollments.length?enrollments.map(e=>'<div class="admin-row"><div class="admin-row-icon">💳</div><div><strong>'+esc(e.price)+' Kz</strong><small>'+esc(e.studentName)+' · Ref.: '+esc(e.paymentReference)+'</small></div><span class="admin-status">'+(e.paymentStatus==="confirmed"?"Pagamento confirmado":"Aguardando confirmação")+'</span></div>').join(""):'<p class="admin-empty">Nenhum pagamento registado.</p>';
+
+    document.querySelectorAll("[data-confirm-enrollment]").forEach(function(button){
+        button.addEventListener("click",function(){
+            const id=button.getAttribute("data-confirm-enrollment");
+            const items=read("apsan_enrollments",[]);
+            const index=items.findIndex(function(item){return item.id===id;});
+            if(index<0) return;
+
+            items[index].paymentStatus="confirmed";
+            items[index].status="official";
+            items[index].confirmedAt=new Date().toISOString();
+
+            localStorage.setItem("apsan_enrollments",JSON.stringify(items));
+
+            /*
+             * Compatibilidade com o módulo antigo do professor.
+             */
+            const students=read("apsan_teacher_students",[]);
+            const e=items[index];
+            const exists=students.some(function(item){
+                return item.studentPhone===e.studentPhone && item.teacherPhone===e.teacherPhone;
+            });
+            if(!exists){
+                students.push({
+                    id:e.id,
+                    name:e.studentName,
+                    studentName:e.studentName,
+                    studentPhone:e.studentPhone,
+                    teacherPhone:e.teacherPhone,
+                    status:"confirmed"
+                });
+                localStorage.setItem("apsan_teacher_students",JSON.stringify(students));
+            }
+
+            location.reload();
+        });
+    });
 
     const activities=[];
     courses.forEach(p=>activities.push({date:p.updatedAt||"",text:"Perfil publicado: "+(p.teacherName||"Professor")}));
