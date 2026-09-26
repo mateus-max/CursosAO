@@ -314,12 +314,13 @@ document.addEventListener("DOMContentLoaded", function () {
         const main = document.querySelector("main");
         if (!main) return false;
 
-        const viewSections = main.querySelectorAll("[data-view-section], section[id]");
         const target = document.getElementById(targetId);
+        const viewSections = main.querySelectorAll("[data-view-section], section[id]");
 
-        if (targetId === "admin-dashboard" && isAdmin) {
+        /* Direção: o próprio main é a página inicial; os módulos do menu ficam fechados. */
+        if (isAdmin && targetId === "admin-dashboard") {
             viewSections.forEach(function (section) {
-                section.classList.remove("single-panel-hidden");
+                section.classList.add("single-panel-hidden");
             });
             main.classList.remove("single-panel-mode");
             window.scrollTo({ top: 0, behavior: "smooth" });
@@ -331,30 +332,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (!target) return false;
 
-        const targetView = target.getAttribute("data-view-section");
-        const isHomeTarget = targetView === "home";
-
         viewSections.forEach(function (section) {
-            const isTarget = isHomeTarget
-                ? section.getAttribute("data-view-section") === "home"
-                : section === target;
-
-            section.classList.toggle("single-panel-hidden", !isTarget);
+            section.classList.toggle("single-panel-hidden", section !== target);
         });
 
-        main.classList.toggle("single-panel-mode", !isHomeTarget);
-
-        if (target.getAttribute("data-view-section") !== "home") {
-            target.classList.add("menu-focus-active");
-            window.scrollTo({ top: 0, behavior: "smooth" });
-        } else {
-            window.scrollTo({ top: 0, behavior: "smooth" });
-        }
+        main.classList.add("single-panel-mode");
+        target.classList.add("menu-focus-active");
+        window.scrollTo({ top: 0, behavior: "smooth" });
 
         if (!(options && options.keepHash)) {
-            window.history.replaceState(null, "", target.getAttribute("data-view-section") === "home"
-                ? window.location.pathname
-                : "#" + targetId);
+            window.history.replaceState(null, "", "#" + targetId);
         }
 
         return true;
@@ -386,8 +373,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    /* Links internos do painel (cartões, botões e navegação inferior)
-       usam a mesma regra: ao abrir uma área, o dashboard deixa de aparecer. */
     document.querySelectorAll('a[href^="#"]').forEach(function (link) {
         link.addEventListener("click", function (event) {
             const targetId = (link.getAttribute("href") || "").slice(1);
@@ -402,20 +387,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function restoreSinglePanelViewFromHash() {
         const hash = window.location.hash ? window.location.hash.slice(1) : "";
-        if (hash && document.getElementById(hash) && openProfessorOrAdminView(hash, { keepHash: true })) {
-            return;
+
+        if (hash && document.getElementById(hash)) {
+            if (openProfessorOrAdminView(hash, { keepHash: true })) return;
         }
 
         if (document.body.classList.contains("professor-page")) {
-            const homeSections = document.querySelectorAll('[data-view-section="home"]');
-            const allSections = document.querySelectorAll(".professor-view-section");
-            allSections.forEach(function (section) {
-                section.classList.remove("single-panel-hidden");
+            const hero = document.querySelector('.professor-view-section[data-view-section="home"]');
+            const sections = document.querySelectorAll(".professor-view-section");
+            sections.forEach(function (section) {
+                section.classList.toggle("single-panel-hidden", section !== hero);
             });
             if (main) main.classList.remove("single-panel-mode");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        } else if (document.body.classList.contains("admin-page")) {
+            setSinglePanelView("admin-dashboard", { keepHash: true });
         }
     }
-
     restoreSinglePanelViewFromHash();
 
 
