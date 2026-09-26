@@ -82,6 +82,64 @@
     </section>
 </main>
 
+
+<style>
+.admin-actions{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.admin-action{border:0;border-radius:8px;padding:7px 9px;font-size:10px;font-weight:800;cursor:pointer}
+.admin-action.view{background:#eaf3ff;color:#1769e0}
+.admin-action.approve{background:#eaf8ef;color:#16803c}
+.admin-action.reject{background:#fff0f0;color:#c62828}
+.admin-action.edit{background:#fff7e6;color:#9a6500}
+.admin-status.pending{background:#fff7e6;color:#9a6500}
+.admin-status.rejected{background:#fff0f0;color:#c62828}
+.admin-modal{position:fixed;inset:0;z-index:900;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(5,20,40,.55)}
+.admin-modal.open{display:flex}
+.admin-modal-card{width:min(100%,720px);max-height:90vh;overflow:auto;background:#fff;border-radius:18px;padding:20px;box-shadow:0 25px 70px rgba(0,0,0,.25)}
+.admin-modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:15px}
+.admin-modal-head h2{margin:0;color:#172033;font-size:19px}
+.admin-close{border:0;background:#edf3fa;color:#172033;width:36px;height:36px;border-radius:10px;font-size:22px;cursor:pointer}
+.admin-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.admin-detail-box{padding:12px;border:1px solid #e4ebf3;border-radius:11px;background:#f8fbff}
+.admin-detail-box small,.admin-detail-box strong{display:block}
+.admin-detail-box small{color:#718096;font-size:10px}
+.admin-detail-box strong{margin-top:4px;color:#172033;font-size:13px;word-break:break-word}
+.admin-receipt{margin-top:15px;border:1px solid #e1e8ef;border-radius:12px;overflow:hidden;background:#f7f9fc}
+.admin-receipt img{display:block;width:100%;max-height:520px;object-fit:contain;background:#fff}
+.admin-receipt iframe{display:block;width:100%;height:520px;border:0;background:#fff}
+.admin-form{display:grid;gap:10px}
+.admin-form label{font-size:12px;font-weight:800;color:#344054}
+.admin-form input,.admin-form textarea{width:100%;box-sizing:border-box;padding:11px;border:1px solid #d8e1eb;border-radius:10px;outline:0}
+.admin-form textarea{min-height:100px;resize:vertical}
+.admin-modal-buttons{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.admin-modal-buttons button{border:0;border-radius:10px;padding:11px 14px;font-weight:800;cursor:pointer}
+.admin-save{background:#1769e0;color:#fff}
+.admin-cancel{background:#edf2f7;color:#344054}
+@media(max-width:620px){
+ .admin-detail-grid{grid-template-columns:1fr}
+ .admin-actions{justify-content:flex-start}
+ .admin-receipt iframe{height:420px}
+}
+</style>
+
+<div class="admin-modal" id="adminViewModal">
+ <div class="admin-modal-card">
+  <div class="admin-modal-head"><h2>Detalhes da matrícula</h2><button class="admin-close" type="button" data-close-admin-modal="adminViewModal">×</button></div>
+  <div id="adminViewContent"></div>
+ </div>
+</div>
+
+<div class="admin-modal" id="adminEditModal">
+ <div class="admin-modal-card">
+  <div class="admin-modal-head"><h2>Editar matrícula</h2><button class="admin-close" type="button" data-close-admin-modal="adminEditModal">×</button></div>
+  <form class="admin-form" id="adminEditForm">
+   <input type="hidden" id="editEnrollmentId">
+   <label>Valor da matrícula<input id="editPrice" type="text"></label>
+   <label>Referência do pagamento<input id="editReference" type="text"></label>
+   <label>Observação da administração<textarea id="editNote"></textarea></label>
+   <div class="admin-modal-buttons"><button class="admin-cancel" type="button" data-close-admin-modal="adminEditModal">Cancelar</button><button class="admin-save" type="submit">Guardar alterações</button></div>
+  </form>
+ </div>
+</div>
 <script>
 document.addEventListener("DOMContentLoaded", function(){
     function read(key, fallback){
@@ -90,7 +148,13 @@ document.addEventListener("DOMContentLoaded", function(){
             return Array.isArray(value)?value:(value||fallback);
         }catch(e){return fallback;}
     }
-    function esc(v){return String(v||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");}
+    function write(key,value){localStorage.setItem(key,JSON.stringify(value));}
+    function esc(v){
+        return String(v==null?"":v)
+            .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+            .replace(/>/g,"&gt;").replace(/"/g,"&quot;")
+            .replace(/'/g,"&#039;");
+    }
 
     const currentAccount=JSON.parse(localStorage.getItem("apsan_account")||"null");
     if(!currentAccount || currentAccount.type!=="direcao"){
@@ -101,85 +165,181 @@ document.addEventListener("DOMContentLoaded", function(){
     const accounts=read("apsan_accounts",[]);
     const profiles=read("apsan_professors",[]);
     const enrollments=read("apsan_enrollments",[]);
-    const lessonsKeys=Object.keys(localStorage).filter(k=>k.indexOf("apsan_professor_lessons_")===0);
-    let lessons=[];
-    lessonsKeys.forEach(k=>{const x=read(k,[]); lessons=lessons.concat(x);});
-
     const teachers=accounts.filter(a=>a&&a.type==="professor");
     const students=accounts.filter(a=>a&&a.type==="aluno");
     const courses=profiles.filter(p=>p&&p.published);
 
-    document.getElementById("adminUserCount").textContent=accounts.length;
-    document.getElementById("adminTeacherCount").textContent=teachers.length;
-    document.getElementById("adminStudentCount").textContent=students.length;
-    document.getElementById("adminCourseCount").textContent=courses.length;
-    document.getElementById("adminTeacherStatus").textContent=courses.length+" publicados";
-    document.getElementById("adminEnrollmentCount").textContent=enrollments.length+" matrículas";
+    function render(){
+        const lessonKeys=Object.keys(localStorage).filter(k=>k.indexOf("apsan_professor_lessons_")===0);
+        let lessons=[];
+        lessonKeys.forEach(k=>lessons=lessons.concat(read(k,[])));
 
-    document.getElementById("adminTeachersList").innerHTML=teachers.length?teachers.map(a=>'<div class="admin-row"><div class="admin-row-avatar">'+esc((a.name||"P").charAt(0))+'</div><div><strong>'+esc(a.name||"Professor")+'</strong><small>'+esc(a.phone||"")+'</small></div><span class="admin-status">'+(courses.some(p=>p.teacherPhone===a.phone)?"Publicado":"Sem perfil")+'</span></div>').join(""):'<p class="admin-empty">Nenhum professor registado.</p>';
+        document.getElementById("adminUserCount").textContent=accounts.length;
+        document.getElementById("adminTeacherCount").textContent=teachers.length;
+        document.getElementById("adminStudentCount").textContent=students.length;
+        document.getElementById("adminCourseCount").textContent=courses.length;
+        document.getElementById("adminTeacherStatus").textContent=courses.length+" publicados";
+        document.getElementById("adminEnrollmentCount").textContent=enrollments.length+" matrículas";
 
-    document.getElementById("adminStudentsList").innerHTML=students.length?students.map(a=>'<div class="admin-row"><div class="admin-row-avatar">👤</div><div><strong>'+esc(a.name||"Aluno")+'</strong><small>'+esc(a.phone||"")+'</small></div></div>').join(""):'<p class="admin-empty">Nenhum aluno registado.</p>';
+        document.getElementById("adminTeachersList").innerHTML=teachers.length?teachers.map(a=>{
+            const profile=courses.find(p=>p.teacherPhone===a.phone);
+            return '<div class="admin-row"><div class="admin-row-avatar">'+esc((a.name||"P").charAt(0))+'</div><div><strong>'+esc(a.name||"Professor")+'</strong><small>'+esc(a.phone||"")+'</small></div><span class="admin-status">'+(profile?"Publicado":"Sem perfil")+'</span></div>';
+        }).join(""):'<p class="admin-empty">Nenhum professor registado.</p>';
 
-    document.getElementById("adminCoursesList").innerHTML=courses.length?courses.map(p=>'<div class="admin-row"><div class="admin-row-icon">📚</div><div><strong>'+esc(p.course)+'</strong><small>'+esc(p.teacherName)+' · '+esc(p.modality)+'</small></div><span class="admin-status">'+esc(p.price)+' Kz</span></div>').join(""):'<p class="admin-empty">Nenhum curso publicado.</p>';
+        document.getElementById("adminStudentsList").innerHTML=students.length?students.map(a=>'<div class="admin-row"><div class="admin-row-avatar">👤</div><div><strong>'+esc(a.name||"Aluno")+'</strong><small>'+esc(a.phone||"")+'</small></div></div>').join(""):'<p class="admin-empty">Nenhum aluno registado.</p>';
 
-    function enrollmentActions(e){
-        if(e.status==="official"){
-            return '<span class="admin-status">Confirmado</span>';
-        }
-        return '<button type="button" class="admin-confirm-button" data-confirm-enrollment="'+esc(e.id)+'">Confirmar pagamento</button>';
+        document.getElementById("adminCoursesList").innerHTML=courses.length?courses.map(p=>'<div class="admin-row"><div class="admin-row-icon">📚</div><div><strong>'+esc(p.course)+'</strong><small>'+esc(p.teacherName)+' · '+esc(p.modality)+'</small></div><span class="admin-status">'+esc(p.price)+' Kz</span></div>').join(""):'<p class="admin-empty">Nenhum curso publicado.</p>';
+
+        document.getElementById("adminEnrollmentsList").innerHTML=enrollments.length?enrollments.map(e=>{
+            const status=e.status==="official"
+                ?'<span class="admin-status">Aprovada</span>'
+                :e.status==="rejected"||e.status==="cancelled"
+                    ?'<span class="admin-status rejected">Rejeitada</span>'
+                    :'<span class="admin-status pending">Pendente</span>';
+            return '<div class="admin-row"><div class="admin-row-icon">▣</div><div><strong>'+esc(e.course||"Curso")+'</strong><small>'+esc(e.studentName||"Aluno")+' → '+esc(e.teacherName||"Professor")+' · '+esc(e.price||"0")+' Kz</small></div><div class="admin-actions">'+
+                '<button type="button" class="admin-action view" data-view-enrollment="'+esc(e.id)+'">Observar</button>'+
+                (e.status==="official"
+                    ? ''
+                    : '<button type="button" class="admin-action approve" data-approve-enrollment="'+esc(e.id)+'">Aprovar</button>'+
+                      '<button type="button" class="admin-action reject" data-reject-enrollment="'+esc(e.id)+'">Rejeitar</button>')+
+                '<button type="button" class="admin-action edit" data-edit-enrollment="'+esc(e.id)+'">Editar</button>'+
+                '</div>'+status+'</div>';
+        }).join(""):'<p class="admin-empty">Nenhuma matrícula registada.</p>';
+
+        document.getElementById("adminPaymentsList").innerHTML=enrollments.length?enrollments.map(e=>{
+            const hasReceipt=!!e.receipt;
+            const status=e.paymentStatus==="confirmed"?"Pagamento confirmado":e.status==="rejected"?"Pagamento rejeitado":"Aguardando confirmação";
+            return '<div class="admin-row"><div class="admin-row-icon">💳</div><div><strong>'+esc(e.price||"0")+' Kz</strong><small>'+esc(e.studentName||"Aluno")+' · '+(hasReceipt?"Comprovativo disponível":"Sem comprovativo")+' · Ref.: '+esc(e.paymentReference||"—")+'</small></div><button type="button" class="admin-action view" data-view-enrollment="'+esc(e.id)+'">'+(hasReceipt?"Ver comprovativo":"Observar")+'</button><span class="admin-status '+(e.status==="rejected"?"rejected":"")+'">'+esc(status)+'</span></div>';
+        }).join(""):'<p class="admin-empty">Nenhum pagamento registado.</p>';
+
+        const activities=[];
+        courses.forEach(p=>activities.push({date:p.updatedAt||"",text:"Perfil publicado: "+(p.teacherName||"Professor")}));
+        enrollments.forEach(e=>activities.push({date:e.createdAt||"",text:(e.studentName||"Aluno")+" — "+(e.status==="official"?"matrícula aprovada":e.status==="rejected"?"matrícula rejeitada":"matrícula pendente")+" em "+(e.course||"curso")}));
+        lessons.slice(-20).forEach(l=>activities.push({date:"",text:"Aula criada: "+(l.title||"Aula")}));
+        document.getElementById("adminActivityList").innerHTML=activities.length?activities.slice(-12).reverse().map(a=>'<div class="admin-row"><div class="admin-row-icon">•</div><div><strong>'+esc(a.text)+'</strong><small>'+esc(a.date?new Date(a.date).toLocaleString("pt-PT"):"")+'</small></div></div>').join(""):'<p class="admin-empty">Ainda não existem atividades.</p>';
     }
 
-    document.getElementById("adminEnrollmentsList").innerHTML=enrollments.length?enrollments.map(e=>'<div class="admin-row"><div class="admin-row-icon">✓</div><div><strong>'+esc(e.course)+'</strong><small>'+esc(e.studentName)+' → '+esc(e.teacherName)+'</small></div>'+enrollmentActions(e)+'</div>').join(""):'<p class="admin-empty">Nenhuma matrícula registada.</p>';
+    function getEnrollment(id){
+        return read("apsan_enrollments",[]).find(e=>String(e.id)===String(id))||null;
+    }
 
-    document.getElementById("adminPaymentsList").innerHTML=enrollments.length?enrollments.map(e=>'<div class="admin-row"><div class="admin-row-icon">💳</div><div><strong>'+esc(e.price)+' Kz</strong><small>'+esc(e.studentName)+' · Ref.: '+esc(e.paymentReference)+'</small></div><span class="admin-status">'+(e.paymentStatus==="confirmed"?"Pagamento confirmado":"Aguardando confirmação")+'</span></div>').join(""):'<p class="admin-empty">Nenhum pagamento registado.</p>';
-
-    document.querySelectorAll("[data-confirm-enrollment]").forEach(function(button){
-        button.addEventListener("click",function(){
-            const id=button.getAttribute("data-confirm-enrollment");
-            const items=read("apsan_enrollments",[]);
-            const index=items.findIndex(function(item){return item.id===id;});
-            if(index<0) return;
-
-            items[index].paymentStatus="confirmed";
-            items[index].status="official";
-            items[index].confirmedAt=new Date().toISOString();
-
-            localStorage.setItem("apsan_enrollments",JSON.stringify(items));
-
-            /*
-             * Compatibilidade com o módulo antigo do professor.
-             */
-            const students=read("apsan_teacher_students",[]);
-            const e=items[index];
-            const exists=students.some(function(item){
-                return item.studentPhone===e.studentPhone && item.teacherPhone===e.teacherPhone;
-            });
-            if(!exists){
-                students.push({
-                    id:e.id,
-                    name:e.studentName,
-                    studentName:e.studentName,
-                    studentPhone:e.studentPhone,
-                    teacherPhone:e.teacherPhone,
-                    status:"confirmed"
-                });
-                localStorage.setItem("apsan_teacher_students",JSON.stringify(students));
+    function openView(id){
+        const e=getEnrollment(id); if(!e)return;
+        const modal=document.getElementById("adminViewModal");
+        const content=document.getElementById("adminViewContent");
+        let receipt="";
+        if(e.receipt){
+            if(String(e.receipt).indexOf("data:image/")===0){
+                receipt='<div class="admin-receipt"><img src="'+esc(e.receipt)+'" alt="Comprovativo de pagamento"></div>';
+            }else if(String(e.receipt).indexOf("data:application/pdf")===0){
+                receipt='<div class="admin-receipt"><iframe src="'+esc(e.receipt)+'" title="Comprovativo PDF"></iframe></div>';
+            }else{
+                receipt='<p class="admin-empty">Comprovativo guardado, mas o formato não pode ser visualizado diretamente.</p>';
             }
+        }else{
+            receipt='<p class="admin-empty">Este pagamento ainda não tem comprovativo anexado.</p>';
+        }
 
-            location.reload();
-        });
+        content.innerHTML=
+            '<div class="admin-detail-grid">'+
+            '<div class="admin-detail-box"><small>Aluno</small><strong>'+esc(e.studentName)+'</strong></div>'+
+            '<div class="admin-detail-box"><small>Telefone</small><strong>'+esc(e.studentPhone)+'</strong></div>'+
+            '<div class="admin-detail-box"><small>Professor</small><strong>'+esc(e.teacherName)+'</strong></div>'+
+            '<div class="admin-detail-box"><small>Curso</small><strong>'+esc(e.course)+'</strong></div>'+
+            '<div class="admin-detail-box"><small>Valor</small><strong>'+esc(e.price)+' Kz</strong></div>'+
+            '<div class="admin-detail-box"><small>Método</small><strong>'+esc(e.paymentMethod||"—")+'</strong></div>'+
+            '<div class="admin-detail-box"><small>Referência</small><strong>'+esc(e.paymentReference||"—")+'</strong></div>'+
+            '<div class="admin-detail-box"><small>Estado</small><strong>'+esc(e.status==="official"?"Aprovada":e.status==="rejected"?"Rejeitada":"Pendente")+'</strong></div>'+
+            '</div>'+
+            '<div class="admin-detail-box" style="margin-top:10px"><small>Observação do aluno</small><strong>'+esc(e.paymentNote||"Sem observação.")+'</strong></div>'+
+            '<h3 style="margin:18px 0 8px">Comprovativo de pagamento</h3>'+receipt+
+            '<div class="admin-modal-buttons">'+
+            (e.status==="official"?"":'<button class="admin-save" type="button" data-modal-approve="'+esc(e.id)+'">Aprovar</button>')+
+            (e.status==="rejected"?"":'<button class="admin-action reject" type="button" data-modal-reject="'+esc(e.id)+'">Rejeitar</button>')+
+            '<button class="admin-cancel" type="button" data-close-admin-modal="adminViewModal">Fechar</button></div>';
+
+        modal.classList.add("open");
+    }
+
+    function updateEnrollment(id, changes){
+        const items=read("apsan_enrollments",[]);
+        const i=items.findIndex(e=>String(e.id)===String(id));
+        if(i<0)return false;
+        Object.assign(items[i],changes);
+        write("apsan_enrollments",items);
+        return true;
+    }
+
+    function approve(id){
+        const e=getEnrollment(id); if(!e)return;
+        updateEnrollment(id,{paymentStatus:"confirmed",status:"official",confirmedAt:new Date().toISOString(),adminDecision:"approved"});
+        const items=read("apsan_enrollments",[]);
+        const current=items.find(x=>String(x.id)===String(id));
+        const studentsLegacy=read("apsan_teacher_students",[]);
+        const exists=studentsLegacy.some(x=>x.studentPhone===current.studentPhone&&x.teacherPhone===current.teacherPhone);
+        if(!exists)studentsLegacy.push({id:current.id,name:current.studentName,studentName:current.studentName,studentPhone:current.studentPhone,teacherPhone:current.teacherPhone,status:"confirmed"});
+        write("apsan_teacher_students",studentsLegacy);
+        document.getElementById("adminViewModal").classList.remove("open");
+        render();
+    }
+
+    function reject(id){
+        const reason=prompt("Motivo da rejeição (opcional):","Comprovativo/pagamento não validado.");
+        updateEnrollment(id,{paymentStatus:"rejected",status:"rejected",rejectedAt:new Date().toISOString(),rejectionReason:reason||""});
+        document.getElementById("adminViewModal").classList.remove("open");
+        render();
+    }
+
+    function edit(id){
+        const e=getEnrollment(id); if(!e)return;
+        document.getElementById("editEnrollmentId").value=e.id;
+        document.getElementById("editPrice").value=e.price||"";
+        document.getElementById("editReference").value=e.paymentReference||"";
+        document.getElementById("editNote").value=e.adminNote||e.paymentNote||"";
+        document.getElementById("adminEditModal").classList.add("open");
+    }
+
+    document.addEventListener("click",function(event){
+        const view=event.target.closest("[data-view-enrollment]");
+        if(view){openView(view.getAttribute("data-view-enrollment"));return;}
+        const a=event.target.closest("[data-approve-enrollment], [data-modal-approve]");
+        if(a){approve(a.getAttribute("data-approve-enrollment")||a.getAttribute("data-modal-approve"));return;}
+        const rej=event.target.closest("[data-reject-enrollment], [data-modal-reject]");
+        if(rej){reject(rej.getAttribute("data-reject-enrollment")||rej.getAttribute("data-modal-reject"));return;}
+        const ed=event.target.closest("[data-edit-enrollment]");
+        if(ed){edit(ed.getAttribute("data-edit-enrollment"));return;}
+        const close=event.target.closest("[data-close-admin-modal]");
+        if(close){document.getElementById(close.getAttribute("data-close-admin-modal")).classList.remove("open");return;}
+        if(event.target.classList.contains("admin-modal"))event.target.classList.remove("open");
     });
 
-    const activities=[];
-    courses.forEach(p=>activities.push({date:p.updatedAt||"",text:"Perfil publicado: "+(p.teacherName||"Professor")}));
-    enrollments.forEach(e=>activities.push({date:e.createdAt||"",text:(e.studentName||"Aluno")+" matriculou-se em "+(e.course||"curso")}));
-    lessons.slice(-20).forEach(l=>activities.push({date:"",text:"Aula criada: "+(l.title||"Aula")}));
-    document.getElementById("adminActivityList").innerHTML=activities.length?activities.slice(-12).reverse().map(a=>'<div class="admin-row"><div class="admin-row-icon">•</div><div><strong>'+esc(a.text)+'</strong><small>'+esc(a.date?new Date(a.date).toLocaleString("pt-PT"):"")+'</small></div></div>').join(""):'<p class="admin-empty">Ainda não existem atividades.</p>';
+    document.getElementById("adminEditForm").addEventListener("submit",function(event){
+        event.preventDefault();
+        const id=document.getElementById("editEnrollmentId").value;
+        updateEnrollment(id,{
+            price:document.getElementById("editPrice").value.trim(),
+            paymentReference:document.getElementById("editReference").value.trim(),
+            adminNote:document.getElementById("editNote").value.trim(),
+            updatedAt:new Date().toISOString()
+        });
+        document.getElementById("adminEditModal").classList.remove("open");
+        render();
+    });
 
-    function logout(){localStorage.removeItem("apsan_logged_in");window.location.href="../../index.html";}
+    function logout(){
+        localStorage.removeItem("apsan_logged_in");
+        localStorage.removeItem("apsan_phone");
+        localStorage.removeItem("apsan_user_type");
+        localStorage.removeItem("apsan_account");
+        window.location.href="../../index.html";
+    }
     document.getElementById("adminLogout").addEventListener("click",logout);
     document.getElementById("adminLogoutSide").addEventListener("click",logout);
-    document.getElementById("adminMenuButton").addEventListener("click",function(){document.getElementById("adminSidebar").classList.toggle("admin-sidebar-open");});
+    document.getElementById("adminMenuButton").addEventListener("click",function(){
+        document.getElementById("adminSidebar").classList.toggle("admin-sidebar-open");
+    });
+
+    render();
 });
 </script>
 </body>
