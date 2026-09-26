@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APSAN Academy - Mensagens</title>
+<link rel="stylesheet" href="../style.css?v=messages-20260926">
+</head>
+<body class="app-page messages-page">
+<header class="app-header">
+  <div class="header-left">
+    <a class="messages-back" id="messagesBack" href="professor.html" aria-label="Voltar">←</a>
+    <strong>APSAN Academy</strong>
+  </div>
+  <strong class="messages-title">Mensagens</strong>
+</header>
+
+<main class="app-content messages-content">
+  <section class="messages-shell">
+    <aside class="messages-contacts">
+      <div class="messages-section-head">
+        <div>
+          <span class="hero-kicker">COMUNICAÇÃO</span>
+          <h1 id="contactsTitle">Conversas</h1>
+        </div>
+        <span class="panel-badge" id="contactsCount">0</span>
+      </div>
+      <div id="contactsList" class="messages-contact-list"></div>
+    </aside>
+
+    <section class="messages-chat" aria-label="Conversa">
+      <div id="chatEmpty" class="messages-empty">
+        <strong>Selecione uma conversa</strong>
+        <p>Escolha um contacto para abrir a conversa particular.</p>
+      </div>
+
+      <div id="chatView" class="messages-chat-view" hidden>
+        <div class="messages-chat-header">
+          <div>
+            <span class="section-label">CONVERSA PARTICULAR</span>
+            <h2 id="chatName">Contacto</h2>
+            <small id="chatMeta"></small>
+          </div>
+        </div>
+
+        <div id="chatMessages" class="messages-list" aria-live="polite"></div>
+
+        <form id="messageForm" class="messages-composer" autocomplete="off">
+          <textarea id="messageInput" rows="3" maxlength="1000"
+            placeholder="Escreva apenas uma mensagem de texto." required></textarea>
+          <div class="messages-composer-footer">
+            <small>Somente texto. Não envie dados bancários, comprovativos de pagamento, imagens, vídeos ou ficheiros.</small>
+            <button type="submit" class="login-button">Enviar</button>
+          </div>
+          <p id="messageWarning" class="login-message"></p>
+        </form>
+      </div>
+    </section>
+  </section>
+</main>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  function normalizePhone(value) {
+    const digits = String(value || "").replace(/\D/g, "");
+    return digits.length > 9 ? digits.slice(-9) : digits;
+  }
+
+  function readJson(key, fallback) {
+    try {
+      const value = JSON.parse(localStorage.getItem(key) || "");
+      return value === null ? fallback : value;
+    } catch (error) {
+      return fallback;
+    }
+  }
+
+  const accounts = Array.isArray(readJson("apsan_accounts", [])) ? readJson("apsan_accounts", []) : [];
+  const sessionType = localStorage.getItem("apsan_user_type") || "";
+  const sessionPhone = normalizePhone(localStorage.getItem("apsan_phone"));
+
+  let account = accounts.find(function (item) {
+    return item && item.type === sessionType && normalizePhone(item.phone) === sessionPhone;
+  }) || null;
+
+  if (!account) {
+    account = readJson("apsan_account", null);
+  }
+
+  if (!account || (account.type !== "professor" && account.type !== "aluno")) {
+    window.location.href = "../../index.html";
+    return;
+  }
+
+  const role = account.type;
+  const myPhone = normalizePhone(account.phone);
+  const contactsList = document.getElementById("contactsList");
+  const contactsCount = document.getElementById("contactsCount");
+  const contactsTitle = document.getElementById("contactsTitle");
+  const chatEmpty = document.getElementById("chatEmpty");
+  const chatView = document.getElementById("chatView");
+  const chatName = document.getElementById("chatName");
+  const chatMeta = document.getElementById("chatMeta");
+  const chatMessages = document.getElementById("chatMessages");
+  const messageForm = document.getElementById("messageForm");
+  const messageInput = document.getElementById("messageInput");
+  const messageWarning = document.getElementById("messageWarning");
+  const back = document.getElementById("messagesBack");
+
+  back.href = role === "professor" ? "professor.html" : "aluno.html";
+  contactsTitle.textContent = role === "professor" ? "Meus alunos" : "Meus professores";
+
+  function esc(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function getEnrollments() {
+    const items = readJson("apsan_enrollments", []);
+    return Array.isArray(items) ? items : [];
+  }
+
+  function getLegacyStudents() {
+    const items = readJson("apsan_teacher_students", []);
+    return Array.isArray(items) ? items : [];
+  }
+
+  function getContacts() {
+    const result = [];
+    const seen = {};
+
+    function add(contact) {
+      if (!contact) return;
+      const phone = normalizePhone(contact.phone || contact.studentPhone || contact.teacherPhone);
+      if (!phone || phone === myPhone) return;
+      const key = phone || String(contact.id || contact.name || "");
+      if (seen[key]) return;
+      seen[key] = true;
+      result.push({
+        phone: phone,
+        name: contact.name || contact.studentName || contact.teacherName || "Contacto",
+        course: contact.course || ""
+      });
+    }
+
+    getEnrollments().forEach(function (item) {
+      if (!item || item.status !== "official") return;
+      if (role === "professor" && normalizePhone(item.teacherPhone) === myPhone) {
+        add({ phone: item.studentPhone, name: item.studentName, course: item.course });
+      }
+      if (role === "aluno" && normalizePhone(item.studentPhone) === myPhone) {
+        add({ phone: item.teacherPhone, name: item.teacherName, course: item.course });
+      }
+    });
+
+    if (role === "professor") {
+      getLegacyStudents().forEach(function (item) {
+        if (item && normalizePhone(item.teacherPhone) === myPhone &&
+            (item.status === "confirmed" || item.status === "official")) {
+          add({ phone: item.studentPhone, name: item.studentName || item.name });
+        }
+      });
+    }
+
+    return result.sort(function (a, b) {
+      return a.name.localeCompare(b.name, "pt");
+    });
+  }
+
+  function readMessages() {
+    const items = readJson("apsan_messages", []);
+    return Array.isArray(items) ? items : [];
+  }
+
+  function saveMessages(items) {
+    localStorage.setItem("apsan_messages", JSON.stringify(items));
+  }
+
+  function conversationKey(a, b) {
+    return [normalizePhone(a), normalizePhone(b)].sort().join("::");
+  }
+
+  function hasEmoji(text) {
+    return /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{1F1E6}-\u{1F1FF}]/u.test(text);
+  }
+
+  function hasRestrictedData(text) {
+    const value = text.toLowerCase();
+    const terms = [
+      "iban", "nib", "swift", "bfa", "multicaixa", "multicaixa express",
+      "conta bancária", "conta bancaria", "dados bancários", "dados bancarios",
+      "transferência bancária", "transferencia bancaria", "comprovativo",
+      "comprovativo de pagamento", "pagamento", "referência de pagamento",
+      "referencia de pagamento", "cartão bancário", "cartao bancario",
+      "número da conta", "numero da conta", "código bancário", "codigo bancario"
+    ];
+
+    if (terms.some(function (term) { return value.includes(term); })) return true;
+    if (/\b\d{10,}\b/.test(value)) return true;
+    return false;
+  }
+
+  function renderContacts() {
+    const contacts = getContacts();
+    contactsCount.textContent = contacts.length;
+
+    if (!contacts.length) {
+      contactsList.innerHTML =
+        '<div class="messages-no-contacts"><strong>Nenhuma conversa disponível.</strong><p>As conversas aparecem quando existir uma matrícula oficial entre os perfis.</p></div>';
+      return;
+    }
+
+    const all = readMessages();
+
+    contactsList.innerHTML = contacts.map(function (contact) {
+      const key = conversationKey(myPhone, contact.phone);
+      const conversation = all.filter(function (item) { return item.conversationKey === key; });
+      const last = conversation.length ? conversation[conversation.length - 1] : null;
+
+      return '<button type="button" class="messages-contact" data-contact-phone="' + esc(contact.phone) + '">' +
+        '<span class="messages-contact-avatar">' + esc((contact.name || "C").charAt(0).toUpperCase()) + '</span>' +
+        '<span class="messages-contact-copy">' +
+          '<strong>' + esc(contact.name) + '</strong>' +
+          '<small>' + esc(contact.course || "Conversa particular") + '</small>' +
+          (last ? '<em>' + esc(last.text.slice(0, 52)) + '</em>' : '') +
+        '</span>' +
+      '</button>';
+    }).join("");
+
+    contactsList.querySelectorAll("[data-contact-phone]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        openConversation(button.getAttribute("data-contact-phone"));
+      });
+    });
+  }
+
+  let selectedContact = null;
+
+  function openConversation(phone) {
+    selectedContact = getContacts().find(function (item) {
+      return item.phone === normalizePhone(phone);
+    }) || null;
+
+    if (!selectedContact) return;
+
+    chatEmpty.hidden = true;
+    chatView.hidden = false;
+    chatName.textContent = selectedContact.name;
+    chatMeta.textContent = selectedContact.course || "Conversa particular";
+    messageWarning.textContent = "";
+    renderMessages();
+    messageInput.focus();
+  }
+
+  function renderMessages() {
+    if (!selectedContact) return;
+
+    const key = conversationKey(myPhone, selectedContact.phone);
+    const items = readMessages().filter(function (item) {
+      return item.conversationKey === key;
+    });
+
+    if (!items.length) {
+      chatMessages.innerHTML =
+        '<div class="messages-empty messages-empty-inline"><strong>Sem mensagens ainda</strong><p>Inicie a conversa com uma mensagem escrita.</p></div>';
+      return;
+    }
+
+    chatMessages.innerHTML = items.map(function (item) {
+      const mine = normalizePhone(item.senderPhone) === myPhone;
+      return '<div class="message-bubble-wrap ' + (mine ? "mine" : "theirs") + '">' +
+        '<div class="message-bubble">' +
+          '<span>' + esc(item.text).replace(/\n/g, "<br>") + '</span>' +
+          '<small>' + new Date(item.createdAt).toLocaleString("pt-PT", { dateStyle:"short", timeStyle:"short" }) + '</small>' +
+        '</div>' +
+      '</div>';
+    }).join("");
+
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  messageForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+    if (!selectedContact) return;
+
+    const text = messageInput.value.trim();
+    messageWarning.style.color = "#d93025";
+
+    if (!text) {
+      messageWarning.textContent = "Escreva uma mensagem.";
+      return;
+    }
+
+    if (hasEmoji(text)) {
+      messageWarning.textContent = "Emojis não são permitidos nesta conversa.";
+      return;
+    }
+
+    if (hasRestrictedData(text)) {
+      messageWarning.textContent = "Não é permitido enviar dados bancários, informações de pagamento ou comprovativos nesta conversa.";
+      return;
+    }
+
+    const items = readMessages();
+    items.push({
+      id: "msg_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8),
+      conversationKey: conversationKey(myPhone, selectedContact.phone),
+      senderPhone: myPhone,
+      senderType: role,
+      senderName: account.name || (role === "professor" ? "Professor" : "Aluno"),
+      receiverPhone: selectedContact.phone,
+      receiverType: role === "professor" ? "aluno" : "professor",
+      receiverName: selectedContact.name,
+      text: text,
+      createdAt: new Date().toISOString()
+    });
+
+    saveMessages(items);
+    messageInput.value = "";
+    messageWarning.textContent = "";
+    renderMessages();
+    renderContacts();
+  });
+
+  renderContacts();
+});
+</script>
+</body>
+</html>
