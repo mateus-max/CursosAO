@@ -602,7 +602,11 @@ document.addEventListener("DOMContentLoaded", function () {
         };
 
         if (account) {
-            data.name = account.name || "";
+            data.name =
+                account.name ||
+                account.teacherName ||
+                "";
+
             data.photo =
                 account.photo ||
                 account.profilePhoto ||
@@ -613,37 +617,54 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         /*
-         * Compatibilidade com o perfil público já existente:
-         * se a foto/nome já foi guardada ali, ela também passa a alimentar
-         * o avatar e o editor do perfil principal.
+         * Compatibilidade com perfis antigos: procura a informação guardada
+         * com o telefone original, telefone normalizado ou username.
          */
         try {
-            const phoneKey = account && (account.phone || account.username);
-            if (phoneKey) {
-                const profileKey = "apsan_professor_profile_" + phoneKey;
-                const publicProfile = JSON.parse(
-                    localStorage.getItem(profileKey) || "null"
-                );
+            const phone = account && account.phone ? String(account.phone) : "";
+            const username = account && account.username ? String(account.username) : "";
+            const keys = [];
 
-                if (publicProfile) {
-                    if (!data.name || data.name === "Professor") {
-                        data.name = publicProfile.teacherName || data.name;
-                    }
-                    if (!data.photo) {
-                        data.photo =
-                            publicProfile.teacherPhoto ||
-                            publicProfile.photo ||
-                            "";
-                    }
+            if (phone) keys.push("apsan_professor_profile_" + phone);
+            if (phone) keys.push("apsan_professor_profile_" + normalizePhone(phone));
+            if (username) keys.push("apsan_professor_profile_" + username);
+
+            keys.forEach(function (key) {
+                const raw = localStorage.getItem(key);
+                if (!raw) return;
+
+                let profile = null;
+                try {
+                    profile = JSON.parse(raw);
+                } catch (error) {
+                    return;
                 }
-            }
+
+                if (!profile) return;
+
+                if (!data.name || data.name === "Professor") {
+                    data.name =
+                        profile.teacherName ||
+                        profile.name ||
+                        data.name;
+                }
+
+                if (!data.photo) {
+                    data.photo =
+                        profile.teacherPhoto ||
+                        profile.photo ||
+                        profile.profilePhoto ||
+                        profile.avatar ||
+                        profile.photoURL ||
+                        "";
+                }
+            });
         } catch (error) {
-            /* mantém os dados principais da conta */
+            /* mantém os dados da conta */
         }
 
         return data;
     }
-
     /* =====================================================
        MOSTRAR DADOS NO PAINEL
        ===================================================== */
@@ -688,7 +709,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 topAvatarLetter.style.display = "none";
             } else {
                 topAvatarLetter.textContent =
-                    (account.name || "P").charAt(0).toUpperCase();
+                    (storedProfile.name || account.name || "P").charAt(0).toUpperCase();
                 topAvatarLetter.style.display = "flex";
             }
         }
