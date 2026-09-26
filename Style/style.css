@@ -3481,77 +3481,121 @@ main.single-panel-mode{padding-bottom:110px}
 
 
 /* =========================================================
-   IDENTIDADE VISUAL DO DASHBOARD DO PROFESSOR
-   Fica apenas na página inicial; não pertence ao menu.
+   AMBIENTE VISUAL DO DASHBOARD DO PROFESSOR
+   Fica somente na página inicial; não pertence ao menu.
    ========================================================= */
-.professor-dashboard-signature{
-    margin:22px 4px 28px;
-    padding:18px 18px 20px;
-    border-radius:18px;
-    background:rgba(255,255,255,.88);
-    border:1px solid #e3ebf4;
-    box-shadow:0 10px 28px rgba(18,54,91,.06);
+.professor-tech-scene{
+    position:relative;
+    min-height:330px;
+    margin:18px 4px 34px;
+    overflow:hidden;
+    border-radius:26px;
+    background:
+        radial-gradient(circle at 78% 22%,rgba(62,151,239,.24),transparent 32%),
+        linear-gradient(135deg,#eef7ff 0%,#dcecff 48%,#f8fbff 100%);
+    border:1px solid #dce9f5;
+    box-shadow:0 14px 34px rgba(18,54,91,.08);
 }
-.signature-line{
-    width:72px;
-    height:3px;
-    margin-bottom:14px;
-    border-radius:999px;
-    background:linear-gradient(90deg,#0b63c7,#8fc3ff);
+.tech-scene-glow{
+    position:absolute;
+    width:260px;height:260px;right:-80px;top:-90px;
+    border-radius:50%;background:rgba(29,119,210,.12);filter:blur(4px);
 }
-.signature-brand{
-    display:flex;
-    align-items:center;
-    gap:10px;
+.tech-scene-copy{
+    position:relative;z-index:3;width:52%;padding:42px 0 0 30px;
 }
-.signature-logo{
-    width:38px;
-    height:38px;
-    display:grid;
-    place-items:center;
-    border-radius:11px;
-    background:linear-gradient(135deg,#0a58a9,#1684e8);
-    color:#fff;
-    font-size:21px;
-    font-weight:900;
-    box-shadow:0 7px 16px rgba(10,88,169,.18);
+.tech-scene-copy span{
+    display:block;margin-bottom:10px;color:#1268bd;font-size:10px;
+    font-weight:800;letter-spacing:1.8px;
 }
-.signature-brand strong,
-.signature-brand span,
-.signature-name,
-.signature-name small{
-    display:block;
+.tech-scene-copy strong{
+    display:block;color:#163653;font-family:Georgia,serif;
+    font-size:28px;line-height:1.12;
 }
-.signature-brand strong{
-    color:#18324d;
-    font-size:14px;
+.tech-scene-copy small{
+    display:block;max-width:240px;margin-top:13px;color:#6e8194;
+    font-size:12px;line-height:1.45;
 }
-.signature-brand span{
-    margin-top:2px;
-    color:#8291a2;
-    font-size:9px;
+.tech-scene-desk{
+    position:absolute;left:0;right:0;bottom:0;height:150px;
+    background:linear-gradient(180deg,rgba(168,203,231,.12),rgba(132,172,205,.22)),
+               linear-gradient(90deg,#c99969,#e1b782 48%,#b98555);
+    border-top:1px solid rgba(255,255,255,.8);
 }
-.signature-name{
-    margin-top:15px;
-    padding-top:12px;
-    border-top:1px solid #edf2f7;
-    color:#23415f;
-    font-family:Georgia,serif;
-    font-size:17px;
-    font-style:italic;
+.tech-laptop{
+    position:absolute;left:9%;bottom:24px;width:150px;height:92px;
+    transform:perspective(400px) rotateY(7deg);
 }
-.signature-name small{
-    margin-top:3px;
-    color:#8a98a8;
-    font-family:inherit;
-    font-size:9px;
-    font-style:normal;
-    letter-spacing:.8px;
-    text-transform:uppercase;
+.tech-screen{
+    position:absolute;left:13px;top:0;width:120px;height:74px;
+    border:7px solid #24384b;border-bottom-width:9px;border-radius:8px 8px 4px 4px;
+    background:linear-gradient(145deg,#12385d,#2588d4);
+    box-shadow:0 8px 18px rgba(20,48,72,.2);
+}
+.tech-screen-line{
+    width:58px;height:4px;margin:16px 0 0 17px;border-radius:10px;
+    background:rgba(255,255,255,.7);
+}
+.tech-screen-line.short{width:38px;margin-top:8px;opacity:.55}
+.tech-screen-dot{
+    width:8px;height:8px;margin:10px 0 0 17px;border-radius:50%;background:#8fd0ff;
+}
+.tech-keyboard{
+    position:absolute;left:0;bottom:0;width:150px;height:23px;
+    border-radius:4px 4px 12px 12px;background:linear-gradient(#b9c4ce,#697987);
+    box-shadow:0 7px 12px rgba(20,48,72,.2);
+}
+.tech-books{
+    position:absolute;left:42%;bottom:12px;width:90px;transform:rotate(-2deg);
+}
+.tech-books i{
+    display:block;height:15px;margin-top:2px;border-radius:3px;
+    background:linear-gradient(90deg,#174f82,#267dc0);
+    box-shadow:0 2px 4px rgba(31,65,92,.18);
+}
+.tech-books i:nth-child(2){width:82px;background:linear-gradient(90deg,#9a5e36,#c5844b)}
+.tech-books i:nth-child(3){width:96px;background:linear-gradient(90deg,#285a78,#4e8eb5)}
+.tech-globe-wrap{
+    position:absolute;right:10%;bottom:13px;width:118px;height:138px;
+}
+.tech-globe{
+    position:absolute;left:6px;top:0;width:92px;height:92px;overflow:hidden;
+    border-radius:50%;
+    background:
+        radial-gradient(circle at 34% 28%,rgba(255,255,255,.8),transparent 11%),
+        linear-gradient(145deg,#4db2ed 0%,#1674c4 56%,#0b4788 100%);
+    border:3px solid rgba(255,255,255,.82);
+    box-shadow:inset -15px -14px 22px rgba(0,30,72,.3),0 12px 20px rgba(16,76,123,.2);
+    animation:apsanGlobeSpin 12s linear infinite;
+    transform-origin:center;
+}
+.globe-line{
+    position:absolute;display:block;left:50%;top:-10%;width:42%;height:120%;
+    border:1px solid rgba(255,255,255,.45);border-radius:50%;
+    transform:translateX(-50%);
+}
+.globe-line-a{transform:translateX(-50%) rotate(28deg)}
+.globe-line-b{transform:translateX(-50%) rotate(-28deg)}
+.globe-line-c{left:-10%;top:25%;width:120%;height:34%;transform:none}
+.globe-line-d{left:-10%;top:49%;width:120%;height:26%;transform:none}
+.globe-stand{
+    position:absolute;left:47px;top:90px;width:4px;height:27px;
+    background:#42586b;border-radius:4px;
+}
+.globe-stand:after{
+    content:"";position:absolute;left:-22px;bottom:0;width:48px;height:7px;
+    border-radius:50%;background:#42586b;
+}
+@keyframes apsanGlobeSpin{
+    from{transform:rotateY(0deg)}
+    to{transform:rotateY(360deg)}
 }
 @media(max-width:560px){
-    .professor-dashboard-signature{
-        margin:18px 2px 24px;
-        padding:16px;
-    }
+    .professor-tech-scene{min-height:330px;margin:18px 2px 28px}
+    .tech-scene-copy{width:62%;padding:30px 0 0 22px}
+    .tech-scene-copy strong{font-size:23px}
+    .tech-scene-copy small{font-size:11px}
+    .tech-laptop{left:5%;transform:scale(.78);transform-origin:bottom left}
+    .tech-books{left:40%;transform:scale(.82);transform-origin:bottom left}
+    .tech-globe-wrap{right:5%;transform:scale(.88);transform-origin:bottom right}
 }
