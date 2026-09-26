@@ -2080,7 +2080,8 @@ button.dashboard-link {
     background:#fff;
     border-right:1px solid #e4ebf3;
     box-shadow:10px 0 30px rgba(17,45,80,.16);
-    z-index:240;
+    z-index:400;
+    pointer-events:auto;
     transition:left .25s ease;
     display:flex;
     flex-direction:column;
@@ -2125,7 +2126,8 @@ button.dashboard-link {
 .student-menu-backdrop{
     position:fixed;
     inset:64px 0 0 0;
-    z-index:230;
+    z-index:390;
+    pointer-events:auto;
     background:rgba(5,24,48,.28);
     opacity:0;
     visibility:hidden;
@@ -2138,7 +2140,8 @@ button.dashboard-link {
 @media(max-width:560px){
     .student-side-menu{top:58px;height:calc(100vh - 58px);width:min(286px,86vw)}
     .student-menu-backdrop{inset:58px 0 0 0}
-    .menu-button{position:relative;z-index:250}
+    .app-header{position:relative;z-index:450}
+    .menu-button{position:relative;z-index:460;pointer-events:auto}
 }
 
 
