@@ -480,10 +480,18 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (document.body.classList.contains("professor-page")) {
-            const hero = document.querySelector('.professor-view-section[data-view-section="home"]');
             const sections = document.querySelectorAll(".professor-view-section");
             sections.forEach(function (section) {
-                section.classList.toggle("single-panel-hidden", section !== hero);
+                /*
+                 * A página inicial pode conter apenas elementos visuais do
+                 * próprio dashboard. Todos os módulos do menu continuam
+                 * fechados. Assim, o cartão de boas-vindas e o ambiente
+                 * tecnológico permanecem visíveis juntos.
+                 */
+                section.classList.toggle(
+                    "single-panel-hidden",
+                    section.getAttribute("data-view-section") !== "home"
+                );
             });
             const dashboardMain = document.querySelector("main");
             if (dashboardMain) dashboardMain.classList.remove("single-panel-mode");
