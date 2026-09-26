@@ -351,56 +351,71 @@
                    VERIFICAR SE JÁ EXISTE CONTA
                    ========================================== */
 
-                const existingAccount =
-                    localStorage.getItem("apsan_account");
-
-
-                if (existingAccount) {
-
-                    const oldAccount =
-                        JSON.parse(existingAccount);
-
-
-                    if (
-                        oldAccount.username &&
-                        oldAccount.username.toLowerCase() ===
-                        username.toLowerCase()
-                    ) {
-
-                        message.style.color = "#d93025";
-
-                        message.textContent =
-                            "Este nome de utilizador já existe.";
-
-                        return;
-                    }
-
+                function normalizePhone(value) {
+                    return String(value || "").replace(/\D/g, "");
                 }
 
+                let accounts = [];
+                try {
+                    const stored = JSON.parse(localStorage.getItem("apsan_accounts") || "[]");
+                    accounts = Array.isArray(stored) ? stored : [];
+                } catch (error) {
+                    accounts = [];
+                }
+
+                /* Migra a conta antiga sem substituir nenhuma conta existente. */
+                try {
+                    const legacy = JSON.parse(localStorage.getItem("apsan_account") || "null");
+                    if (legacy && legacy.phone) {
+                        const legacyExists = accounts.some(function (item) {
+                            return normalizePhone(item && item.phone) === normalizePhone(legacy.phone) &&
+                                item.type === legacy.type;
+                        });
+                        if (!legacyExists) {
+                            accounts.push(Object.assign({}, legacy, {
+                                id: legacy.id || ("acc_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8))
+                            }));
+                        }
+                    }
+                } catch (error) {
+                    /* continua com o catálogo disponível */
+                }
+
+                const usernameExists = accounts.some(function (item) {
+                    return item && item.username &&
+                        item.username.toLowerCase() === username.toLowerCase();
+                });
+
+                if (usernameExists) {
+                    message.style.color = "#d93025";
+                    message.textContent = "Este nome de utilizador já existe.";
+                    return;
+                }
+
+                const phoneExists = accounts.some(function (item) {
+                    return item && normalizePhone(item.phone) === normalizePhone(phone);
+                });
+
+                if (phoneExists) {
+                    message.style.color = "#d93025";
+                    message.textContent = "Este número de telefone já está associado a uma conta.";
+                    return;
+                }
 
                 /* ==========================================
                    CRIAR CONTA
                    ========================================== */
 
                 const account = {
-
+                    id: "acc_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8),
                     name: fullName,
-
                     username: username,
-
                     phone: phone,
-
                     password: password,
-
                     type: userType,
-
                     bio: "",
-
                     photo: "",
-
-                    createdAt:
-                        new Date().toISOString()
-
+                    createdAt: new Date().toISOString()
                 };
 
 
@@ -422,32 +437,15 @@
                    REGISTAR CONTA NO CATÁLOGO DA PLATAFORMA
                    ========================================== */
 
-                const accountsRegistry =
-                    JSON.parse(localStorage.getItem("apsan_accounts") || "[]");
-
-                const accounts =
-                    Array.isArray(accountsRegistry)
-                        ? accountsRegistry
-                        : [];
-
-                const accountExists = accounts.some(function (item) {
-                    return item.phone === account.phone;
-                });
-
-                if (!accountExists) {
-                    accounts.push(account);
-                } else {
-                    const existingIndex = accounts.findIndex(function (item) {
-                        return item.phone === account.phone;
-                    });
-                    accounts[existingIndex] = account;
-                }
-
+                /*
+                 * O catálogo é cumulativo: uma nova conta é adicionada,
+                 * nunca substitui nem apaga uma conta já criada.
+                 */
+                accounts.push(account);
                 localStorage.setItem(
                     "apsan_accounts",
                     JSON.stringify(accounts)
                 );
-
 
                 /* ==========================================
                    GUARDAR SESSÃO
