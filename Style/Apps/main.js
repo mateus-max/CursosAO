@@ -557,11 +557,31 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
+        const professorDisplayName =
+            account.name && String(account.name).trim() &&
+            String(account.name).trim().toLowerCase() !== "professor"
+                ? String(account.name).trim()
+                : "Eduardo Ngongoyove Gabriel";
+
         if (teacherName) {
-            teacherName.textContent = account.name || "Professor";
+            teacherName.textContent = professorDisplayName;
         }
 
-        const photo = account.photo || "";
+        const signatureName = document.getElementById("dashboardProfessorSignature");
+        if (signatureName) {
+            signatureName.textContent = professorDisplayName;
+        }
+
+        /*
+         * Preserva a fotografia já guardada na conta. Não substitui a foto
+         * existente por um avatar genérico; apenas usa os campos antigos
+         * compatíveis se a conta tiver sido guardada com outro nome.
+         */
+        const photo =
+            account.photo ||
+            account.profilePhoto ||
+            account.avatar ||
+            "";
 
         if (topAvatar) {
             if (photo) {
