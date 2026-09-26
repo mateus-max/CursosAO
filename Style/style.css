@@ -2307,3 +2307,25 @@ button.dashboard-link {
         font-size:17px;
     }
 }
+
+
+/* =========================================================
+   NAVEGAÇÃO DOS MENUS — FOCO NA SECÇÃO ESCOLHIDA
+   ========================================================= */
+[data-menu-focus].menu-focus-active,
+[data-student-menu-focus].menu-focus-active,
+[data-admin-menu-focus].admin-menu-focus-active{
+    scroll-margin-top:82px;
+    animation:menuFocusIn .35s ease;
+}
+.menu-focus-active{
+    box-shadow:0 0 0 3px rgba(23,105,224,.12);
+    border-radius:14px;
+}
+.admin-menu-focus-active{
+    box-shadow:0 0 0 3px rgba(23,105,224,.14),0 10px 28px rgba(20,55,100,.10);
+}
+@keyframes menuFocusIn{
+    from{transform:translateY(4px);opacity:.72}
+    to{transform:translateY(0);opacity:1}
+}
