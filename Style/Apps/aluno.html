@@ -37,8 +37,8 @@
     <section class="student-hero">
         <div>
             <span class="hero-kicker">ÁREA DO ALUNO</span>
-            <h1>Encontre o seu professor</h1>
-            <p>Pesquise professores publicados na APSAN Academy e consulte os cursos disponíveis.</p>
+            <h1>Olá, <span id="studentName">Aluno</span>! 👋</h1>
+            <p>Pesquise professores, acompanhe os seus cursos e aceda às suas aulas.</p>
         </div>
     </section>
 
@@ -156,6 +156,11 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!currentAccount || currentAccount.type !== "aluno") {
         window.location.href = "../../index.html";
         return;
+    }
+
+    const studentName = document.getElementById("studentName");
+    if (studentName) {
+        studentName.textContent = currentAccount.name || currentAccount.fullName || "Aluno";
     }
 
     const menuButton = document.getElementById("studentMenuButton");
