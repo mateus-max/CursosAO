@@ -485,7 +485,8 @@ document.addEventListener("DOMContentLoaded", function () {
             sections.forEach(function (section) {
                 section.classList.toggle("single-panel-hidden", section !== hero);
             });
-            if (main) main.classList.remove("single-panel-mode");
+            const dashboardMain = document.querySelector("main");
+            if (dashboardMain) dashboardMain.classList.remove("single-panel-mode");
             window.scrollTo({ top: 0, behavior: "smooth" });
         } else if (document.body.classList.contains("admin-page")) {
             setSinglePanelView("admin-dashboard", { keepHash: true });
