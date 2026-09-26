@@ -370,6 +370,80 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     /* =====================================================
+       NOTIFICAÇÕES DE MENSAGENS
+       ===================================================== */
+
+    function readMessageNotifications() {
+        try {
+            const items = JSON.parse(localStorage.getItem("apsan_message_notifications") || "[]");
+            return Array.isArray(items) ? items : [];
+        } catch (error) {
+            return [];
+        }
+    }
+
+    function normalizeMessagePhone(value) {
+        const digits = String(value || "").replace(/\D/g, "");
+        return digits.length > 9 ? digits.slice(-9) : digits;
+    }
+
+    function updateProfessorMessageNotifications() {
+        if (!account || account.type !== "professor") return;
+
+        const phone = normalizeMessagePhone(account.phone);
+        const unread = readMessageNotifications().filter(function (item) {
+            return normalizeMessagePhone(item.recipientPhone) === phone && !item.readAt;
+        });
+        const count = unread.length;
+
+        const menuBadge = document.getElementById("professorMessageMenuBadge");
+        const messageCount = document.getElementById("messageCount");
+        const messageBadge = document.getElementById("messageBadge");
+        const messagesContent = document.getElementById("messagesContent");
+
+        if (menuBadge) {
+            menuBadge.textContent = count;
+            menuBadge.hidden = count === 0;
+        }
+        if (messageCount) messageCount.textContent = count;
+        if (messageBadge) messageBadge.textContent = count;
+
+        if (messagesContent) {
+            if (!count) {
+                messagesContent.innerHTML = '<p class="empty-state">Você ainda não tem mensagens novas.</p>';
+            } else {
+                const latest = unread.slice().sort(function (a, b) {
+                    return String(b.createdAt || "").localeCompare(String(a.createdAt || ""));
+                })[0];
+                messagesContent.innerHTML =
+                    '<div class="module-row message-notification-row">' +
+                        '<span class="module-row-icon">💬</span>' +
+                        '<div><strong>' + escapeModuleText(latest.senderName || "Novo remetente") + '</strong>' +
+                        '<small>' + count + (count === 1 ? ' nova mensagem' : ' novas mensagens') + '</small>' +
+                        (latest.textPreview ? '<p>' + escapeModuleText(latest.textPreview) + '</p>' : '') +
+                        '</div>' +
+                    '</div>';
+            }
+        }
+    }
+
+    const openMessagesButton = document.getElementById("openMessagesButton");
+    if (openMessagesButton) {
+        openMessagesButton.addEventListener("click", function () {
+            window.location.href = "mensagens.html";
+        });
+    }
+
+    window.addEventListener("storage", function (event) {
+        if (event.key === "apsan_message_notifications") {
+            updateProfessorMessageNotifications();
+        }
+    });
+
+    updateProfessorMessageNotifications();
+    setInterval(updateProfessorMessageNotifications, 2000);
+
+    /* =====================================================
        ELEMENTOS DO PROFESSOR
        ===================================================== */
 
