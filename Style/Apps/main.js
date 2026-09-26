@@ -1224,7 +1224,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     return '<div class="module-row">' +
                         '<span class="module-row-icon">📄</span>' +
                         '<div><strong>' + escapeModuleText(material.title) + '</strong>' +
-                        '<small>' + escapeModuleText(material.type || "Material") + ' ' + link + '</small></div>' +
+                        '<small>' + escapeModuleText(material.type || "Material") + ' · ' +
+                        escapeModuleText(material.course || "Curso") + '</small>' +
+                        (material.description ? '<p>' + escapeModuleText(material.description) + '</p>' : '') +
+                        ' ' + link + '</div>' +
                         '<button type="button" class="module-delete" data-delete-material="' + material.id + '">Excluir</button>' +
                         '</div>';
                 }).join("");
@@ -1247,7 +1250,9 @@ document.addEventListener("DOMContentLoaded", function () {
                         return '<div class="schedule-row">' +
                             '<span class="schedule-day">' + escapeModuleText(formatLessonDate(lesson.date)) + '</span>' +
                             '<div><strong>' + escapeModuleText(lesson.title) + '</strong>' +
-                            '<small>' + escapeModuleText(lesson.time) + ' · ' + escapeModuleText(lesson.duration || "60") + ' min</small></div>' +
+                            '<small>' + escapeModuleText(lesson.time) + ' · ' + escapeModuleText(lesson.duration || "60") + ' min</small>' +
+                            (lesson.description ? '<p>' + escapeModuleText(lesson.description) + '</p>' : '') +
+                            '</div>' +
                             '<button type="button" class="module-delete" data-delete-lesson="' + lesson.id + '">Excluir</button>' +
                             '</div>';
                     }).join("");
@@ -1358,6 +1363,15 @@ document.addEventListener("DOMContentLoaded", function () {
             const date = document.getElementById("lessonDate").value;
             const time = document.getElementById("lessonTime").value;
             const duration = document.getElementById("lessonDuration").value;
+            const description = document.getElementById("lessonDescription")
+                ? document.getElementById("lessonDescription").value.trim()
+                : "";
+            const publicProfile = typeof getPublicProfile === "function"
+                ? getPublicProfile()
+                : null;
+            const course = publicProfile && publicProfile.course
+                ? publicProfile.course
+                : "Curso do professor";
             const message = document.getElementById("lessonMessage");
 
             if (!title || !date || !time) {
@@ -1371,9 +1385,14 @@ document.addEventListener("DOMContentLoaded", function () {
             lessons.push({
                 id: Date.now().toString(),
                 title: title,
+                description: description,
                 date: date,
                 time: time,
-                duration: duration
+                duration: duration,
+                course: course,
+                teacherPhone: professorPhone,
+                published: true,
+                createdAt: new Date().toISOString()
             });
 
             saveStoredList(lessonsKey, lessons);
@@ -1401,6 +1420,15 @@ document.addEventListener("DOMContentLoaded", function () {
             const title = document.getElementById("materialTitle").value.trim();
             const type = document.getElementById("materialType").value;
             const link = document.getElementById("materialLink").value.trim();
+            const description = document.getElementById("materialDescription")
+                ? document.getElementById("materialDescription").value.trim()
+                : "";
+            const publicProfile = typeof getPublicProfile === "function"
+                ? getPublicProfile()
+                : null;
+            const course = publicProfile && publicProfile.course
+                ? publicProfile.course
+                : "Curso do professor";
             const message = document.getElementById("materialMessage");
 
             if (!title) {
@@ -1415,7 +1443,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 id: Date.now().toString(),
                 title: title,
                 type: type,
-                link: link
+                link: link,
+                description: description,
+                course: course,
+                teacherPhone: professorPhone,
+                published: true,
+                createdAt: new Date().toISOString()
             });
 
             saveStoredList(materialsKey, materials);
