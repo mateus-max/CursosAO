@@ -2836,3 +2836,176 @@ button.dashboard-link {
         flex:1;
     }
 }
+
+
+/* =========================================================
+   MENSAGENS — NOTIFICAÇÕES, ELIMINAÇÃO E MELHORIAS VISUAIS
+   ========================================================= */
+.menu-notification-badge,
+.messages-unread-badge,
+.messages-contact-unread{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:18px;
+    height:18px;
+    padding:0 5px;
+    box-sizing:border-box;
+    border-radius:999px;
+    background:#d93025;
+    color:#fff;
+    font-size:9px;
+    font-weight:900;
+    line-height:1;
+}
+.menu-notification-badge{
+    margin-left:auto;
+}
+.messages-title{
+    display:flex;
+    align-items:center;
+    gap:7px;
+}
+.messages-unread-badge{
+    min-width:20px;
+    height:20px;
+    font-size:10px;
+}
+.messages-unread-label{
+    display:block;
+    margin-top:5px;
+    color:#d93025;
+    font-size:10px;
+    font-weight:800;
+}
+.messages-contact{
+    position:relative;
+}
+.messages-contact.has-unread{
+    background:#eef6ff;
+}
+.messages-contact.has-unread .messages-contact-copy strong{
+    color:#0b57b7;
+}
+.messages-contact-unread{
+    flex:0 0 auto;
+}
+.messages-chat-person{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    min-width:0;
+}
+.messages-chat-avatar{
+    width:42px;
+    height:42px;
+    flex:0 0 42px;
+    display:grid;
+    place-items:center;
+    border-radius:50%;
+    background:#1769e0;
+    color:#fff;
+    font-weight:900;
+}
+.messages-chat-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+}
+.messages-delete-conversation{
+    flex:0 0 auto;
+    border:1px solid #f0caca;
+    background:#fff6f6;
+    color:#c62828;
+    border-radius:9px;
+    padding:8px 10px;
+    font-size:10px;
+    font-weight:800;
+    cursor:pointer;
+}
+.messages-delete-conversation:hover{
+    background:#ffeaea;
+}
+.message-bubble-wrap{
+    align-items:flex-end;
+    gap:7px;
+}
+.message-delete{
+    opacity:0;
+    border:0;
+    background:transparent;
+    color:#c62828;
+    font-size:9px;
+    font-weight:800;
+    cursor:pointer;
+    padding:4px;
+}
+.message-bubble-wrap:hover .message-delete,
+.message-delete:focus{
+    opacity:1;
+}
+.messages-chat-notice{
+    padding:7px 15px;
+    border-top:1px solid #e8edf3;
+    background:#fbfdff;
+    color:#718096;
+    font-size:10px;
+}
+.message-notification-row{
+    background:#f3f8ff;
+    border:1px solid #dbeaff;
+    border-radius:12px;
+    padding:10px;
+}
+.student-message-notice{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin:10px 0 14px;
+    padding:12px 14px;
+    border:1px solid #d9e8fb;
+    border-radius:13px;
+    background:#eef6ff;
+}
+.student-message-notice strong,
+.student-message-notice small{
+    display:block;
+}
+.student-message-notice strong{
+    color:#17385f;
+    font-size:12px;
+}
+.student-message-notice small{
+    margin-top:3px;
+    color:#718096;
+    font-size:10px;
+}
+.student-message-notice a{
+    flex:0 0 auto;
+    color:#1769e0;
+    font-size:11px;
+    font-weight:800;
+    text-decoration:none;
+}
+@media(max-width:560px){
+    .messages-chat-header{
+        align-items:flex-start;
+    }
+    .messages-delete-conversation{
+        padding:7px 8px;
+        font-size:9px;
+    }
+    .message-delete{
+        opacity:1;
+    }
+    .student-message-notice{
+        align-items:flex-start;
+        flex-direction:column;
+    }
+    .student-message-notice a{
+        width:100%;
+        text-align:right;
+    }
+}
