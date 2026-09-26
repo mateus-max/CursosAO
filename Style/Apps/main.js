@@ -305,6 +305,50 @@ document.addEventListener("DOMContentLoaded", function () {
         );
 
 
+    function setSinglePanelView(targetId, options) {
+        const isProfessor = document.body.classList.contains("professor-page");
+        const isAdmin = document.body.classList.contains("admin-page");
+
+        if (!isProfessor && !isAdmin) return false;
+
+        const main = document.querySelector("main");
+        if (!main) return false;
+
+        const viewSections = main.querySelectorAll("[data-view-section], section[id]");
+        const target = document.getElementById(targetId);
+
+        if (!target) return false;
+
+        viewSections.forEach(function (section) {
+            const isTarget = section === target ||
+                (target.getAttribute("data-view-section") === "home" &&
+                 section.getAttribute("data-view-section") === "home");
+
+            section.classList.toggle("single-panel-hidden", !isTarget);
+        });
+
+        main.classList.toggle("single-panel-mode", target.getAttribute("data-view-section") !== "home");
+
+        if (target.getAttribute("data-view-section") !== "home") {
+            target.classList.add("menu-focus-active");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        } else {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        if (!(options && options.keepHash)) {
+            window.history.replaceState(null, "", target.getAttribute("data-view-section") === "home"
+                ? window.location.pathname
+                : "#" + targetId);
+        }
+
+        return true;
+    }
+
+    function openProfessorOrAdminView(targetId, options) {
+        return setSinglePanelView(targetId, options);
+    }
+
     menuLinks.forEach(function (link) {
         link.addEventListener("click", function (event) {
             const href = link.getAttribute("href") || "";
@@ -313,20 +357,54 @@ document.addEventListener("DOMContentLoaded", function () {
             if (sideMenu) sideMenu.classList.remove("menu-open");
 
             if (targetId) {
-                event.preventDefault();
-                const target = document.getElementById(targetId);
-                if (target) {
+                if (openProfessorOrAdminView(targetId)) {
+                    event.preventDefault();
+
                     document.querySelectorAll("[data-menu-focus]").forEach(function (item) {
                         item.classList.remove("menu-focus-active");
                     });
-                    target.setAttribute("data-menu-focus", "true");
-                    target.classList.add("menu-focus-active");
-                    target.scrollIntoView({ behavior: "smooth", block: "start" });
-                    window.history.replaceState(null, "", "#" + targetId);
+
+                    const target = document.getElementById(targetId);
+                    if (target) target.classList.add("menu-focus-active");
                 }
             }
         });
     });
+
+    /* Links internos do painel (cartões, botões e navegação inferior)
+       usam a mesma regra: ao abrir uma área, o dashboard deixa de aparecer. */
+    document.querySelectorAll('a[href^="#"]').forEach(function (link) {
+        link.addEventListener("click", function (event) {
+            const targetId = (link.getAttribute("href") || "").slice(1);
+            if (!targetId) return;
+
+            if (openProfessorOrAdminView(targetId)) {
+                event.preventDefault();
+                if (sideMenu) sideMenu.classList.remove("menu-open");
+            }
+        });
+    });
+
+    function restoreSinglePanelViewFromHash() {
+        const hash = window.location.hash ? window.location.hash.slice(1) : "";
+        if (hash && document.getElementById(hash) && openProfessorOrAdminView(hash, { keepHash: true })) {
+            return;
+        }
+
+        if (document.body.classList.contains("professor-page")) {
+            const homeSections = document.querySelectorAll('[data-view-section="home"]');
+            const allSections = document.querySelectorAll(".professor-view-section");
+            allSections.forEach(function (section) {
+                section.classList.toggle("single-panel-hidden", !section.hasAttribute("data-view-section") ||
+                    section.getAttribute("data-view-section") !== "home");
+            });
+            if (main) {
+                main.classList.remove("single-panel-mode");
+            }
+        }
+    }
+
+    restoreSinglePanelViewFromHash();
 
 
 
