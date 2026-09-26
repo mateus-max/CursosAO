@@ -151,6 +151,13 @@
                 💬 Mensagens <span id="professorMessageMenuBadge" class="menu-notification-badge" hidden>0</span>
             </a>
 
+            <a
+                href="#financeiro"
+                data-menu-link
+            >
+                💳 Financeiro
+            </a>
+
         </nav>
 
 
@@ -344,6 +351,74 @@
             <button type="button" class="primary-action professor-modal-button" data-open-panel="publicProfile">
                 Editar perfil →
             </button>
+
+        </section>
+
+        <!-- FINANCEIRO DO PROFESSOR -->
+        <section class="professor-finance-section" id="financeiro" data-menu-focus>
+
+            <div class="finance-section-heading">
+                <div>
+                    <span class="section-label">FINANCEIRO</span>
+                    <h2>Meu Financeiro</h2>
+                    <p>Acompanhe os pagamentos confirmados, o saldo disponível e os seus saques.</p>
+                </div>
+                <button type="button" class="finance-refresh-button" id="teacherFinanceRefresh">Atualizar</button>
+            </div>
+
+            <div class="teacher-finance-grid">
+                <div class="teacher-virtual-card" id="teacherVirtualCard">
+                    <div class="teacher-card-top">
+                        <strong>APSAN Academy</strong>
+                        <span>CARTÃO VIRTUAL</span>
+                    </div>
+                    <div class="teacher-card-chip"></div>
+                    <div class="teacher-card-number">•••• &nbsp; •••• &nbsp; •••• &nbsp; <span id="teacherCardLast4">0000</span></div>
+                    <div class="teacher-card-bottom">
+                        <div>
+                            <small>TITULAR</small>
+                            <strong id="teacherCardName">Professor</strong>
+                        </div>
+                        <div class="teacher-card-balance">
+                            <small>SALDO DISPONÍVEL</small>
+                            <strong id="teacherFinanceBalance">0 Kz</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="teacher-finance-summary">
+                    <div class="finance-summary-item income">
+                        <span>↑</span>
+                        <div><small>Total de entradas</small><strong id="teacherFinanceIncome">0 Kz</strong></div>
+                    </div>
+                    <div class="finance-summary-item expense">
+                        <span>↓</span>
+                        <div><small>Total de saídas</small><strong id="teacherFinanceExpense">0 Kz</strong></div>
+                    </div>
+                    <div class="finance-summary-item pending">
+                        <span>◷</span>
+                        <div><small>Saques pendentes</small><strong id="teacherFinancePending">0 Kz</strong></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="finance-action-row">
+                <button type="button" class="finance-primary-action" id="teacherWithdrawButton">Solicitar saque</button>
+                <button type="button" class="finance-secondary-action" id="teacherStatementButton">Ver todas as movimentações</button>
+            </div>
+
+            <div class="teacher-finance-transactions">
+                <div class="finance-transactions-head">
+                    <div>
+                        <h3>Movimentações recentes</h3>
+                        <p>Pagamentos só entram no saldo depois da confirmação da Direção.</p>
+                    </div>
+                    <span id="teacherFinanceMovementCount">0</span>
+                </div>
+                <div id="teacherFinanceTransactions">
+                    <p class="empty-state">Ainda não existem movimentações financeiras.</p>
+                </div>
+            </div>
 
         </section>
 
@@ -650,9 +725,44 @@
 
     </div>
 
+    <!-- MODAL DE SAQUE -->
+    <div class="finance-modal-overlay" id="teacherWithdrawModal">
+        <div class="finance-modal">
+            <div class="finance-modal-header">
+                <div>
+                    <span class="section-label">SAQUE</span>
+                    <h2>Solicitar saque</h2>
+                    <p>Informe a conta bancária onde pretende receber o valor.</p>
+                </div>
+                <button type="button" class="finance-close-button" id="teacherWithdrawClose">×</button>
+            </div>
 
+            <form id="teacherWithdrawForm" class="finance-form">
+                <label>Valor do saque (Kz)
+                    <input id="withdrawAmount" type="number" min="1" step="1" required>
+                </label>
+                <label>Banco
+                    <input id="withdrawBank" type="text" placeholder="Ex.: BFA" required>
+                </label>
+                <label>Nome do titular
+                    <input id="withdrawHolder" type="text" required>
+                </label>
+                <div class="finance-form-row">
+                    <label>Número da conta
+                        <input id="withdrawAccount" type="text" required>
+                    </label>
+                    <label>IBAN / NIB
+                        <input id="withdrawIban" type="text" required>
+                    </label>
+                </div>
+                <p id="teacherWithdrawMessage" class="finance-form-message"></p>
+                <button type="submit" class="finance-primary-action">Enviar pedido de saque</button>
+            </form>
+        </div>
+    </div>
 
     <script src="main.js?v=messages-notifications-20260926"></script>
+    <script src="finance.js?v=finance-20260926"></script>
 
 </body>
 </html>
