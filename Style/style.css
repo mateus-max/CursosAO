@@ -3009,3 +3009,466 @@ button.dashboard-link {
         text-align:right;
     }
 }
+
+
+/* =========================================================
+   FINANCEIRO DO PROFESSOR — CARTÃO VIRTUAL E SAQUES
+   ========================================================= */
+.professor-finance-section{
+    margin:0 0 18px;
+    padding:20px;
+    border:1px solid #dfe8f2;
+    border-radius:18px;
+    background:#fff;
+    box-shadow:0 8px 24px rgba(17,45,80,.07);
+}
+.finance-section-heading{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:14px;
+    margin-bottom:16px;
+}
+.finance-section-heading h2{
+    margin:4px 0 3px;
+    color:#172033;
+    font-size:21px;
+}
+.finance-section-heading p{
+    margin:0;
+    color:#718096;
+    font-size:12px;
+}
+.finance-refresh-button{
+    border:1px solid #d8e5f2;
+    border-radius:10px;
+    padding:9px 12px;
+    background:#f7fbff;
+    color:#1769e0;
+    font-weight:800;
+    cursor:pointer;
+}
+.teacher-finance-grid{
+    display:grid;
+    grid-template-columns:minmax(0,1.4fr) minmax(210px,.8fr);
+    gap:14px;
+    align-items:stretch;
+}
+.teacher-virtual-card{
+    position:relative;
+    min-height:270px;
+    aspect-ratio:1.586/1;
+    box-sizing:border-box;
+    overflow:hidden;
+    padding:24px;
+    border-radius:20px;
+    color:#fff;
+    background:
+      radial-gradient(circle at 85% 18%,rgba(255,255,255,.16),transparent 25%),
+      linear-gradient(135deg,#06275a 0%,#0b63c7 55%,#053875 100%);
+    box-shadow:0 16px 32px rgba(8,67,139,.24);
+}
+.teacher-virtual-card:after{
+    content:"";
+    position:absolute;
+    width:260px;
+    height:260px;
+    right:-100px;
+    bottom:-150px;
+    border:1px solid rgba(255,255,255,.18);
+    border-radius:50%;
+    box-shadow:0 0 0 30px rgba(255,255,255,.04),0 0 0 60px rgba(255,255,255,.03);
+}
+.teacher-card-top,
+.teacher-card-bottom{
+    position:relative;
+    z-index:1;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:10px;
+}
+.teacher-card-top strong{
+    font-size:18px;
+    letter-spacing:.3px;
+}
+.teacher-card-top span{
+    font-size:9px;
+    font-weight:900;
+    letter-spacing:1px;
+    opacity:.85;
+}
+.teacher-card-chip{
+    position:relative;
+    z-index:1;
+    width:52px;
+    height:38px;
+    margin-top:27px;
+    border-radius:8px;
+    background:linear-gradient(135deg,#f3d28a,#c58b28);
+    box-shadow:inset 0 0 0 1px rgba(120,80,15,.28);
+}
+.teacher-card-number{
+    position:relative;
+    z-index:1;
+    margin-top:18px;
+    font-size:20px;
+    letter-spacing:2px;
+    font-weight:700;
+}
+.teacher-card-bottom{
+    position:absolute;
+    left:24px;
+    right:24px;
+    bottom:22px;
+    align-items:flex-end;
+}
+.teacher-card-bottom small{
+    display:block;
+    margin-bottom:4px;
+    font-size:8px;
+    letter-spacing:1px;
+    opacity:.7;
+}
+.teacher-card-bottom strong{
+    display:block;
+    font-size:13px;
+    text-transform:uppercase;
+}
+.teacher-card-balance{
+    text-align:right;
+}
+.teacher-card-balance strong{
+    font-size:19px;
+}
+.teacher-finance-summary{
+    display:grid;
+    gap:10px;
+}
+.finance-summary-item{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    padding:15px;
+    border:1px solid #e1e9f2;
+    border-radius:14px;
+    background:#fbfdff;
+}
+.finance-summary-item>span{
+    width:36px;
+    height:36px;
+    display:grid;
+    place-items:center;
+    border-radius:50%;
+    font-size:19px;
+    font-weight:900;
+}
+.finance-summary-item.income>span{background:#dcf8e8;color:#16803c}
+.finance-summary-item.expense>span{background:#ffe3e3;color:#c62828}
+.finance-summary-item.pending>span{background:#e8f2ff;color:#1769e0}
+.finance-summary-item small{
+    display:block;
+    color:#718096;
+    font-size:10px;
+}
+.finance-summary-item strong{
+    display:block;
+    margin-top:3px;
+    color:#172033;
+    font-size:16px;
+}
+.finance-summary-item.income strong{color:#16803c}
+.finance-summary-item.expense strong{color:#c62828}
+.finance-action-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:9px;
+    margin:14px 0;
+}
+.finance-primary-action,
+.finance-secondary-action{
+    border:0;
+    border-radius:10px;
+    padding:11px 14px;
+    font-size:12px;
+    font-weight:900;
+    cursor:pointer;
+}
+.finance-primary-action{background:#1769e0;color:#fff}
+.finance-primary-action:hover{background:#0d54b9}
+.finance-secondary-action{background:#eaf3ff;color:#1769e0}
+.teacher-finance-transactions{
+    border:1px solid #e1e9f2;
+    border-radius:15px;
+    overflow:hidden;
+}
+.finance-transactions-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:15px 16px;
+    border-bottom:1px solid #e8eef5;
+}
+.finance-transactions-head h3{
+    margin:0;
+    color:#172033;
+    font-size:15px;
+}
+.finance-transactions-head p{
+    margin:4px 0 0;
+    color:#718096;
+    font-size:10px;
+}
+.finance-transactions-head>span{
+    min-width:28px;
+    height:28px;
+    display:grid;
+    place-items:center;
+    border-radius:9px;
+    background:#eaf3ff;
+    color:#1769e0;
+    font-size:11px;
+    font-weight:900;
+}
+.teacher-finance-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:12px 14px;
+    border-bottom:1px solid #edf1f5;
+}
+.teacher-finance-row:last-child{border-bottom:0}
+.finance-row-icon{
+    width:34px;
+    height:34px;
+    flex:0 0 34px;
+    display:grid;
+    place-items:center;
+    border-radius:50%;
+    font-weight:900;
+}
+.finance-row-icon.income{background:#dcf8e8;color:#16803c}
+.finance-row-icon.expense{background:#ffe3e3;color:#c62828}
+.finance-row-main{
+    min-width:0;
+    flex:1;
+}
+.finance-row-main strong,
+.finance-row-main small{
+    display:block;
+}
+.finance-row-main strong{
+    color:#26364c;
+    font-size:12px;
+}
+.finance-row-main small{
+    margin-top:3px;
+    color:#8190a3;
+    font-size:9px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+.finance-row-amount{
+    white-space:nowrap;
+    font-size:11px;
+}
+.finance-row-amount.income{color:#16803c}
+.finance-row-amount.expense{color:#c62828}
+.finance-modal-overlay{
+    position:fixed;
+    inset:0;
+    z-index:950;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:16px;
+    background:rgba(5,20,40,.58);
+}
+.finance-modal-overlay.finance-modal-open{display:flex}
+.finance-modal{
+    width:min(100%,620px);
+    max-height:92vh;
+    overflow:auto;
+    padding:20px;
+    box-sizing:border-box;
+    border-radius:18px;
+    background:#fff;
+    box-shadow:0 25px 70px rgba(0,0,0,.25);
+}
+.finance-modal-header{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:15px;
+}
+.finance-modal-header h2{
+    margin:4px 0;
+    color:#172033;
+}
+.finance-modal-header p{
+    margin:0;
+    color:#718096;
+    font-size:11px;
+}
+.finance-close-button{
+    width:36px;
+    height:36px;
+    border:0;
+    border-radius:10px;
+    background:#edf3fa;
+    color:#172033;
+    font-size:22px;
+    cursor:pointer;
+}
+.finance-form{
+    display:grid;
+    gap:11px;
+}
+.finance-form label{
+    display:grid;
+    gap:6px;
+    color:#344054;
+    font-size:11px;
+    font-weight:800;
+}
+.finance-form input{
+    width:100%;
+    box-sizing:border-box;
+    padding:11px 12px;
+    border:1px solid #d7e1ec;
+    border-radius:10px;
+    outline:none;
+    font:inherit;
+}
+.finance-form input:focus{
+    border-color:#1769e0;
+    box-shadow:0 0 0 3px rgba(23,105,224,.1);
+}
+.finance-form-row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:11px;
+}
+.finance-form-message{
+    min-height:16px;
+    margin:0;
+    font-size:11px;
+    font-weight:800;
+}
+.admin-finance-panel .admin-panel-title h2{
+    font-size:18px;
+}
+.admin-finance-summary{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin:12px 0;
+}
+.admin-finance-summary>div{
+    padding:14px;
+    border:1px solid #e1e9f2;
+    border-radius:12px;
+    background:#f8fbff;
+}
+.admin-finance-summary small,
+.admin-finance-summary strong{
+    display:block;
+}
+.admin-finance-summary small{color:#718096;font-size:10px}
+.admin-finance-summary strong{margin-top:4px;color:#1769e0;font-size:17px}
+.admin-finance-withdrawals,
+.admin-finance-teachers{
+    padding:13px;
+    margin-top:10px;
+    border:1px solid #e1e9f2;
+    border-radius:13px;
+    background:#fbfdff;
+}
+.admin-finance-withdrawal{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto auto;
+    gap:10px;
+    align-items:center;
+    padding:12px 0;
+    border-bottom:1px solid #e8eef5;
+}
+.admin-finance-withdrawal:last-child{border-bottom:0}
+.admin-finance-withdrawal strong,
+.admin-finance-withdrawal small{
+    display:block;
+}
+.admin-finance-withdrawal small{
+    margin-top:3px;
+    color:#718096;
+    font-size:9px;
+}
+.admin-finance-teacher-card{
+    padding:13px 0;
+    border-bottom:1px solid #e8eef5;
+}
+.admin-finance-teacher-card:last-child{border-bottom:0}
+.admin-finance-teacher-head{
+    display:grid;
+    grid-template-columns:auto minmax(0,1fr) auto;
+    gap:10px;
+    align-items:center;
+}
+.admin-finance-teacher-head strong,
+.admin-finance-teacher-head small{
+    display:block;
+}
+.admin-finance-teacher-head small{
+    margin-top:3px;
+    color:#718096;
+    font-size:9px;
+}
+.admin-finance-balance{
+    color:#1769e0;
+}
+.admin-finance-mini-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:7px;
+    margin:10px 0;
+}
+.admin-finance-mini-grid span{
+    padding:8px;
+    border-radius:9px;
+    background:#fff;
+    border:1px solid #e8eef5;
+}
+.admin-finance-mini-grid small,
+.admin-finance-mini-grid strong{
+    display:block;
+}
+.admin-finance-mini-grid small{color:#8190a3;font-size:8px}
+.admin-finance-mini-grid strong{margin-top:3px;color:#172033;font-size:11px}
+.admin-finance-recent>div{
+    display:flex;
+    justify-content:space-between;
+    gap:8px;
+    padding:5px 0;
+    color:#516174;
+    font-size:10px;
+}
+.admin-finance-recent>div strong{color:#16803c}
+@media(max-width:720px){
+    .teacher-finance-grid{grid-template-columns:1fr}
+    .teacher-virtual-card{min-height:235px}
+    .admin-finance-summary{grid-template-columns:1fr}
+    .admin-finance-withdrawal{grid-template-columns:1fr}
+    .admin-finance-withdrawal .admin-actions{justify-content:flex-start}
+}
+@media(max-width:560px){
+    .professor-finance-section{padding:15px}
+    .finance-section-heading{align-items:stretch;flex-direction:column}
+    .finance-refresh-button{width:100%}
+    .teacher-virtual-card{padding:20px;min-height:220px}
+    .teacher-card-number{font-size:16px;letter-spacing:1.3px}
+    .teacher-card-bottom{left:20px;right:20px;bottom:18px}
+    .teacher-card-balance strong{font-size:15px}
+    .finance-form-row{grid-template-columns:1fr}
+}
