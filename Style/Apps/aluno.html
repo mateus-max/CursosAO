@@ -350,8 +350,8 @@ document.addEventListener("DOMContentLoaded", function () {
             course: selectedTeacher.course,
             price: selectedTeacher.price,
             paymentReference: reference,
-            paymentStatus: "confirmed",
-            status: "official",
+            paymentStatus: "pending_confirmation",
+            status: "pending",
             createdAt: new Date().toISOString()
         });
 
@@ -359,7 +359,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         message.style.color = "#16803c";
         message.textContent =
-            "Pagamento registado. Agora é aluno oficial deste professor.";
+            "Pagamento registado e enviado para confirmação da direção. A matrícula ficará pendente até à confirmação.";
 
         setTimeout(function () {
             paymentPanel.classList.remove("professor-panel-open");
@@ -396,7 +396,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     '<small>' + esc(item.teacherName) + ' · ' + esc(item.price) + ' Kz</small>' +
                 '</div>' +
                 '<span class="enrollment-status">' +
-                    (item.status === "official" ? "Aluno oficial" : item.status) +
+                    (item.status === "official" ? "Aluno oficial" : "Aguardando confirmação") +
                 '</span>' +
             '</div>';
         }).join("");
