@@ -123,6 +123,49 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 }
 
+                /*
+                 * Recupera também o perfil público antigo, caso o professor
+                 * já tivesse guardado nome/fotografia antes da conta ter sido
+                 * sincronizada com o catálogo de contas.
+                 */
+                try {
+                    const profileKeys = [];
+                    if (registered.phone) {
+                        profileKeys.push("apsan_professor_profile_" + registered.phone);
+                        profileKeys.push("apsan_professor_profile_" + normalizePhone(registered.phone));
+                    }
+                    if (registered.username) {
+                        profileKeys.push("apsan_professor_profile_" + registered.username);
+                    }
+
+                    for (let i = 0; i < profileKeys.length; i++) {
+                        const rawProfile = localStorage.getItem(profileKeys[i]);
+                        if (!rawProfile) continue;
+
+                        const oldProfile = JSON.parse(rawProfile);
+                        if (!oldProfile) continue;
+
+                        if ((!merged.name || merged.name === "Professor") &&
+                            (oldProfile.teacherName || oldProfile.name)) {
+                            merged.name = oldProfile.teacherName || oldProfile.name;
+                        }
+
+                        if (!merged.photo) {
+                            merged.photo =
+                                oldProfile.teacherPhoto ||
+                                oldProfile.photo ||
+                                oldProfile.profilePhoto ||
+                                oldProfile.avatar ||
+                                oldProfile.photoURL ||
+                                "";
+                        }
+
+                        if (merged.name && merged.name !== "Professor" && merged.photo) break;
+                    }
+                } catch (error) {
+                    /* mantém os dados já recuperados */
+                }
+
                 merged.id = registered.id || legacy && legacy.id || ("acc_" + Date.now());
 
                 accounts[registeredIndex] = Object.assign({}, registered, merged);
@@ -1470,7 +1513,11 @@ document.addEventListener("DOMContentLoaded", function () {
        ===================================================== */
 
     const professorPhone =
-        localStorage.getItem("apsan_phone") || "default";
+        (account && account.phone) ||
+        localStorage.getItem("apsan_phone") ||
+        "default";
+
+    const professorPhoneNormalized = normalizePhone(professorPhone);
 
     const lessonsKey = "apsan_professor_lessons_" + professorPhone;
     const materialsKey = "apsan_professor_materials_" + professorPhone;
@@ -1510,7 +1557,7 @@ document.addEventListener("DOMContentLoaded", function () {
             ? legacyStudentSource.filter(function (student) {
                 return (
                     student &&
-                    student.teacherPhone === professorPhone &&
+                    normalizePhone(student.teacherPhone) === professorPhoneNormalized &&
                     (student.status === "confirmed" || student.status === "official")
                 );
             })
@@ -1530,7 +1577,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     .filter(function (item) {
                         return (
                             item &&
-                            item.teacherPhone === professorPhone &&
+                            normalizePhone(item.teacherPhone) === professorPhoneNormalized &&
                             item.status === "official"
                         );
                     })
@@ -1541,6 +1588,8 @@ document.addEventListener("DOMContentLoaded", function () {
                             studentName: item.studentName,
                             studentPhone: item.studentPhone,
                             teacherPhone: item.teacherPhone,
+                            course: item.course || item.courseName || "Curso em acompanhamento",
+                            courseName: item.courseName || item.course || "Curso em acompanhamento",
                             status: "official"
                         };
                     });
