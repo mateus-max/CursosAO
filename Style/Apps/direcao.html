@@ -26,6 +26,7 @@
         <a href="#admin-courses">🎓 <span>Cursos</span></a>
         <a href="#admin-enrollments">▣ <span>Matrículas</span></a>
         <a href="#admin-payments">💳 <span>Pagamentos</span></a>
+        <a href="#admin-finance">💰 <span>Financeiro</span></a>
         <a href="#admin-reports">📊 <span>Relatórios</span></a>
     </nav>
     <button class="admin-logout" id="adminLogoutSide" type="button">🚪 Sair</button>
@@ -73,6 +74,12 @@
         <article class="admin-panel admin-wide" id="admin-payments">
             <div class="admin-panel-title"><h2>Pagamentos</h2><span>Registos de matrícula</span></div>
             <div id="adminPaymentsList" class="admin-list"></div>
+        </article>
+
+        <article class="admin-panel admin-wide admin-finance-panel" id="admin-finance">
+            <div class="admin-panel-title"><h2>Financeiro dos Professores</h2><span>Entradas confirmadas e pedidos de saque</span></div>
+            <div class="admin-finance-summary" id="adminFinanceSummary"></div>
+            <div id="adminTeacherFinanceList" class="admin-list"></div>
         </article>
 
         <article class="admin-panel admin-wide" id="admin-reports">
@@ -362,5 +369,6 @@ document.addEventListener("DOMContentLoaded", function(){
     render();
 });
 </script>
+<script src="finance.js?v=finance-20260926"></script>
 </body>
 </html>
