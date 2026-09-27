@@ -5279,3 +5279,113 @@ body.apsan-wallpaper-minimal .app-content{
         padding:19px;
     }
 }
+
+/* =========================================================
+   8 TEMAS DE PAPEL DE PAREDE — APSAN ACADEMY
+   ========================================================= */
+body.apsan-wallpaper-blue-wave{
+    background:
+      radial-gradient(circle at 85% 18%,rgba(77,220,255,.34),transparent 25%),
+      linear-gradient(145deg,#061b45 0%,#0b5fc7 48%,#20b9ed 100%);
+}
+body.apsan-wallpaper-global-network{
+    background:
+      radial-gradient(circle at 82% 72%,rgba(44,204,255,.45),transparent 28%),
+      radial-gradient(circle at 15% 15%,rgba(70,155,255,.35),transparent 25%),
+      linear-gradient(135deg,#061c48,#0b6dcf 58%,#062d75);
+}
+body.apsan-wallpaper-academic-night{
+    background:
+      radial-gradient(circle at 75% 20%,rgba(90,150,255,.25),transparent 20%),
+      radial-gradient(circle at 25% 70%,rgba(30,100,210,.22),transparent 30%),
+      linear-gradient(160deg,#020a25,#071b48 55%,#0a3260);
+}
+body.apsan-wallpaper-study-space{
+    background:
+      radial-gradient(circle at 25% 45%,rgba(255,213,160,.24),transparent 28%),
+      radial-gradient(circle at 75% 65%,rgba(80,190,255,.25),transparent 28%),
+      linear-gradient(135deg,#dbeaf2,#f4e9d4 52%,#cfe8f3);
+}
+body.apsan-wallpaper-serene-nature{
+    background:
+      radial-gradient(circle at 18% 75%,rgba(42,151,120,.28),transparent 30%),
+      linear-gradient(145deg,#d8f1ed,#b9e3e1 42%,#8bc9c0);
+}
+body.apsan-wallpaper-digital-aurora{
+    background:
+      radial-gradient(ellipse at 75% 25%,rgba(255,137,239,.38),transparent 30%),
+      radial-gradient(ellipse at 30% 75%,rgba(0,245,231,.42),transparent 35%),
+      linear-gradient(135deg,#078bd1,#47d6ed 48%,#a8a6f7);
+}
+body.apsan-wallpaper-clean-minimal{
+    background:
+      radial-gradient(circle at 15% 80%,rgba(107,174,255,.18),transparent 35%),
+      linear-gradient(145deg,#fbfdff,#eaf4ff 55%,#f8fbff);
+}
+body.apsan-wallpaper-apsan-premium{
+    background:
+      radial-gradient(circle at 90% 15%,rgba(227,177,66,.24),transparent 20%),
+      radial-gradient(circle at 10% 85%,rgba(41,119,255,.22),transparent 25%),
+      linear-gradient(145deg,#03153d,#073c88 55%,#082459);
+}
+body.apsan-wallpaper-blue-wave .app-content,
+body.apsan-wallpaper-global-network .app-content,
+body.apsan-wallpaper-academic-night .app-content,
+body.apsan-wallpaper-study-space .app-content,
+body.apsan-wallpaper-serene-nature .app-content,
+body.apsan-wallpaper-digital-aurora .app-content,
+body.apsan-wallpaper-clean-minimal .app-content,
+body.apsan-wallpaper-apsan-premium .app-content{
+    background:transparent;
+}
+
+/* Pré-visualizações no seletor */
+.apsan-wallpaper-options{
+    grid-template-columns:1fr 1fr !important;
+}
+.apsan-wallpaper-options button{
+    position:relative;
+    min-height:82px !important;
+    padding:7px !important;
+    overflow:hidden;
+}
+.apsan-wallpaper-options button strong{
+    position:relative;
+    z-index:2;
+    display:block;
+    padding:6px 4px;
+    border-radius:7px;
+    background:rgba(255,255,255,.82);
+    color:#26364b;
+}
+.wallpaper-preview{
+    position:absolute;
+    inset:0;
+    display:block;
+    opacity:.9;
+}
+.wp-default{background:linear-gradient(145deg,#f4f7fb,#e7eef7)}
+.wp-blue-wave{background:radial-gradient(circle at 80% 25%,#4ddcff,transparent 30%),linear-gradient(145deg,#061b45,#0b5fc7,#20b9ed)}
+.wp-global-network{background:radial-gradient(circle at 80% 70%,#2ccfff,transparent 25%),linear-gradient(135deg,#061c48,#0b6dcf,#062d75)}
+.wp-academic-night{background:linear-gradient(160deg,#020a25,#071b48,#0a3260)}
+.wp-study-space{background:linear-gradient(135deg,#dbeaf2,#f4e9d4,#cfe8f3)}
+.wp-serene-nature{background:linear-gradient(145deg,#d8f1ed,#b9e3e1,#8bc9c0)}
+.wp-digital-aurora{background:linear-gradient(135deg,#078bd1,#47d6ed,#a8a6f7)}
+.wp-clean-minimal{background:linear-gradient(145deg,#fbfdff,#eaf4ff,#f8fbff)}
+.wp-apsan-premium{background:linear-gradient(145deg,#03153d,#073c88,#082459)}
+
+.apsan-settings-actions{
+    margin-top:15px;
+}
+.apsan-settings-save{
+    width:100%;
+    min-height:46px;
+    border:0;
+    border-radius:11px;
+    background:linear-gradient(135deg,#1769e0,#0b54bb);
+    color:#fff;
+    font-family:inherit;
+    font-size:12px;
+    font-weight:800;
+    box-shadow:0 7px 18px rgba(23,105,224,.2);
+}
