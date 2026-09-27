@@ -65,6 +65,25 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll("#adminSidebar nav a").forEach(link => {
         link.addEventListener("click", event => {
             event.preventDefault();
+
+            if (link.hasAttribute("data-admin-profile-link")) {
+                // O perfil é um modal e não uma página separada.
+                // Mantemos o Painel e todas as outras áreas intactas.
+                document.querySelectorAll("#adminSidebar nav a").forEach(item => {
+                    item.classList.remove("active");
+                    item.setAttribute("aria-current", "false");
+                });
+                link.classList.add("active");
+                link.setAttribute("aria-current", "page");
+
+                if (typeof loadDirectionProfileForm === "function") {
+                    loadDirectionProfileForm();
+                }
+                document.getElementById("adminDirectionProfileModal")?.classList.add("open");
+                closeMenu();
+                return;
+            }
+
             showAdminView(link.getAttribute("href").slice(1), { instant: true });
             closeMenu();
         });
