@@ -3482,8 +3482,9 @@ main.single-panel-mode{padding-bottom:110px}
 
 
 /* =========================================================
-   AMBIENTE VISUAL DO DASHBOARD DO PROFESSOR
-   Fica somente na página inicial; não pertence ao menu.
+   AMBIENTE VISUAL DO DASHBOARD — TECNOLOGIA & EDUCAÇÃO
+   Aparência mais realista dos objetos, sem alterar HTML,
+   navegação ou qualquer funcionalidade existente.
    ========================================================= */
 .professor-tech-scene{
     position:relative;
@@ -3492,15 +3493,14 @@ main.single-panel-mode{padding-bottom:110px}
     overflow:hidden;
     border-radius:26px;
     background:
-        radial-gradient(circle at 78% 22%,rgba(62,151,239,.24),transparent 32%),
-        linear-gradient(135deg,#eef7ff 0%,#dcecff 48%,#f8fbff 100%);
-    border:1px solid #dce9f5;
-    box-shadow:0 14px 34px rgba(18,54,91,.08);
+        radial-gradient(circle at 78% 18%,rgba(93,171,239,.25),transparent 30%),
+        linear-gradient(135deg,#edf6ff 0%,#d8e9fb 48%,#f8fbff 100%);
+    border:1px solid #d6e5f2;
+    box-shadow:0 16px 38px rgba(18,54,91,.10);
 }
 .tech-scene-glow{
-    position:absolute;
-    width:260px;height:260px;right:-80px;top:-90px;
-    border-radius:50%;background:rgba(29,119,210,.12);filter:blur(4px);
+    position:absolute;width:280px;height:280px;right:-85px;top:-105px;
+    border-radius:50%;background:rgba(30,120,213,.11);filter:blur(5px);
 }
 .tech-scene-copy{
     position:relative;z-index:3;width:52%;padding:42px 0 0 30px;
@@ -3519,60 +3519,119 @@ main.single-panel-mode{padding-bottom:110px}
 }
 .tech-scene-desk{
     position:absolute;left:0;right:0;bottom:0;height:150px;
-    background:linear-gradient(180deg,rgba(168,203,231,.12),rgba(132,172,205,.22)),
-               linear-gradient(90deg,#c99969,#e1b782 48%,#b98555);
-    border-top:1px solid rgba(255,255,255,.8);
+    background:
+        linear-gradient(180deg,rgba(255,255,255,.10),rgba(83,49,27,.12)),
+        linear-gradient(90deg,#b98758,#d7aa78 48%,#a87448);
+    border-top:1px solid rgba(255,255,255,.72);
+    box-shadow:inset 0 12px 20px rgba(255,255,255,.08);
 }
+
+/* Computador portátil com acabamento metálico, vidro, teclado e reflexos. */
 .tech-laptop{
-    position:absolute;left:9%;bottom:24px;width:150px;height:92px;
-    transform:perspective(400px) rotateY(7deg);
+    position:absolute;left:8%;bottom:22px;width:174px;height:112px;
+    transform:perspective(700px) rotateY(6deg);
+    filter:drop-shadow(0 13px 10px rgba(20,35,48,.22));
 }
 .tech-screen{
-    position:absolute;left:13px;top:0;width:120px;height:74px;
-    border:7px solid #24384b;border-bottom-width:9px;border-radius:8px 8px 4px 4px;
-    background:linear-gradient(145deg,#12385d,#2588d4);
-    box-shadow:0 8px 18px rgba(20,48,72,.2);
+    position:absolute;left:17px;top:0;width:136px;height:82px;
+    border:6px solid #202b35;border-bottom-width:10px;
+    border-radius:8px 8px 5px 5px;
+    background:
+        radial-gradient(circle at 72% 25%,rgba(255,255,255,.25),transparent 12%),
+        linear-gradient(145deg,#071b2d,#0d5f99 55%,#0b3153);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.18),
+               inset 0 -15px 25px rgba(0,0,0,.20),0 3px 0 #111a22;
+}
+.tech-screen:after{
+    content:"";position:absolute;inset:5px;border-radius:3px;
+    background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.13) 47%,transparent 62%);
+    pointer-events:none;
 }
 .tech-screen-line{
-    width:58px;height:4px;margin:16px 0 0 17px;border-radius:10px;
-    background:rgba(255,255,255,.7);
+    width:68px;height:3px;margin:19px 0 0 17px;border-radius:10px;
+    background:rgba(255,255,255,.72);box-shadow:0 0 5px rgba(255,255,255,.14);
 }
-.tech-screen-line.short{width:38px;margin-top:8px;opacity:.55}
+.tech-screen-line.short{width:43px;margin-top:8px;opacity:.55}
 .tech-screen-dot{
-    width:8px;height:8px;margin:10px 0 0 17px;border-radius:50%;background:#8fd0ff;
+    width:7px;height:7px;margin:10px 0 0 17px;border-radius:50%;
+    background:#8fd0ff;box-shadow:0 0 7px rgba(143,208,255,.5);
 }
 .tech-keyboard{
-    position:absolute;left:0;bottom:0;width:150px;height:23px;
-    border-radius:4px 4px 12px 12px;background:linear-gradient(#b9c4ce,#697987);
-    box-shadow:0 7px 12px rgba(20,48,72,.2);
+    position:absolute;left:0;bottom:0;width:174px;height:27px;
+    border-radius:4px 4px 14px 14px;
+    background:linear-gradient(180deg,#d7dde1 0%,#8c989f 48%,#5b6870 100%);
+    border:1px solid rgba(40,52,60,.35);
+    box-shadow:inset 0 3px 4px rgba(255,255,255,.35),0 8px 12px rgba(20,48,72,.20);
 }
+.tech-keyboard:before{
+    content:"";position:absolute;left:24px;right:24px;top:5px;height:12px;border-radius:3px;
+    background:repeating-linear-gradient(90deg,rgba(33,45,53,.48) 0 7px,transparent 7px 10px),
+               repeating-linear-gradient(180deg,rgba(33,45,53,.38) 0 4px,transparent 4px 6px);
+    opacity:.55;
+}
+.tech-keyboard:after{
+    content:"";position:absolute;left:70px;bottom:3px;width:35px;height:4px;
+    border-radius:4px;background:rgba(230,236,240,.55);
+}
+
+/* Livros de capa dura com lombadas, bordas e profundidade. */
 .tech-books{
-    position:absolute;left:42%;bottom:12px;width:90px;transform:rotate(-2deg);
+    position:absolute;left:40%;bottom:11px;width:112px;height:66px;
+    transform:rotate(-2deg);filter:drop-shadow(0 8px 7px rgba(57,35,20,.20));
 }
 .tech-books i{
-    display:block;height:15px;margin-top:2px;border-radius:3px;
-    background:linear-gradient(90deg,#174f82,#267dc0);
-    box-shadow:0 2px 4px rgba(31,65,92,.18);
+    position:relative;display:block;height:18px;margin-top:1px;
+    border-radius:2px 4px 4px 2px;
+    background:linear-gradient(180deg,rgba(255,255,255,.20),transparent 35%),
+               linear-gradient(90deg,#174f82,#2b78b1 72%,#143d63);
+    border:1px solid rgba(24,57,83,.35);
+    box-shadow:inset 0 -2px 0 rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.28),
+               0 2px 3px rgba(31,65,92,.20);
 }
-.tech-books i:nth-child(2){width:82px;background:linear-gradient(90deg,#9a5e36,#c5844b)}
-.tech-books i:nth-child(3){width:96px;background:linear-gradient(90deg,#285a78,#4e8eb5)}
+.tech-books i:after{
+    content:"";position:absolute;right:5px;top:3px;bottom:3px;width:2px;
+    border-radius:2px;background:rgba(255,255,255,.25);
+}
+.tech-books i:nth-child(2){
+    width:102px;background:linear-gradient(180deg,rgba(255,255,255,.18),transparent 38%),
+    linear-gradient(90deg,#8b542f,#c17a42 70%,#754426);
+}
+.tech-books i:nth-child(3){
+    width:110px;background:linear-gradient(180deg,rgba(255,255,255,.18),transparent 38%),
+    linear-gradient(90deg,#254f69,#4d86a6 70%,#1c4056);
+}
+
+/* Globo com relevo visual, continentes, grade geográfica, brilho e suporte. */
 .tech-globe-wrap{
-    position:absolute;right:10%;bottom:13px;width:118px;height:138px;
+    position:absolute;right:9%;bottom:10px;width:132px;height:146px;
+    filter:drop-shadow(0 12px 8px rgba(25,51,72,.18));
 }
 .tech-globe{
-    position:absolute;left:6px;top:0;width:92px;height:92px;overflow:hidden;
+    position:absolute;left:8px;top:0;width:104px;height:104px;overflow:hidden;
     border-radius:50%;
     background:
-        radial-gradient(circle at 34% 28%,rgba(255,255,255,.8),transparent 11%),
-        linear-gradient(145deg,#4db2ed 0%,#1674c4 56%,#0b4788 100%);
-    border:3px solid rgba(255,255,255,.82);
-    box-shadow:inset -15px -14px 22px rgba(0,30,72,.3),0 12px 20px rgba(16,76,123,.2);
-    animation:apsanGlobeSpin 12s linear infinite;
-    transform-origin:center;
+        radial-gradient(ellipse at 31% 22%,rgba(255,255,255,.92) 0 4%,rgba(255,255,255,.22) 9%,transparent 22%),
+        radial-gradient(ellipse at 65% 72%,rgba(0,34,78,.34),transparent 42%),
+        linear-gradient(145deg,#6cc7f4 0%,#1682cc 48%,#074b8d 100%);
+    border:3px solid rgba(255,255,255,.9);
+    box-shadow:inset -18px -17px 25px rgba(0,30,72,.34),
+               inset 9px 7px 14px rgba(255,255,255,.20),0 12px 20px rgba(16,76,123,.22);
+    animation:apsanGlobeSpin 12s linear infinite;transform-origin:center;
+}
+.tech-globe:before{
+    content:"";position:absolute;left:17%;top:34%;width:28%;height:20%;
+    border-radius:55% 45% 60% 40%;background:#55a85a;opacity:.72;
+    transform:rotate(-12deg);
+    box-shadow:22px 8px 0 -2px #4d9952,31px -10px 0 -6px #64ad5e,-5px 17px 0 -5px #3e8748;
+}
+.tech-globe:after{
+    content:"";position:absolute;inset:0;border-radius:50%;
+    background:linear-gradient(115deg,rgba(255,255,255,.24),transparent 28%,transparent 70%,rgba(0,0,0,.15));
+    pointer-events:none;
 }
 .globe-line{
-    position:absolute;display:block;left:50%;top:-10%;width:42%;height:120%;
-    border:1px solid rgba(255,255,255,.45);border-radius:50%;
+    position:absolute;z-index:2;display:block;left:50%;top:-10%;width:42%;height:120%;
+    border:1px solid rgba(255,255,255,.52);border-radius:50%;
     transform:translateX(-50%);
 }
 .globe-line-a{transform:translateX(-50%) rotate(28deg)}
@@ -3580,12 +3639,14 @@ main.single-panel-mode{padding-bottom:110px}
 .globe-line-c{left:-10%;top:25%;width:120%;height:34%;transform:none}
 .globe-line-d{left:-10%;top:49%;width:120%;height:26%;transform:none}
 .globe-stand{
-    position:absolute;left:47px;top:90px;width:4px;height:27px;
-    background:#42586b;border-radius:4px;
+    position:absolute;left:59px;top:102px;width:5px;height:29px;
+    background:linear-gradient(90deg,#263d4d,#718392,#263d4d);
+    border-radius:4px;box-shadow:0 2px 3px rgba(20,38,52,.25);
 }
 .globe-stand:after{
-    content:"";position:absolute;left:-22px;bottom:0;width:48px;height:7px;
-    border-radius:50%;background:#42586b;
+    content:"";position:absolute;left:-27px;bottom:0;width:59px;height:9px;
+    border-radius:50%;background:linear-gradient(180deg,#718392,#263d4d);
+    box-shadow:0 3px 4px rgba(20,38,52,.22);
 }
 @keyframes apsanGlobeSpin{
     from{transform:rotateY(0deg)}
@@ -3596,7 +3657,7 @@ main.single-panel-mode{padding-bottom:110px}
     .tech-scene-copy{width:62%;padding:30px 0 0 22px}
     .tech-scene-copy strong{font-size:23px}
     .tech-scene-copy small{font-size:11px}
-    .tech-laptop{left:5%;transform:scale(.78);transform-origin:bottom left}
-    .tech-books{left:40%;transform:scale(.82);transform-origin:bottom left}
-    .tech-globe-wrap{right:5%;transform:scale(.88);transform-origin:bottom right}
+    .tech-laptop{left:4%;transform:scale(.78) perspective(700px) rotateY(6deg);transform-origin:bottom left}
+    .tech-books{left:39%;transform:scale(.82) rotate(-2deg);transform-origin:bottom left}
+    .tech-globe-wrap{right:4%;transform:scale(.88);transform-origin:bottom right}
 }
