@@ -328,6 +328,27 @@ document.addEventListener("DOMContentLoaded", function () {
         const list = document.getElementById("adminTeacherFinanceList");
         if (!summary || !list) return;
 
+        const directionProfile = read("apsan_direction_profile", {});
+        const profileName = directionProfile.name || account.name || "Direção APSAN Academy";
+        const profileNif = directionProfile.nif || account.nif || "NIF não informado";
+        const profileLocation = directionProfile.location || account.location || "Localização não informada";
+        const profileLogo = directionProfile.logo || account.photo || "";
+        const profileBox = document.getElementById("adminFinanceProfile");
+        if (profileBox) {
+            const logoMarkup = profileLogo
+                ? '<img class="admin-finance-profile-logo" src="' + esc(profileLogo) + '" alt="Logotipo da Direção">'
+                : '<div class="admin-finance-profile-logo admin-finance-profile-logo-letter">D</div>';
+            profileBox.innerHTML =
+                '<div class="admin-finance-profile-main">' +
+                    logoMarkup +
+                    '<div class="admin-finance-profile-copy">' +
+                        '<strong>' + esc(profileName) + '</strong>' +
+                        '<small>NIF: ' + esc(profileNif) + ' · ' + esc(profileLocation) + '</small>' +
+                    '</div>' +
+                '</div>' +
+                '<button type="button" class="admin-finance-profile-edit" data-open-direction-profile>Editar perfil</button>';
+        }
+
         let totalBalance = 0;
         let totalPending = 0;
 
@@ -489,6 +510,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     document.addEventListener("click", function (event) {
+        const profileButton = event.target.closest("[data-open-direction-profile]");
+        if (profileButton) {
+            const headerProfileButton = document.getElementById("adminProfileButton");
+            if (headerProfileButton) headerProfileButton.click();
+            return;
+        }
         const approve = event.target.closest("[data-finance-approve]");
         if (approve) {
             approveWithdrawal(approve.getAttribute("data-finance-approve"));
