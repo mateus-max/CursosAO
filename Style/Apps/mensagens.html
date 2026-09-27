@@ -728,6 +728,7 @@ document.addEventListener("DOMContentLoaded", function () {
       "iban", "nib", "ibn", "swift", "bic", "bfa",
       "multicaixa", "multicaixa express", "multicaixa-express",
       "mcx", "mcx express", "mcx-express",
+      "express",
       "conta bancária", "conta bancaria", "número da conta", "numero da conta",
       "nº da conta", "no da conta", "n. da conta", "dados bancários", "dados bancarios",
       "dados de pagamento", "informações bancárias", "informacoes bancarias",
@@ -752,6 +753,33 @@ document.addEventListener("DOMContentLoaded", function () {
      */
     const phonePattern = /(?<!\d)(?:\+?244[\s.-]*)?(?:\d{3}[\s.-]*\d{3}[\s.-]*\d{3})(?!\d)/;
     if (phonePattern.test(value)) {
+      return true;
+    }
+
+    /*
+     * Também bloqueia um número de telefone quando os dígitos são escritos
+     * por extenso (ex.: "nove dois três ..."), inclusive com pontuação ou
+     * separadores entre as palavras.
+     */
+    const numberWords = {
+      "zero":"0", "um":"1", "uma":"1", "dois":"2", "duas":"2",
+      "tres":"3", "três":"3", "quatro":"4", "cinco":"5",
+      "seis":"6", "sete":"7", "oito":"8", "nove":"9"
+    };
+    const wordTokens = value
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .split(/[^a-z0-9]+/)
+      .filter(Boolean);
+    let spokenDigits = "";
+    wordTokens.forEach(function (token) {
+      if (Object.prototype.hasOwnProperty.call(numberWords, token)) {
+        spokenDigits += numberWords[token];
+      } else if (spokenDigits.length > 0) {
+        spokenDigits += "|";
+      }
+    });
+    if (/(?:^|\|)\d{9}(?:\||$)/.test(spokenDigits)) {
       return true;
     }
 
