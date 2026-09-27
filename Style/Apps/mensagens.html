@@ -472,13 +472,50 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const role = account.type;
   const myPhone = normalizePhone(account.phone);
+
+  /*
+   * Perfil visual das mensagens:
+   * usa a mesma conta guardada em apsan_accounts, para que a foto
+   * escolhida pelo aluno/professor seja a mesma mostrada no chat.
+   */
+  function getAccountByPhone(phone, preferredType) {
+    const normalized = normalizePhone(phone);
+    const allAccounts = Array.isArray(accounts) ? accounts : [];
+    return allAccounts.find(function (item) {
+      return item &&
+        (!preferredType || item.type === preferredType) &&
+        normalizePhone(item.phone) === normalized;
+    }) || allAccounts.find(function (item) {
+      return item && normalizePhone(item.phone) === normalized;
+    }) || null;
+  }
+
+  function getProfilePhoto(phone, type, fallbackPhoto) {
+    const profile = getAccountByPhone(phone, type);
+    return (profile && (profile.photo || profile.profilePhoto || profile.avatar)) ||
+      fallbackPhoto || "";
+  }
+
+  function getProfileName(phone, type, fallbackName) {
+    const profile = getAccountByPhone(phone, type);
+    return (profile && (profile.name || profile.fullName)) || fallbackName || "Contacto";
+  }
+
+  function avatarMarkup(name, photo, className) {
+    const letter = String(name || "C").trim().charAt(0).toUpperCase() || "C";
+    if (photo) {
+      return '<span class="' + className + ' messages-avatar-photo"><img src="' +
+        esc(photo) + '" alt="Foto de perfil"></span>';
+    }
+    return '<span class="' + className + '">' + esc(letter) + '</span>';
+  }
   const contactsList = document.getElementById("contactsList");
   const contactsCount = document.getElementById("contactsCount");
   const contactsTitle = document.getElementById("contactsTitle");
   const contactsUnreadLabel = document.getElementById("contactsUnreadLabel");
   const chatEmpty = document.getElementById("chatEmpty");
   const chatView = document.getElementById("chatView");
-  const chatAvatar = document.getElementById("chatAvatar");
+  let chatAvatar = document.getElementById("chatAvatar");
   const chatName = document.getElementById("chatName");
   const chatMeta = document.getElementById("chatMeta");
   const chatMessages = document.getElementById("chatMessages");
@@ -526,18 +563,20 @@ document.addEventListener("DOMContentLoaded", function () {
       seen[phone] = true;
       result.push({
         phone: phone,
-        name: contact.name || contact.studentName || contact.teacherName || "Contacto",
-        course: contact.course || contact.courseName || ""
+        name: contact.name || contact.studentName || contact.teacherName || getProfileName(phone, role, "Contacto"),
+        course: contact.course || contact.courseName || "",
+        photo: contact.photo || contact.studentPhoto || contact.teacherPhoto || contact.profilePhoto ||
+          getProfilePhoto(phone, contact.type || (role === "professor" ? "aluno" : "professor"), "")
       });
     }
 
     getEnrollments().forEach(function (item) {
       if (!item || item.status !== "official") return;
       if (role === "professor" && normalizePhone(item.teacherPhone) === myPhone) {
-        add({ phone: item.studentPhone, name: item.studentName, course: item.course });
+        add({ phone: item.studentPhone, name: item.studentName, course: item.course, type: "aluno" });
       }
       if (role === "aluno" && normalizePhone(item.studentPhone) === myPhone) {
-        add({ phone: item.teacherPhone, name: item.teacherName, course: item.course });
+        add({ phone: item.teacherPhone, name: item.teacherName, course: item.course, type: "professor" });
       }
     });
 
@@ -545,7 +584,7 @@ document.addEventListener("DOMContentLoaded", function () {
       getLegacyStudents().forEach(function (item) {
         if (item && normalizePhone(item.teacherPhone) === myPhone &&
             (item.status === "confirmed" || item.status === "official")) {
-          add({ phone: item.studentPhone, name: item.studentName || item.name, course: item.course });
+          add({ phone: item.studentPhone, name: item.studentName || item.name, course: item.course, type: "aluno" });
         }
       });
     }
@@ -662,7 +701,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const unread = unreadForConversation(contact.phone).length;
 
       return '<button type="button" class="messages-contact' + (unread ? ' has-unread' : '') + '" data-contact-phone="' + esc(contact.phone) + '">' +
-        '<span class="messages-contact-avatar">' + esc((contact.name || "C").charAt(0).toUpperCase()) + '</span>' +
+        avatarMarkup(contact.name, contact.photo, "messages-contact-avatar") +
         '<span class="messages-contact-copy">' +
           '<strong>' + esc(contact.name) + '</strong>' +
           '<small>' + esc(contact.course || "Conversa particular") + '</small>' +
@@ -701,14 +740,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
     chatEmpty.hidden = true;
     chatView.hidden = false;
-    chatAvatar.textContent = (selectedContact.name || "C").charAt(0).toUpperCase();
-    chatName.textContent = selectedContact.name;
+    const selectedType = role === "professor" ? "aluno" : "professor";
+    const selectedPhoto = getProfilePhoto(selectedContact.phone, selectedType, selectedContact.photo);
+    const selectedName = getProfileName(selectedContact.phone, selectedType, selectedContact.name);
+    chatAvatar.outerHTML = avatarMarkup(selectedName, selectedPhoto, "messages-chat-avatar");
+    chatAvatar = document.querySelector(".messages-chat-avatar");
+    chatName.textContent = selectedName;
     chatMeta.textContent = selectedContact.course || "Conversa particular";
     messageWarning.textContent = "";
     chatNotice.hidden = false;
     renderMessages();
     renderContacts();
     messageInput.focus();
+    keepComposerAndKeyboardVisible();
   }
 
   function renderMessages() {
@@ -727,12 +771,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
     chatMessages.innerHTML = items.map(function (item) {
       const mine = normalizePhone(item.senderPhone) === myPhone;
-      return '<div class="message-bubble-wrap ' + (mine ? "mine" : "theirs") + '">' +
-        '<div class="message-bubble">' +
-          '<span>' + esc(item.text).replace(/\n/g, "<br>") + '</span>' +
-          '<small>' + new Date(item.createdAt).toLocaleString("pt-PT", { dateStyle:"short", timeStyle:"short" }) + '</small>' +
+      const senderType = item.senderType || (mine ? role : (role === "professor" ? "aluno" : "professor"));
+      const senderPhoto = getProfilePhoto(item.senderPhone, senderType, item.senderPhoto || "");
+      const senderName = getProfileName(item.senderPhone, senderType, item.senderName || (mine ? account.name : selectedContact.name));
+      const avatarClass = mine ? "message-avatar mine-avatar" : "message-avatar";
+      return '<div class="message-row ' + (mine ? "mine" : "theirs") + '">' +
+        avatarMarkup(senderName, senderPhoto, avatarClass) +
+        '<div class="message-content">' +
+          '<div class="message-bubble">' +
+            '<span>' + esc(item.text).replace(/\n/g, "<br>") + '</span>' +
+            '<small>' + new Date(item.createdAt).toLocaleString("pt-PT", { dateStyle:"short", timeStyle:"short" }) + '</small>' +
+          '</div>' +
+          '<button type="button" class="message-delete" data-delete-message="' + esc(item.id) + '" aria-label="Eliminar mensagem">Eliminar</button>' +
         '</div>' +
-        '<button type="button" class="message-delete" data-delete-message="' + esc(item.id) + '" aria-label="Eliminar mensagem">Eliminar</button>' +
       '</div>';
     }).join("");
 
@@ -759,7 +810,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
 
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    scrollMessagesToBottom("auto");
   }
 
   deleteConversationButton.addEventListener("click", function () {
@@ -780,6 +831,40 @@ document.addEventListener("DOMContentLoaded", function () {
     renderContacts();
     updateUnreadUI();
   });
+
+  function scrollMessagesToBottom(behavior) {
+    if (!chatMessages) return;
+    requestAnimationFrame(function () {
+      chatMessages.scrollTo({
+        top: chatMessages.scrollHeight,
+        behavior: behavior || "auto"
+      });
+    });
+  }
+
+  function keepComposerAndKeyboardVisible() {
+    scrollMessagesToBottom("auto");
+    setTimeout(function () { scrollMessagesToBottom("auto"); }, 120);
+    setTimeout(function () { scrollMessagesToBottom("auto"); }, 350);
+  }
+
+  messageInput.addEventListener("focus", keepComposerAndKeyboardVisible);
+  messageInput.addEventListener("input", function () {
+    requestAnimationFrame(function () {
+      if (messageInput.scrollHeight > messageInput.clientHeight) {
+        messageInput.style.height = Math.min(messageInput.scrollHeight, 110) + "px";
+      }
+      scrollMessagesToBottom("auto");
+    });
+  });
+  messageInput.addEventListener("blur", function () {
+    messageInput.style.height = "42px";
+  });
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", keepComposerAndKeyboardVisible);
+    window.visualViewport.addEventListener("scroll", keepComposerAndKeyboardVisible);
+  }
 
   messageForm.addEventListener("submit", function (event) {
     event.preventDefault();
@@ -812,6 +897,7 @@ document.addEventListener("DOMContentLoaded", function () {
       senderPhone: myPhone,
       senderType: role,
       senderName: account.name || (role === "professor" ? "Professor" : "Aluno"),
+      senderPhoto: account.photo || account.profilePhoto || account.avatar || "",
       receiverPhone: selectedContact.phone,
       receiverType: role === "professor" ? "aluno" : "professor",
       receiverName: selectedContact.name,
@@ -841,6 +927,7 @@ document.addEventListener("DOMContentLoaded", function () {
     renderMessages();
     renderContacts();
     updateUnreadUI();
+    scrollMessagesToBottom("smooth");
   });
 
   chatBackToInbox.addEventListener("click", function () {
