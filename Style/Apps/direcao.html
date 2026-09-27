@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>APSAN Academy - Administração</title>
-<link rel="stylesheet" href="../style.css?v=menu-navigation-20260926">
+<link rel="stylesheet" href="../style.css?v=admin-menu-final-20260927-2">
     <script src="settings.js?v=20260927-themes-final-2"></script>
 </head>
 <body class="app-page admin-page">
@@ -26,18 +26,18 @@
         <span>Área da Direção</span>
     </div>
     <nav aria-label="Menu da Direção">
-        <a class="active" href="#admin-dashboard-view">🏠 <span>Painel</span></a>
-        <a href="#admin-users">👤 <span>Utilizadores</span></a>
-        <a href="#admin-teachers">👨‍🏫 <span>Professores</span></a>
-        <a href="#admin-students">👥 <span>Alunos</span></a>
-        <a href="#admin-courses">🎓 <span>Cursos</span></a>
-        <a href="#admin-enrollments">▣ <span>Matrículas</span></a>
-        <a href="#admin-payments">💳 <span>Pagamentos</span></a>
-        <a href="#admin-finance">💰 <span>Financeiro</span></a>
-        <a href="#admin-moderation">🛡️ <span>Moderação</span></a>
-        <a href="#admin-occurrences">🚨 <span>Ocorrências</span></a>
-        <a href="#admin-reports">📊 <span>Relatórios</span></a>
-        <a href="#admin-settings">⚙️ <span>Configurações</span></a>
+        <a class="active" href="#admin-dashboard-view" data-admin-menu-link>🏠 <span>Painel</span></a>
+        <a href="#admin-users" data-admin-menu-link>👤 <span>Utilizadores</span></a>
+        <a href="#admin-teachers" data-admin-menu-link>👨‍🏫 <span>Professores</span></a>
+        <a href="#admin-students" data-admin-menu-link>👥 <span>Alunos</span></a>
+        <a href="#admin-courses" data-admin-menu-link>🎓 <span>Cursos</span></a>
+        <a href="#admin-enrollments" data-admin-menu-link>▣ <span>Matrículas</span></a>
+        <a href="#admin-payments" data-admin-menu-link>💳 <span>Pagamentos</span></a>
+        <a href="#admin-finance" data-admin-menu-link>💰 <span>Financeiro</span></a>
+        <a href="#admin-moderation" data-admin-menu-link>🛡️ <span>Moderação</span></a>
+        <a href="#admin-occurrences" data-admin-menu-link>🚨 <span>Ocorrências</span></a>
+        <a href="#admin-reports" data-admin-menu-link>📊 <span>Relatórios</span></a>
+        <a href="#admin-settings" data-admin-menu-link>⚙️ <span>Configurações</span></a>
     </nav>
     <button class="student-side-menu-logout" id="adminLogoutSide" type="button">🚪 Sair</button>
 </aside>
@@ -184,6 +184,24 @@
  .admin-receipt iframe{height:420px}
 }
 .admin-virtual-card{margin-bottom:12px;padding:15px;border-radius:16px;background:linear-gradient(135deg,#0b4d91,#123c69);color:#fff;box-shadow:0 12px 28px rgba(11,77,145,.2);overflow:hidden;position:relative}.admin-virtual-card-top,.admin-virtual-card-bottom{display:flex;justify-content:space-between;gap:10px;align-items:center}.admin-virtual-card-top{font-size:10px;font-weight:900;letter-spacing:.08em}.admin-virtual-card-chip{width:38px;height:27px;border-radius:7px;background:#d8b45a;margin:18px 0 10px}.admin-virtual-card-number{font-size:17px;letter-spacing:.12em;font-weight:800}.admin-virtual-card-bottom{margin-top:16px;font-size:11px}.admin-virtual-card-bottom span{font-size:13px;font-weight:900}</style>
+<style>
+/* Direção: uma área por vez, exatamente como a navegação dos painéis de aluno/professor. */
+body.admin-page .admin-grid{
+    display:block !important;
+}
+body.admin-page .admin-grid > .admin-panel{
+    width:100% !important;
+    box-sizing:border-box !important;
+    margin:0 0 16px !important;
+}
+body.admin-page .admin-grid > .admin-panel.admin-view-hidden,
+body.admin-page .admin-grid > .admin-panel[hidden]{
+    display:none !important;
+}
+body.admin-page .admin-grid > .admin-panel:not(.admin-view-hidden):not([hidden]){
+    display:block !important;
+}
+</style>
 
 <div class="admin-modal" id="adminViewModal">
  <div class="admin-modal-card">
