@@ -392,6 +392,36 @@ document.addEventListener("DOMContentLoaded", function () {
         );
 
 
+    /*
+     * Navegação do professor:
+     * o dashboard inicial mostra somente o cabeçalho/hero e o ambiente
+     * visual. Cada módulo abre isoladamente quando escolhido no menu.
+     * A navegação inferior acompanha sempre o módulo atualmente aberto.
+     */
+    function syncProfessorBottomNav(targetId) {
+        if (!document.body.classList.contains("professor-page")) return;
+
+        const bottomNav = document.querySelector(".professor-bottom-nav");
+        if (!bottomNav) return;
+
+        bottomNav.querySelectorAll("a").forEach(function (link) {
+            const href = link.getAttribute("href") || "";
+            const linkTarget = href.charAt(0) === "#" ? href.slice(1) : "";
+            const isHome =
+                !targetId &&
+                (
+                    href === "professor.html" ||
+                    href === "./professor.html" ||
+                    href.endsWith("/professor.html")
+                );
+
+            link.classList.toggle(
+                "active",
+                targetId ? linkTarget === targetId : isHome
+            );
+        });
+    }
+
     function setSinglePanelView(targetId, options) {
         const isProfessor = document.body.classList.contains("professor-page");
         const isAdmin = document.body.classList.contains("admin-page");
@@ -408,6 +438,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (isAdmin && targetId === "admin-dashboard") {
             viewSections.forEach(function (section) {
                 section.classList.add("single-panel-hidden");
+                section.classList.remove("menu-focus-active");
             });
             main.classList.remove("single-panel-mode");
             window.scrollTo({ top: 0, behavior: "smooth" });
@@ -421,10 +452,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
         viewSections.forEach(function (section) {
             section.classList.toggle("single-panel-hidden", section !== target);
+            if (section !== target) {
+                section.classList.remove("menu-focus-active");
+            }
         });
 
         main.classList.add("single-panel-mode");
+        target.classList.remove("single-panel-hidden");
         target.classList.add("menu-focus-active");
+
+        if (isProfessor) {
+            syncProfessorBottomNav(targetId);
+        }
+
         window.scrollTo({ top: 0, behavior: "smooth" });
 
         if (!(options && options.keepHash)) {
@@ -483,18 +523,25 @@ document.addEventListener("DOMContentLoaded", function () {
             const sections = document.querySelectorAll(".professor-view-section");
             sections.forEach(function (section) {
                 /*
-                 * A página inicial pode conter apenas elementos visuais do
-                 * próprio dashboard. Todos os módulos do menu continuam
-                 * fechados. Assim, o cartão de boas-vindas e o ambiente
-                 * tecnológico permanecem visíveis juntos.
+                 * A página inicial contém somente os elementos visuais do
+                 * dashboard. Todos os módulos do menu continuam fechados.
+                 * Assim, o cartão de boas-vindas e o ambiente tecnológico
+                 * permanecem visíveis juntos, como no visual definido.
                  */
+                const isHomeSection =
+                    section.getAttribute("data-view-section") === "home";
+
                 section.classList.toggle(
                     "single-panel-hidden",
-                    section.getAttribute("data-view-section") !== "home"
+                    !isHomeSection
                 );
+                section.classList.remove("menu-focus-active");
             });
+
             const dashboardMain = document.querySelector("main");
             if (dashboardMain) dashboardMain.classList.remove("single-panel-mode");
+
+            syncProfessorBottomNav("");
             window.scrollTo({ top: 0, behavior: "smooth" });
         } else if (document.body.classList.contains("admin-page")) {
             setSinglePanelView("admin-dashboard", { keepHash: true });
