@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>APSAN Academy - Sala Virtual</title>
-<link rel="stylesheet" href="../style.css?v=20260927-virtual-classroom-1">
+<link rel="stylesheet" href="../style.css?v=20260927-virtual-classroom-2">
 <script src="settings.js?v=20260927-profile-wallpaper-1"></script>
 <style>
 body.classroom-page{background:#eef3f9!important;overflow-x:hidden}
@@ -19,6 +19,27 @@ body.classroom-page{background:#eef3f9!important;overflow-x:hidden}
 .classroom-bottom{height:72px;display:flex;align-items:center;justify-content:center;gap:8px;background:#0d1d38;border-top:1px solid rgba(255,255,255,.08)}.class-control{border:0;background:#172d4c;color:#fff;border-radius:12px;min-width:74px;height:54px;cursor:pointer;font-weight:800}.class-control span{display:block;font-size:19px}.class-control.danger{background:#ef4444}
 .classroom-right{background:#f7f9fc;color:#172033;display:flex;flex-direction:column;min-width:0}.right-tabs{display:flex;border-bottom:1px solid #dce4ee}.right-tabs button{flex:1;border:0;background:#fff;padding:14px 8px;font-weight:900;cursor:pointer}.right-tabs button.active{color:#1769e0;border-bottom:3px solid #1769e0}.right-panel{display:none;flex:1;min-height:0;overflow:auto;padding:14px}.right-panel.active{display:block}.participant{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid #e7edf4}.participant-avatar{width:34px;height:34px;border-radius:50%;background:#dce9fb;display:grid;place-items:center;font-weight:900;color:#1769e0;overflow:hidden}.participant-avatar img{width:100%;height:100%;object-fit:cover}.participant small{display:block;color:#718096}.chat-list{min-height:300px}.chat-msg{padding:8px 0;border-bottom:1px solid #e7edf4}.chat-msg strong{font-size:12px}.chat-msg p{margin:3px 0 0;font-size:13px;line-height:1.35}.chat-input{display:flex;gap:6px;position:sticky;bottom:0;background:#f7f9fc;padding-top:10px}.chat-input input{flex:1;min-width:0;border:1px solid #d7e0eb;border-radius:10px;padding:10px}.chat-input button{border:0;background:#1769e0;color:#fff;border-radius:10px;padding:0 14px;font-weight:900}.class-info-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:12px;margin-bottom:12px}.class-info-card strong{display:block;margin-bottom:5px}.class-info-card small{color:#718096}.status-ok{color:#16803c;font-weight:900}.status-warn{color:#b26a00;font-weight:900}
 .classroom-toast{position:fixed;right:18px;bottom:90px;background:#102542;color:#fff;padding:12px 15px;border-radius:12px;box-shadow:0 10px 28px rgba(0,0,0,.25);z-index:50;display:none}.classroom-toast.show{display:block}
+.start-class-button{background:#16803c!important;border-color:#16803c!important}
+.start-class-button.waiting{background:#9aa6b2!important;border-color:#9aa6b2!important}
+.pre-class-overlay{position:absolute;inset:0;z-index:8;display:grid;place-items:center;background:rgba(7,24,48,.08);pointer-events:auto}
+.pre-class-overlay.hidden{display:none}
+.pre-class-card{width:min(430px,calc(100% - 34px));padding:28px;border-radius:20px;background:rgba(255,255,255,.97);color:#172033;text-align:center;box-shadow:0 18px 45px rgba(0,0,0,.18);border:1px solid #dce5ef}
+.pre-class-icon{width:52px;height:52px;margin:0 auto 12px;border-radius:50%;display:grid;place-items:center;background:#eaf3ff;color:#1769e0;font-weight:900}
+.pre-class-card strong{display:block;font-size:20px}
+.pre-class-card p{margin:9px 0 18px;color:#718096;font-size:13px;line-height:1.5}
+.pre-class-card button{border:0;border-radius:11px;padding:12px 20px;background:#1769e0;color:#fff;font-weight:900;cursor:pointer}
+.board-text-editor{position:absolute;z-index:12;min-width:80px;max-width:60%;min-height:32px;padding:2px 4px;outline:0;border:0;background:transparent;color:#172033;font:700 22px Arial,sans-serif;line-height:1.25;white-space:pre-wrap;cursor:text;caret-color:#1769e0}
+.board-text-editor:empty:before{content:"";display:inline-block;width:2px;height:25px}
+.camera-dock{position:absolute;right:18px;top:18px;z-index:11;width:220px;padding:7px;border-radius:14px;background:#0d1d38;color:#fff;box-shadow:0 12px 30px rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.16)}
+.camera-dock[hidden]{display:none}
+.camera-dock-head{display:flex;align-items:center;justify-content:space-between;padding:3px 4px 7px;font-size:11px}
+.camera-dock-head button{border:0;background:transparent;color:#fff;font-size:20px;cursor:pointer}
+.camera-dock video{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:9px;background:#020b18}
+.camera-status{display:block;padding:6px 3px 1px;color:#9eb0c8;font-size:10px}
+.participant-video-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.participant-video-tile{position:relative;min-height:82px;border-radius:10px;overflow:hidden;background:#102542;color:#fff;display:grid;place-items:center}
+.participant-video-tile video{width:100%;height:100%;object-fit:cover}
+.participant-video-tile span{position:absolute;left:6px;right:6px;bottom:5px;padding:3px 5px;border-radius:5px;background:rgba(0,0,0,.55);font-size:9px;font-weight:800}
 @media(max-width:900px){.classroom-body{grid-template-columns:64px minmax(0,1fr)}.classroom-side{padding:10px 6px}.classroom-side button{justify-content:center;font-size:0}.classroom-side button span{font-size:20px}.classroom-right{position:fixed;right:0;top:66px;bottom:72px;width:min(88vw,330px);z-index:30;transform:translateX(100%);transition:.2s;box-shadow:-12px 0 30px rgba(0,0,0,.2)}.classroom-right.open{transform:translateX(0)}}
 @media(max-width:600px){.classroom-top{height:58px;padding:0 10px;gap:8px}.classroom-brand{min-width:auto}.classroom-brand strong{display:none}.classroom-title strong{font-size:13px}.classroom-title small{font-size:10px}.classroom-top-actions button{padding:8px;font-size:11px}.classroom-top-actions button:not(.leave){display:none}.classroom-body{grid-template-columns:1fr}.classroom-side{display:none}.board-wrap{padding:7px}.board{min-height:390px}.classroom-bottom{height:68px;overflow-x:auto;justify-content:flex-start;padding:5px 8px}.class-control{min-width:64px;height:56px;font-size:10px}.board-toolbar{padding:6px}.tool{min-width:45px}.classroom-right{top:58px;bottom:68px}}
 </style>
@@ -33,6 +54,7 @@ body.classroom-page{background:#eef3f9!important;overflow-x:hidden}
     </div>
     <div id="liveStatus"></div>
     <div class="classroom-top-actions">
+        <button type="button" id="startClass" class="start-class-button">▶ Começar aula</button>
         <button type="button" id="shareScreen">▣ Partilhar ecrã</button>
         <button type="button" id="toggleRight">☰ Participantes</button>
         <button type="button" class="leave" id="leaveClass">Sair</button>
@@ -66,7 +88,21 @@ body.classroom-page{background:#eef3f9!important;overflow-x:hidden}
     <div class="board-wrap">
         <div class="board">
             <canvas id="whiteboardCanvas"></canvas>
-            <div id="boardEmpty" class="board-empty">Comece a explicar a aula aqui. Use a caneta, formas, texto, imagens e destaques.</div>
+            <div id="boardEmpty" class="board-empty">A sala está pronta. Clique em <strong>“Começar aula”</strong> quando quiser iniciar.</div>
+            <div id="boardTextEditor" class="board-text-editor" contenteditable="true" spellcheck="true" hidden></div>
+            <div id="preClassOverlay" class="pre-class-overlay">
+                <div class="pre-class-card">
+                    <div class="pre-class-icon">▶</div>
+                    <strong>Aula ainda não começou</strong>
+                    <p>O quadro está aberto e preparado. A aula só fica ao vivo quando o professor clicar em <b>Começar aula</b>.</p>
+                    <button type="button" id="preClassStart">Começar aula</button>
+                </div>
+            </div>
+            <div id="cameraDock" class="camera-dock" hidden>
+                <div class="camera-dock-head"><strong id="cameraDockName">Professor</strong><button type="button" id="closeCameraDock" aria-label="Fechar pré-visualização">×</button></div>
+                <video id="localCamera" autoplay playsinline muted></video>
+                <span class="camera-status">Câmara do professor</span>
+            </div>
         </div>
     </div>
 
@@ -88,6 +124,7 @@ body.classroom-page{background:#eef3f9!important;overflow-x:hidden}
     </div>
     <section class="right-panel active" id="participantsPanel">
         <div class="class-info-card"><strong id="participantSummary">Participantes</strong><small>Alunos oficiais desta aula.</small></div>
+        <div id="participantVideoGrid" class="participant-video-grid"></div>
         <div id="participantList"></div>
     </section>
     <section class="right-panel" id="chatPanel">
@@ -109,7 +146,7 @@ const role=account.type||localStorage.getItem("apsan_user_type")||"";
 const phone=String(account.phone||localStorage.getItem("apsan_phone")||"").replace(/\D/g,"");
 const canvas=document.getElementById("whiteboardCanvas"),ctx=canvas.getContext("2d");
 const boardEmpty=document.getElementById("boardEmpty");
-let live=null, drawing=false, startX=0,startY=0,tool="pen",undoStack=[],stream=null,recording=false,startedAt=Date.now();
+let live=null, drawing=false, startX=0,startY=0,tool="pen",undoStack=[],stream=null,recording=false,mediaRecorder=null,recordedChunks=[],startedAt=Date.now(),textEditorOpen=false;
 
 function read(k,f){try{const v=JSON.parse(localStorage.getItem(k)||"null");return v==null?f:v}catch(_){return f}}
 function write(k,v){localStorage.setItem(k,JSON.stringify(v))}
@@ -118,21 +155,29 @@ function getLive(){return read("apsan_live_classes",[]).find(x=>x&&x.id===liveId
 function resizeCanvas(){const rect=canvas.getBoundingClientRect();const old=canvas.toDataURL();canvas.width=Math.max(1,Math.floor(rect.width*devicePixelRatio));canvas.height=Math.max(1,Math.floor(rect.height*devicePixelRatio));ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);if(old&&old!=="data:,"){const im=new Image();im.onload=()=>ctx.drawImage(im,0,0,rect.width,rect.height);im.src=old}}
 function boardKey(){return "apsan_live_board_"+liveId}
 function saveBoard(){if(!liveId)return;try{write(boardKey(),canvas.toDataURL("image/png"));boardEmpty.classList.add("hidden")}catch(_){}}
+function setPreClassState(){const overlay=document.getElementById("preClassOverlay");const start=document.getElementById("startClass");const pre=document.getElementById("preClassStart");const active=!!(live&&live.active);const teacher=role==="professor";overlay.classList.toggle("hidden",active);if(teacher){start.hidden=false;start.textContent=active?"● Aula em curso":"▶ Começar aula";start.disabled=active;pre.disabled=active}else{start.hidden=true;pre.hidden=true}}
+function classStudents(){return Array.isArray(live&&live.students)?live.students:[]}
+function makeLiveId(){return "live_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,8)}
+function startClass(){if(role!=="professor")return;if(live&&live.active){return}const all=read("apsan_live_classes",[]);const id=liveId||makeLiveId();const item=live||{id,title:new URLSearchParams(location.search).get("title")||"Aula ao vivo",course:new URLSearchParams(location.search).get("course")||"Curso",teacherName:account.name||"Professor",teacherPhone:phone,students:[]};item.id=id;item.active=true;item.startedAt=new Date().toISOString();item.teacherName=account.name||item.teacherName||"Professor";item.teacherPhone=phone;item.students=Array.isArray(item.students)?item.students:[];const idx=all.findIndex(x=>x&&x.id===id);if(idx>=0)all[idx]=item;else all.push(item);write("apsan_live_classes",all);if(!liveId){history.replaceState({}, "", "quadro.html?live="+encodeURIComponent(id));location.reload();return}live=item;renderLive();toast("A aula começou. Os alunos podem entrar agora.")}
 function loadBoard(){const data=localStorage.getItem(boardKey());if(!data)return;const im=new Image();im.onload=()=>{const r=canvas.getBoundingClientRect();ctx.drawImage(im,0,0,r.width,r.height);boardEmpty.classList.add("hidden")};im.src=data}
 function snapshot(){undoStack.push(canvas.toDataURL("image/png"));if(undoStack.length>15)undoStack.shift()}
 function pointer(e){const r=canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
-function down(e){if(role==="aluno")return;drawing=true;const p=pointer(e);startX=p.x;startY=p.y;snapshot();ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineCap="round";ctx.lineJoin="round";ctx.strokeStyle=tool==="highlighter"?"rgba(255,220,0,.42)":tool==="eraser"?"#fff":"#1769e0";ctx.lineWidth=tool==="highlighter"?18:tool==="eraser"?24:3;if(tool==="text"){drawing=false;const t=prompt("Texto para o quadro:");if(t){ctx.font="700 22px Arial";ctx.fillStyle="#172033";ctx.fillText(t,p.x,p.y);saveBoard()}}}
+function openTextEditor(p){if(role==="aluno"||!live||!live.active)return;const editor=document.getElementById("boardTextEditor");editor.hidden=false;editor.textContent="";editor.style.left=Math.max(4,p.x)+"px";editor.style.top=Math.max(4,p.y)+"px";textEditorOpen=true;editor.focus()}
+function commitTextEditor(){const editor=document.getElementById("boardTextEditor");if(!textEditorOpen)return;const value=editor.innerText.trim();const x=parseFloat(editor.style.left)||0;const y=parseFloat(editor.style.top)||0;if(value){ctx.font="700 22px Arial";ctx.fillStyle="#172033";const lines=value.split(/\n/);lines.forEach((line,i)=>ctx.fillText(line,x,y+24+i*27));saveBoard()}editor.hidden=true;editor.textContent="";textEditorOpen=false}
+function down(e){if(role==="aluno"||!live||!live.active)return;const p=pointer(e);if(tool==="text"){openTextEditor(p);return}drawing=true;startX=p.x;startY=p.y;snapshot();ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineCap="round";ctx.lineJoin="round";ctx.strokeStyle=tool==="highlighter"?"rgba(255,220,0,.42)":tool==="eraser"?"#fff":"#1769e0";ctx.lineWidth=tool==="highlighter"?18:tool==="eraser"?24:3}
 function move(e){if(!drawing)return;const p=pointer(e);if(tool==="pen"||tool==="highlighter"||tool==="eraser"){ctx.lineTo(p.x,p.y);ctx.stroke()}else{loadUndoPreview(p)}}
 function up(e){if(!drawing)return;drawing=false;const p=pointer(e);if(tool==="line"){ctx.strokeStyle="#1769e0";ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(startX,startY);ctx.lineTo(p.x,p.y);ctx.stroke()}else if(tool==="rect"){ctx.strokeStyle="#1769e0";ctx.lineWidth=3;ctx.strokeRect(startX,startY,p.x-startX,p.y-startY)}else if(tool==="circle"){ctx.strokeStyle="#1769e0";ctx.lineWidth=3;const rx=(p.x-startX)/2,ry=(p.y-startY)/2;ctx.beginPath();ctx.ellipse(startX+rx,startY+ry,Math.abs(rx),Math.abs(ry),0,0,Math.PI*2);ctx.stroke()}saveBoard()}
 function loadUndoPreview(){return}
 canvas.addEventListener("pointerdown",down);canvas.addEventListener("pointermove",move);canvas.addEventListener("pointerup",up);canvas.addEventListener("pointerleave",up);
+document.getElementById("boardTextEditor").addEventListener("blur",commitTextEditor);
+document.getElementById("boardTextEditor").addEventListener("keydown",e=>{if(e.key==="Escape"){e.preventDefault();document.getElementById("boardTextEditor").hidden=true;textEditorOpen=false;return}if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();commitTextEditor()}});
 window.addEventListener("resize",()=>{resizeCanvas();loadBoard()});
 document.querySelectorAll("[data-tool]").forEach(b=>b.addEventListener("click",()=>{tool=b.dataset.tool;document.querySelectorAll("[data-tool]").forEach(x=>x.classList.toggle("active",x===b))}));
 document.getElementById("undoBoard").onclick=()=>{const data=undoStack.pop();if(!data)return;const im=new Image();im.onload=()=>{ctx.clearRect(0,0,canvas.width,canvas.height);const r=canvas.getBoundingClientRect();ctx.drawImage(im,0,0,r.width,r.height);saveBoard()};im.src=data};
 document.getElementById("clearBoard").onclick=()=>{if(role!=="professor"&&!role.includes("direcao"))return;ctx.clearRect(0,0,canvas.width,canvas.height);boardEmpty.classList.remove("hidden");saveBoard()};
 document.getElementById("addImage").onclick=()=>document.getElementById("boardImageInput").click();
 document.getElementById("boardImageInput").onchange=e=>{const file=e.target.files[0];if(!file||role==="aluno")return;const rd=new FileReader();rd.onload=ev=>{const im=new Image();im.onload=()=>{const r=canvas.getBoundingClientRect(),scale=Math.min(1,(r.width-40)/im.width,(r.height-40)/im.height);ctx.drawImage(im,20,20,im.width*scale,im.height*scale);saveBoard()};im.src=ev.target.result};rd.readAsDataURL(file)};
-function renderLive(){live=getLive();if(!live){document.getElementById("classTitle").textContent="Sala Virtual";document.getElementById("classMeta").textContent="Aula não encontrada ou encerrada.";return}
+function renderLive(){live=getLive();if(!live){if(role==="professor"){live={id:liveId||"",title:"Aula pronta",course:"",teacherName:account.name||"Professor",teacherPhone:phone,students:[],active:false};document.getElementById("classTitle").textContent=live.title;document.getElementById("classMeta").textContent="Quadro preparado · a aula ainda não começou";setPreClassState();return}document.getElementById("classTitle").textContent="Sala Virtual";document.getElementById("classMeta").textContent="Aula não encontrada ou encerrada.";setPreClassState();return}
 if(role==="aluno"&&!live.students.includes(phone)){document.getElementById("classTitle").textContent="Acesso não autorizado";document.getElementById("classMeta").textContent="Esta aula está disponível apenas para os alunos oficiais.";return}
 document.getElementById("classTitle").textContent=live.title;
 document.getElementById("classMeta").textContent=(live.course||"Curso")+" · Prof. "+(live.teacherName||"Professor");
@@ -141,7 +186,11 @@ const end=document.getElementById("endClass");end.style.display=role==="professo
 const list=document.getElementById("participantList");const students=live.students||[];const accounts=read("apsan_accounts",[]);
 list.innerHTML=students.map(p=>{const a=accounts.find(x=>x&&String(x.phone||"").replace(/\D/g,"")===p)||{};return '<div class="participant"><div class="participant-avatar">'+(a.photo?'<img src="'+a.photo+'">':(String(a.name||"A").charAt(0)))+'</div><div><strong>'+String(a.name||"Aluno")+'</strong><small>Aluno oficial</small></div></div>'}).join("");
 document.getElementById("participantSummary").textContent="Participantes ("+students.length+")";
+renderParticipantVideos(students,accounts);
+setPreClassState();
 }
+function renderParticipantVideos(students,accounts){const grid=document.getElementById("participantVideoGrid");if(!grid)return;grid.innerHTML="";if(live&&live.active&&role==="professor"){const self=document.createElement("div");self.className="participant-video-tile";self.innerHTML="<span>"+String(account.name||"Professor")+" · sua câmara</span>";if(stream&&stream.getVideoTracks().length){const v=document.createElement("video");v.autoplay=true;v.muted=true;v.playsInline=true;v.srcObject=stream;self.prepend(v)}else{self.insertAdjacentHTML("afterbegin",'<div style="font-size:22px">🎥</div>')}grid.appendChild(self)}students.slice(0,8).forEach(p=>{const a=accounts.find(x=>x&&String(x.phone||"").replace(/\D/g,"")===p)||{};const tile=document.createElement("div");tile.className="participant-video-tile";tile.innerHTML='<div style="font-size:22px">👤</div><span>'+String(a.name||"Aluno")+' · aguardando câmara</span>';grid.appendChild(tile)})}
+
 function chatKey(){return "apsan_live_chat_"+liveId}
 function renderChat(){const box=document.getElementById("chatList"),msgs=read(chatKey(),[]);box.innerHTML=msgs.map(m=>'<div class="chat-msg"><strong>'+String(m.name||"Utilizador")+'</strong><p>'+String(m.text||"")+'</p></div>').join("")||'<div class="empty-state">O chat da aula aparecerá aqui.</div>';box.scrollTop=box.scrollHeight}
 document.getElementById("sendChat").onclick=()=>{const input=document.getElementById("chatInput"),text=input.value.trim();if(!text)return;const msgs=read(chatKey(),[]);msgs.push({name:account.name||"Utilizador",text,at:new Date().toISOString()});write(chatKey(),msgs.slice(-100));input.value="";renderChat()};
@@ -151,15 +200,18 @@ document.getElementById("toggleRight").onclick=()=>document.getElementById("righ
 document.getElementById("openChat").onclick=()=>{document.getElementById("rightPanel").classList.add("open");document.querySelector('[data-right-tab="chat"]').click()};
 document.getElementById("openParticipants").onclick=()=>{document.getElementById("rightPanel").classList.add("open");document.querySelector('[data-right-tab="participants"]').click()};
 document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>toast("Módulo "+b.textContent.trim()+" preparado para a aula."));
-document.getElementById("toggleMic").onclick=async()=>{try{if(!stream)stream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});toast("Microfone ativo neste dispositivo.");}catch(_){toast("Não foi possível ativar o microfone.")}};
-document.getElementById("toggleCamera").onclick=async()=>{try{if(!stream)stream=await navigator.mediaDevices.getUserMedia({audio:false,video:true});toast("Câmara ativa neste dispositivo.");}catch(_){toast("Não foi possível ativar a câmara.")}};
+document.getElementById("toggleMic").onclick=async()=>{if(!live||!live.active){toast("Primeiro clique em Começar aula.");return}try{if(!stream)stream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});toast("Microfone ativo neste dispositivo.");}catch(_){toast("Não foi possível ativar o microfone.")}};
+document.getElementById("toggleCamera").onclick=async()=>{if(!live||!live.active){toast("Primeiro clique em Começar aula.");return}try{if(stream&&stream.getVideoTracks().length){stream.getVideoTracks().forEach(t=>t.stop());stream=null;document.getElementById("cameraDock").hidden=true;document.getElementById("toggleCamera").innerHTML="<span>▣</span>Câmara";renderParticipantVideos(classStudents(),read("apsan_accounts",[]));toast("Câmara desligada.");return}if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error("media");stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:"user",width:{ideal:1280},height:{ideal:720}}});const video=document.getElementById("localCamera");video.srcObject=stream;document.getElementById("cameraDock").hidden=false;document.getElementById("cameraDockName").textContent=account.name||"Professor";document.getElementById("toggleCamera").innerHTML="<span>▣</span>Desligar câmara";renderParticipantVideos(classStudents(),read("apsan_accounts",[]));toast("Câmara ativa.");}catch(_){toast("Não foi possível ativar a câmara. Verifique a permissão do navegador.")}};
 document.getElementById("shareScreen").onclick=async()=>{try{const s=await navigator.mediaDevices.getDisplayMedia({video:true});s.getVideoTracks()[0].onended=()=>toast("Partilha de ecrã terminada.");toast("Partilha de ecrã iniciada neste dispositivo.");}catch(_){toast("Partilha de ecrã cancelada.")}};
-document.getElementById("recordClass").onclick=()=>{recording=!recording;document.getElementById("recordClass").innerHTML=recording?"<span>⏹</span>Parar gravação":"<span>⏺</span>Gravar aula";toast(recording?"Gravação preparada no dispositivo.":"Gravação terminada.")};
+document.getElementById("recordClass").onclick=()=>{if(!live||!live.active){toast("Primeiro clique em Começar aula.");return}if(!recording){if(!stream||!stream.getVideoTracks().length){toast("Ative a câmara antes de gravar.");return}try{recordedChunks=[];mediaRecorder=new MediaRecorder(stream);mediaRecorder.ondataavailable=e=>{if(e.data.size)recordedChunks.push(e.data)};mediaRecorder.onstop=()=>toast("Gravação terminada neste dispositivo.");mediaRecorder.start();recording=true;document.getElementById("recordClass").innerHTML="<span>⏹</span>Parar gravação";toast("Gravação iniciada.");}catch(_){toast("Não foi possível iniciar a gravação.")}}else{if(mediaRecorder&&mediaRecorder.state!=="inactive")mediaRecorder.stop();recording=false;document.getElementById("recordClass").innerHTML="<span>⏺</span>Gravar aula";}};
 document.getElementById("raiseHand").onclick=()=>toast("Mão levantada. O professor verá este estado nesta sessão.");
+document.getElementById("startClass").onclick=startClass;
+document.getElementById("preClassStart").onclick=startClass;
+document.getElementById("closeCameraDock").onclick=()=>{const video=document.getElementById("localCamera");if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}video.srcObject=null;document.getElementById("cameraDock").hidden=true;document.getElementById("toggleCamera").innerHTML="<span>▣</span>Câmara";renderParticipantVideos(classStudents(),read("apsan_accounts",[]))};
 document.getElementById("endClass").onclick=()=>{if(role!=="professor"||!live)return;if(confirm("Terminar esta aula ao vivo?")){const all=read("apsan_live_classes",[]);const item=all.find(x=>x.id===liveId);if(item){item.active=false;item.endedAt=new Date().toISOString();write("apsan_live_classes",all)}renderLive();toast("Aula terminada.");}};
 document.getElementById("leaveClass").onclick=()=>{if(role==="professor"&&live&&live.active&&!confirm("Sair sem terminar a aula?"))return;location.href=role==="professor"?"professor.html":"aluno.html#classroom"};
 window.addEventListener("storage",e=>{if(e.key==="apsan_live_classes"){renderLive()}if(e.key===boardKey()){loadBoard()}if(e.key===chatKey()){renderChat()}});
-resizeCanvas();renderLive();loadBoard();renderChat();
+resizeCanvas();renderLive();loadBoard();renderChat();setPreClassState();
 setInterval(()=>{renderLive();loadBoard();renderChat()},2000);
 })();
 </script>
