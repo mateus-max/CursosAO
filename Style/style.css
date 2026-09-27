@@ -5905,3 +5905,194 @@ body.student-page .student-hero h1,
 body.professor-page .professor-hero h1{
     text-shadow:0 2px 10px rgba(0,20,50,.24) !important;
 }
+
+
+/* =========================================================
+   DIREÇÃO — MESMO PADRÃO VISUAL DOS PAINÉIS DE PROFESSOR/ALUNO
+   O conteúdo continua administrativo; a experiência de navegação
+   segue o mesmo cabeçalho, menu, dashboard e atalhos.
+   ========================================================= */
+body.admin-page{
+    min-height:100vh !important;
+    background:#f4f7fb;
+}
+body.admin-page .app-header{
+    position:sticky !important;
+    top:0 !important;
+    z-index:220 !important;
+    background:rgba(255,255,255,.88) !important;
+    border-bottom:1px solid rgba(255,255,255,.55) !important;
+    box-shadow:0 4px 20px rgba(5,30,65,.10) !important;
+    backdrop-filter:blur(14px) saturate(125%) !important;
+    -webkit-backdrop-filter:blur(14px) saturate(125%) !important;
+}
+body.admin-page .admin-settings{
+    background:#eaf3ff !important;
+    color:#1769e0 !important;
+}
+body.admin-page .admin-sidebar{
+    position:fixed !important;
+    top:64px !important;
+    left:-270px !important;
+    bottom:auto !important;
+    width:260px !important;
+    height:calc(100vh - 64px) !important;
+    padding:0 !important;
+    box-sizing:border-box !important;
+    display:flex !important;
+    flex-direction:column !important;
+    overflow:hidden !important;
+    background:#fff !important;
+    border-right:1px solid #e5eaf0 !important;
+    box-shadow:8px 0 25px rgba(0,0,0,.08) !important;
+    transition:left .25s ease !important;
+    z-index:210 !important;
+}
+body.admin-page .admin-sidebar.admin-sidebar-open{
+    left:0 !important;
+}
+body.admin-page .admin-sidebar-brand{
+    flex:0 0 auto !important;
+    padding:22px !important;
+    border-bottom:1px solid #edf1f5 !important;
+    color:#0759a5 !important;
+    font-size:12px !important;
+    font-weight:800 !important;
+    letter-spacing:0 !important;
+}
+body.admin-page .admin-sidebar-brand strong,
+body.admin-page .admin-sidebar-brand span{
+    display:block !important;
+}
+body.admin-page .admin-sidebar-brand span{
+    margin-top:4px !important;
+    color:#8a96a5 !important;
+    font-size:10px !important;
+    font-weight:600 !important;
+}
+body.admin-page .admin-sidebar nav{
+    flex:1 !important;
+    min-height:0 !important;
+    overflow-y:auto !important;
+    display:block !important;
+    padding:12px !important;
+}
+body.admin-page .admin-sidebar nav a{
+    display:flex !important;
+    align-items:center !important;
+    gap:11px !important;
+    margin-bottom:4px !important;
+    padding:13px 14px !important;
+    border-radius:9px !important;
+    color:#344054 !important;
+    background:transparent !important;
+    font-size:13px !important;
+    text-decoration:none !important;
+}
+body.admin-page .admin-sidebar nav a:hover,
+body.admin-page .admin-sidebar nav a.active{
+    color:#0066cc !important;
+    background:#f0f6fc !important;
+}
+body.admin-page .admin-logout{
+    position:static !important;
+    flex:0 0 auto !important;
+    margin:0 12px 20px !important;
+    padding:13px !important;
+    border:0 !important;
+    border-radius:9px !important;
+    background:#fff1f1 !important;
+    color:#c62828 !important;
+    font-size:14px !important;
+}
+body.admin-page .admin-content{
+    width:min(1100px,calc(100% - 28px)) !important;
+    max-width:1100px !important;
+    margin:0 auto !important;
+    padding:18px 0 105px !important;
+    box-sizing:border-box !important;
+}
+body.admin-page .admin-dashboard-view{
+    display:block !important;
+}
+body.admin-page .admin-view-hidden{
+    display:none !important;
+}
+body.admin-page .admin-hero{
+    min-height:132px !important;
+    margin-top:0 !important;
+}
+body.admin-page .admin-metrics{
+    margin:14px 0 !important;
+}
+body.admin-page .admin-metric{
+    min-height:88px !important;
+    padding:13px !important;
+    gap:10px !important;
+    border-radius:14px !important;
+    box-shadow:0 7px 22px rgba(20,55,100,.06) !important;
+}
+body.admin-page .admin-metric>span{
+    width:34px !important;
+    height:34px !important;
+    flex:0 0 34px !important;
+    border-radius:10px !important;
+    font-size:17px !important;
+}
+body.admin-page .admin-metric strong{
+    font-size:21px !important;
+}
+body.admin-page .admin-metric small{
+    font-size:10px !important;
+}
+body.admin-page .admin-grid{
+    display:block !important;
+}
+body.admin-page .admin-grid>.admin-panel{
+    margin:0 !important;
+}
+body.admin-page .admin-panel{
+    padding:18px !important;
+    border-radius:16px !important;
+    box-shadow:0 7px 22px rgba(20,55,100,.06) !important;
+}
+body.admin-page .admin-attention-panel{
+    margin:14px 0 0 !important;
+}
+body.admin-page .admin-attention-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+}
+body.admin-page .admin-bottom-nav{
+    display:grid !important;
+}
+@media(max-width:720px){
+    body.admin-page .admin-content{
+        width:calc(100% - 24px) !important;
+        padding-top:14px !important;
+    }
+    body.admin-page .admin-metrics{
+        grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    }
+    body.admin-page .admin-attention-grid{
+        grid-template-columns:1fr !important;
+    }
+}
+@media(max-width:560px){
+    body.admin-page .admin-content{
+        width:calc(100% - 20px) !important;
+        padding-bottom:94px !important;
+    }
+    body.admin-page .admin-hero{
+        margin-top:0 !important;
+    }
+    body.admin-page .admin-hero .hero-brand{
+        display:none !important;
+    }
+    body.admin-page .admin-hero h1{
+        font-size:23px !important;
+    }
+    body.admin-page .admin-bottom-nav{
+        bottom:8px !important;
+        width:calc(100% - 16px) !important;
+    }
+}
