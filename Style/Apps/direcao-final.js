@@ -546,22 +546,96 @@ document.addEventListener("DOMContentLoaded", function () {
         render();
     });
 
-    document.getElementById("adminProfileButton")?.addEventListener("click", () => showAdminView("admin-settings"));
+    const directionProfileKey = "apsan_direction_profile";
+    let directionProfile = Object.assign({
+        name: currentAccount.name || "Direção APSAN Academy",
+        nif: "",
+        location: "",
+        logo: ""
+    }, read(directionProfileKey, {}));
+
+    function renderDirectionProfileAvatar() {
+        const avatar = document.getElementById("adminTopAvatar");
+        const letter = document.getElementById("adminTopAvatarLetter");
+        const image = directionProfile.logo || currentAccount.photo || currentAccount.profilePhoto || currentAccount.avatar || "";
+        if (image && avatar) {
+            avatar.src = image;
+            avatar.style.display = "block";
+            if (letter) letter.style.display = "none";
+        } else if (letter) {
+            letter.textContent = String(directionProfile.name || "Direção").trim().charAt(0).toUpperCase() || "D";
+            letter.style.display = "grid";
+            if (avatar) avatar.style.display = "none";
+        }
+    }
+
+    function loadDirectionProfileForm() {
+        document.getElementById("adminDirectionName").value = directionProfile.name || "";
+        document.getElementById("adminDirectionNif").value = directionProfile.nif || "";
+        document.getElementById("adminDirectionLocation").value = directionProfile.location || "";
+        const preview = document.getElementById("adminDirectionLogoPreview");
+        if (preview) preview.innerHTML = directionProfile.logo
+            ? '<img src="' + esc(directionProfile.logo) + '" alt="Logotipo da Direção">'
+            : '<span>' + esc((directionProfile.name || "D").charAt(0).toUpperCase()) + '</span>';
+    }
+
+    document.getElementById("adminProfileButton")?.addEventListener("click", () => {
+        loadDirectionProfileForm();
+        document.getElementById("adminDirectionProfileModal")?.classList.add("open");
+    });
+
+    document.getElementById("adminDirectionLogo")?.addEventListener("change", event => {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+        if (!file.type.startsWith("image/")) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+            directionProfile.logo = String(reader.result || "");
+            loadDirectionProfileForm();
+        };
+        reader.readAsDataURL(file);
+    });
+
+    document.getElementById("adminDirectionProfileForm")?.addEventListener("submit", event => {
+        event.preventDefault();
+        directionProfile = {
+            name: document.getElementById("adminDirectionName").value.trim() || "Direção APSAN Academy",
+            nif: document.getElementById("adminDirectionNif").value.trim(),
+            location: document.getElementById("adminDirectionLocation").value.trim(),
+            logo: directionProfile.logo || ""
+        };
+        write(directionProfileKey, directionProfile);
+
+        const accounts = read("apsan_accounts", []);
+        const index = accounts.findIndex(a => a.type === "direcao");
+        if (index >= 0) {
+            accounts[index] = Object.assign({}, accounts[index], {
+                name: directionProfile.name,
+                photo: directionProfile.logo,
+                nif: directionProfile.nif,
+                location: directionProfile.location
+            });
+            write("apsan_accounts", accounts);
+        }
+
+        const session = Object.assign({}, currentAccount, {
+            name: directionProfile.name,
+            photo: directionProfile.logo,
+            nif: directionProfile.nif,
+            location: directionProfile.location
+        });
+        localStorage.setItem("apsan_account", JSON.stringify(session));
+        directionProfile = Object.assign({}, directionProfile);
+        renderDirectionProfileAvatar();
+        document.getElementById("adminDirectionProfileModal")?.classList.remove("open");
+        render();
+    });
     document.getElementById("adminLogoutSide")?.addEventListener("click", () => {
         ["apsan_logged_in", "apsan_phone", "apsan_user_type", "apsan_account"].forEach(k => localStorage.removeItem(k));
         window.location.href = "../../index.html";
     });
 
-    const photo = currentAccount.photo || currentAccount.profilePhoto || currentAccount.avatar || "";
-    const avatar = document.getElementById("adminTopAvatar");
-    const letter = document.getElementById("adminTopAvatarLetter");
-    if (photo && avatar) {
-        avatar.src = photo;
-        avatar.style.display = "block";
-        if (letter) letter.style.display = "none";
-    } else if (letter) {
-        letter.textContent = String(currentAccount.name || "Direção").trim().charAt(0).toUpperCase() || "D";
-    }
+    renderDirectionProfileAvatar();
 
     const settingsKey = "apsan_admin_settings";
     const savedSettings = Object.assign({ profileApproval: "manual", courseApproval: "manual", platformStatus: "active" }, read(settingsKey, {}));
