@@ -15,7 +15,7 @@
     <link
         rel="stylesheet"
         href="../style.css?v=20260927-wallpaper-education-4">
-    <script src="settings.js?v=20260927-themes-final-2"></script>
+    <script src="settings.js?v=20260927-profile-wallpaper-1"></script>
 
 </head>
 
@@ -157,6 +157,20 @@
                 data-menu-link
             >
                 💳 Financeiro
+            </a>
+
+            <div class="student-menu-divider" aria-hidden="true"></div>
+
+            <a href="#" data-professor-profile-link>
+                👤 Meu Perfil
+            </a>
+
+            <a href="#" data-professor-notifications-link>
+                🔔 Notificações <span id="professorNotificationMenuBadge" class="menu-notification-badge" hidden>0</span>
+            </a>
+
+            <a href="#" data-professor-settings-link>
+                ⚙️ Configurações
             </a>
 
         </nav>
@@ -719,6 +733,78 @@
         </div>
     </div>
 
+    <!-- CONFIGURAÇÕES DO PROFESSOR -->
+    <div class="apsan-settings-overlay" id="apsanSettingsOverlay" aria-hidden="true">
+        <div class="apsan-settings-modal" role="dialog" aria-modal="true" aria-labelledby="apsanSettingsTitle">
+            <div class="apsan-settings-header">
+                <div>
+                    <span class="section-label">APSAN ACADEMY</span>
+                    <h2 id="apsanSettingsTitle">Configurações do aplicativo</h2>
+                    <p>As alterações são guardadas apenas neste perfil e aplicadas automaticamente neste painel.</p>
+                </div>
+                <button type="button" class="close-profile" id="apsanSettingsClose" aria-label="Fechar">×</button>
+            </div>
+            <div class="apsan-settings-group">
+                <label for="apsanLanguageSelect">🌐 Idioma</label>
+                <select id="apsanLanguageSelect">
+                    <option value="pt">Português</option>
+                    <option value="en">English</option>
+                </select>
+                <small>Português e inglês.</small>
+            </div>
+            <div class="apsan-settings-group">
+                <span class="apsan-settings-label">🎨 Papel de parede</span>
+                <div class="apsan-wallpaper-options">
+                    <button type="button" data-wallpaper-choice="default"><span class="wallpaper-preview wp-default"></span><strong>Padrão APSAN</strong></button>
+                    <button type="button" data-wallpaper-choice="blue-wave"><span class="wallpaper-preview wp-blue-wave"></span><strong>Onda Azul</strong></button>
+                    <button type="button" data-wallpaper-choice="study-space"><span class="wallpaper-preview wp-study-space"></span><strong>Estudo Moderno</strong></button>
+                    <button type="button" data-wallpaper-choice="global-network"><span class="wallpaper-preview wp-global-network"></span><strong>Tecnologia & Conexão</strong></button>
+                    <button type="button" data-wallpaper-choice="library"><span class="wallpaper-preview wp-library"></span><strong>Biblioteca</strong></button>
+                    <button type="button" data-wallpaper-choice="clean-minimal"><span class="wallpaper-preview wp-clean-minimal"></span><strong>Minimalista Claro</strong></button>
+                    <button type="button" data-wallpaper-choice="serene-nature"><span class="wallpaper-preview wp-serene-nature"></span><strong>Natureza Serena</strong></button>
+                    <button type="button" data-wallpaper-choice="academic-night"><span class="wallpaper-preview wp-academic-night"></span><strong>Noite Académica</strong></button>
+                    <button type="button" data-wallpaper-choice="creativity"><span class="wallpaper-preview wp-creativity"></span><strong>Criatividade</strong></button>
+                    <button type="button" data-wallpaper-choice="global-education"><span class="wallpaper-preview wp-global-education"></span><strong>Global Education</strong></button>
+                    <button type="button" data-wallpaper-choice="digital-aurora"><span class="wallpaper-preview wp-digital-aurora"></span><strong>Aurora Digital</strong></button>
+                    <button type="button" data-wallpaper-choice="education-future"><span class="wallpaper-preview wp-education-future"></span><strong>Educação & Futuro</strong></button>
+                    <button type="button" data-wallpaper-choice="virtual-class"><span class="wallpaper-preview wp-virtual-class"></span><strong>Aula Virtual</strong></button>
+                    <button type="button" data-wallpaper-choice="study-together"><span class="wallpaper-preview wp-study-together"></span><strong>Estudo em Grupo</strong></button>
+                    <button type="button" data-wallpaper-choice="digital-classroom"><span class="wallpaper-preview wp-digital-classroom"></span><strong>Sala Digital</strong></button>
+                    <button type="button" data-wallpaper-choice="reading-class"><span class="wallpaper-preview wp-reading-class"></span><strong>Leitura & Aprendizagem</strong></button>
+                    <button type="button" data-wallpaper-choice="computer-learning"><span class="wallpaper-preview wp-computer-learning"></span><strong>Informática Educativa</strong></button>
+                    <button type="button" data-wallpaper-choice="learning-library"><span class="wallpaper-preview wp-learning-library"></span><strong>Biblioteca & Conhecimento</strong></button>
+                    <button type="button" data-wallpaper-choice="education-tech"><span class="wallpaper-preview wp-education-tech"></span><strong>Tecnologia na Educação</strong></button>
+                    <button type="button" data-wallpaper-choice="online-course"><span class="wallpaper-preview wp-online-course"></span><strong>Cursos Online</strong></button>
+                    <button type="button" data-wallpaper-choice="virtual-study"><span class="wallpaper-preview wp-virtual-study"></span><strong>Estudo Virtual</strong></button>
+                    <button type="button" data-wallpaper-choice="live-class"><span class="wallpaper-preview wp-live-class"></span><strong>Aula ao Vivo</strong></button>
+                    <button type="button" data-wallpaper-choice="apsan-premium"><span class="wallpaper-preview wp-apsan-premium"></span><strong>APSAN Premium</strong></button>
+                </div>
+            </div>
+            <div class="apsan-settings-actions">
+                <button type="button" class="apsan-settings-save" id="apsanSettingsSave">Salvar alterações</button>
+            </div>
+            <div class="apsan-settings-status" id="apsanSettingsStatus">Escolha as opções e toque em salvar.</div>
+        </div>
+    </div>
+
+    <!-- NOTIFICAÇÕES DO PROFESSOR -->
+    <div class="professor-panel-overlay" id="professorNotificationsPanel" aria-hidden="true">
+        <div class="professor-panel-modal">
+            <div class="profile-modal-header">
+                <div>
+                    <span class="section-label">APSAN ACADEMY</span>
+                    <h2>Notificações</h2>
+                    <p>Atualizações da sua área de professor.</p>
+                </div>
+                <button type="button" class="close-profile" id="professorNotificationsClose" aria-label="Fechar">×</button>
+            </div>
+            <div class="empty-state">
+                <strong>Notificações automáticas ativas.</strong>
+                <p>Mensagens, aulas, agenda, matrículas e atualizações importantes aparecerão aqui.</p>
+            </div>
+        </div>
+    </div>
+
     <!-- =====================================================
          MODAL DO PERFIL
          ===================================================== -->
@@ -892,6 +978,108 @@
             </form>
         </div>
     </div>
+
+    <script>
+    (function () {
+        "use strict";
+        function closeProfessorSideMenu() {
+            const menu = document.querySelector("[data-side-menu]");
+            if (menu) menu.classList.remove("menu-open");
+        }
+
+        const profileLink = document.querySelector("[data-professor-profile-link]");
+        if (profileLink) profileLink.addEventListener("click", function (event) {
+            event.preventDefault();
+            closeProfessorSideMenu();
+            const avatarButton = document.getElementById("profileAvatarButton");
+            if (avatarButton) avatarButton.click();
+        });
+
+        const notificationOverlay = document.getElementById("professorNotificationsPanel");
+        const notificationClose = document.getElementById("professorNotificationsClose");
+        const notificationLink = document.querySelector("[data-professor-notifications-link]");
+        function openProfessorNotifications() {
+            if (!notificationOverlay) return;
+            notificationOverlay.classList.add("panel-open");
+            notificationOverlay.setAttribute("aria-hidden", "false");
+        }
+        function closeProfessorNotifications() {
+            if (!notificationOverlay) return;
+            notificationOverlay.classList.remove("panel-open");
+            notificationOverlay.setAttribute("aria-hidden", "true");
+        }
+        if (notificationLink) notificationLink.addEventListener("click", function (event) {
+            event.preventDefault();
+            closeProfessorSideMenu();
+            openProfessorNotifications();
+        });
+        if (notificationClose) notificationClose.addEventListener("click", closeProfessorNotifications);
+        if (notificationOverlay) notificationOverlay.addEventListener("click", function (event) {
+            if (event.target === notificationOverlay) closeProfessorNotifications();
+        });
+
+        const settingsOverlay = document.getElementById("apsanSettingsOverlay");
+        const settingsClose = document.getElementById("apsanSettingsClose");
+        const languageSelect = document.getElementById("apsanLanguageSelect");
+        const settingsStatus = document.getElementById("apsanSettingsStatus");
+        const settingsSave = document.getElementById("apsanSettingsSave");
+        let pendingSettings = null;
+
+        function openProfessorSettings() {
+            if (!settingsOverlay) return;
+            const current = window.APSANSettings ? window.APSANSettings.get() : {language:"pt", wallpaper:"default"};
+            pendingSettings = Object.assign({}, current);
+            if (languageSelect) languageSelect.value = pendingSettings.language || "pt";
+            document.querySelectorAll("#apsanSettingsOverlay [data-wallpaper-choice]").forEach(function (button) {
+                button.classList.toggle("active", button.getAttribute("data-wallpaper-choice") === pendingSettings.wallpaper);
+            });
+            settingsOverlay.classList.add("open");
+            settingsOverlay.setAttribute("aria-hidden", "false");
+        }
+        function closeProfessorSettings() {
+            if (!settingsOverlay) return;
+            settingsOverlay.classList.remove("open");
+            settingsOverlay.setAttribute("aria-hidden", "true");
+        }
+        const settingsLink = document.querySelector("[data-professor-settings-link]");
+        if (settingsLink) settingsLink.addEventListener("click", function (event) {
+            event.preventDefault();
+            closeProfessorSideMenu();
+            openProfessorSettings();
+        });
+        if (settingsClose) settingsClose.addEventListener("click", closeProfessorSettings);
+        if (settingsOverlay) settingsOverlay.addEventListener("click", function (event) {
+            if (event.target === settingsOverlay) closeProfessorSettings();
+        });
+        if (languageSelect) languageSelect.addEventListener("change", function () {
+            if (!pendingSettings) pendingSettings = window.APSANSettings ? window.APSANSettings.get() : {};
+            pendingSettings.language = this.value === "en" ? "en" : "pt";
+            if (settingsStatus) settingsStatus.textContent = "Toque em salvar para aplicar.";
+        });
+        document.querySelectorAll("#apsanSettingsOverlay [data-wallpaper-choice]").forEach(function (button) {
+            button.addEventListener("click", function () {
+                if (!pendingSettings) pendingSettings = window.APSANSettings ? window.APSANSettings.get() : {};
+                pendingSettings.wallpaper = this.getAttribute("data-wallpaper-choice") || "default";
+                document.querySelectorAll("#apsanSettingsOverlay [data-wallpaper-choice]").forEach(function (item) {
+                    item.classList.toggle("active", item === button);
+                });
+                if (settingsStatus) settingsStatus.textContent = "Toque em salvar para aplicar.";
+            });
+        });
+        if (settingsSave) settingsSave.addEventListener("click", function () {
+            const settings = pendingSettings || (window.APSANSettings ? window.APSANSettings.get() : {});
+            if (window.APSANSettings) window.APSANSettings.save(settings);
+            closeProfessorSettings();
+            if (settings.language === "en") setTimeout(function () { window.location.reload(); }, 250);
+        });
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Escape") {
+                closeProfessorSettings();
+                closeProfessorNotifications();
+            }
+        });
+    })();
+    </script>
 
     <script src="main.js?v=20260927-currency-final"></script>
     <script src="finance.js?v=finance-20260926"></script>
