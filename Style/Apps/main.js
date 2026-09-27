@@ -892,6 +892,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 "profilePassword"
             );
 
+        const profileBio = document.getElementById("profileBio");
+        const profileProvince = document.getElementById("profileProvince");
+        const profileCountry = document.getElementById("profileCountry");
+
 
         const profilePhotoPreview =
             document.getElementById(
@@ -920,8 +924,13 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             if (profileBio) {
-                profileBio.value =
-                    account.bio || "";
+                profileBio.value = account.bio || "";
+            }
+            if (profileProvince) {
+                profileProvince.value = account.province || "";
+            }
+            if (profileCountry) {
+                profileCountry.value = account.country || "";
             }
 
 
@@ -1159,6 +1168,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 const profilePassword =
                     passwordInput ? passwordInput.value.trim() : "";
+                const profileBioValue = document.getElementById("profileBio") ? document.getElementById("profileBio").value.trim() : "";
+                const profileProvinceValue = document.getElementById("profileProvince") ? document.getElementById("profileProvince").value.trim() : "";
+                const profileCountryValue = document.getElementById("profileCountry") ? document.getElementById("profileCountry").value.trim() : "";
 
                 if (!profileName) {
                     if (profileMessage) {
@@ -1182,6 +1194,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 const updatedAccount = Object.assign({}, account);
                 updatedAccount.name = profileName;
+                updatedAccount.bio = profileBioValue;
+                updatedAccount.province = profileProvinceValue;
+                updatedAccount.country = profileCountryValue;
 
                 /*
                  * Sempre grava a foto final no campo principal "photo".
@@ -1385,6 +1400,9 @@ document.addEventListener("DOMContentLoaded", function () {
         const profile = getPublicProfile();
 
         const values = {
+            publicBio: profile.bio || (account && account.bio) || "",
+            publicProvince: profile.province || (account && account.province) || "",
+            publicCountry: profile.country || (account && account.country) || "",
             publicCourse: profile.course || "",
             publicDescription: profile.description || "",
             publicModality: profile.modality || "Online",
@@ -1492,6 +1510,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 teacherPhoto: account && account.photo
                     ? account.photo
                     : "",
+                bio: document.getElementById("publicBio").value.trim(),
+                province: document.getElementById("publicProvince").value.trim(),
+                country: document.getElementById("publicCountry").value.trim(),
                 course: document.getElementById("publicCourse").value.trim(),
                 description: document.getElementById("publicDescription").value.trim(),
                 modality: document.getElementById("publicModality").value,
