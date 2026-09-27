@@ -1993,10 +1993,68 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     const materialForm = document.getElementById("materialForm");
+    const materialFile = document.getElementById("materialFile");
+    const materialFileName = document.getElementById("materialFileName");
+    const materialCourse = document.getElementById("materialCourse");
+    const materialLesson = document.getElementById("materialLesson");
+    let pendingMaterialFile = null;
+
+    function populateMaterialSelectors() {
+        const publicProfile = typeof getPublicProfile === "function" ? getPublicProfile() : null;
+        const courseName = publicProfile && publicProfile.course ? publicProfile.course : "Curso do professor";
+
+        if (materialCourse) {
+            materialCourse.innerHTML = '<option value="' + escapeModuleAttribute(courseName) + '">' + escapeModuleText(courseName) + '</option>';
+            materialCourse.value = courseName;
+        }
+
+        if (materialLesson) {
+            const lessonsForProfessor = getStoredList(lessonsKey);
+            materialLesson.innerHTML = '<option value="">Selecionar aula / módulo</option>' +
+                lessonsForProfessor.map(function (lesson) {
+                    const label = (lesson.title || "Aula") + (lesson.date ? " · " + formatLessonDate(lesson.date) : "");
+                    return '<option value="' + escapeModuleAttribute(lesson.id || "") + '">' + escapeModuleText(label) + '</option>';
+                }).join("");
+        }
+    }
+
+    document.addEventListener("click", function (event) {
+        const openMaterial = event.target.closest('[data-open-panel="material"]');
+        if (openMaterial) {
+            populateMaterialSelectors();
+        }
+    });
+
+    if (materialFile) {
+        materialFile.addEventListener("change", function () {
+            const file = materialFile.files && materialFile.files[0];
+            pendingMaterialFile = null;
+            if (!file) {
+                if (materialFileName) materialFileName.textContent = "Nenhum arquivo selecionado";
+                return;
+            }
+
+            if (file.size > 2500000) {
+                if (materialFileName) materialFileName.textContent = "Arquivo muito grande (máx. 2,5 MB)";
+                materialFile.value = "";
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                pendingMaterialFile = {
+                    name: file.name,
+                    type: file.type || "application/octet-stream",
+                    data: event.target.result
+                };
+                if (materialFileName) materialFileName.textContent = file.name;
+            };
+            reader.readAsDataURL(file);
+        });
+    }
 
     if (materialForm) {
         materialForm.addEventListener("submit", function (event) {
-
             event.preventDefault();
 
             const title = document.getElementById("materialTitle").value.trim();
@@ -2005,16 +2063,20 @@ document.addEventListener("DOMContentLoaded", function () {
             const description = document.getElementById("materialDescription")
                 ? document.getElementById("materialDescription").value.trim()
                 : "";
-            const publicProfile = typeof getPublicProfile === "function"
-                ? getPublicProfile()
-                : null;
-            const course = publicProfile && publicProfile.course
-                ? publicProfile.course
+            const course = materialCourse && materialCourse.value
+                ? materialCourse.value
                 : "Curso do professor";
+            const lessonId = materialLesson ? materialLesson.value : "";
             const message = document.getElementById("materialMessage");
 
             if (!title) {
-                message.textContent = "Digite o nome do material.";
+                message.textContent = "Digite o título do material.";
+                message.style.color = "#d93025";
+                return;
+            }
+
+            if (!link && !pendingMaterialFile) {
+                message.textContent = "Selecione um arquivo ou cole um link.";
                 message.style.color = "#d93025";
                 return;
             }
@@ -2026,8 +2088,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 title: title,
                 type: type,
                 link: link,
+                fileName: pendingMaterialFile ? pendingMaterialFile.name : "",
+                fileData: pendingMaterialFile ? pendingMaterialFile.data : "",
                 description: description,
                 course: course,
+                lessonId: lessonId,
                 teacherPhone: professorPhone,
                 published: true,
                 createdAt: new Date().toISOString()
@@ -2036,10 +2101,13 @@ document.addEventListener("DOMContentLoaded", function () {
             saveStoredList(materialsKey, materials);
             renderProfessorModules();
 
-            message.textContent = "Material guardado com sucesso.";
+            message.textContent = "Material guardado e disponibilizado.";
             message.style.color = "#16803c";
 
             materialForm.reset();
+            pendingMaterialFile = null;
+            if (materialFileName) materialFileName.textContent = "Nenhum arquivo selecionado";
+            populateMaterialSelectors();
 
             setTimeout(function () {
                 document.getElementById("materialPanel").classList.remove("professor-panel-open");
