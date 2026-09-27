@@ -784,6 +784,15 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     /*
+     * Números de conta/referência também podem ser escritos por extenso.
+     * Bloqueia sequências de 6 ou mais algarismos por palavras, sem
+     * interferir em frases normais com poucas palavras numéricas.
+     */
+    if (/(?:^|\|)\d{6,}(?:\||$)/.test(spokenDigits)) {
+      return true;
+    }
+
+    /*
      * Números longos escritos diretamente ou formatados como blocos:
      * protege contra tentativas simples de contornar o bloqueio de contas
      * e referências numéricas.
