@@ -14,7 +14,7 @@
 
     <link
         rel="stylesheet"
-        href="../style.css?v=20260927-materials-final">
+        href="../style.css?v=20260927-materials-cover-final">
 
 </head>
 
@@ -676,9 +676,7 @@
                     </div>
                     <div class="form-group">
                         <label for="materialCourse">Curso / disciplina</label>
-                        <select id="materialCourse">
-                            <option value="">Selecionar curso</option>
-                        </select>
+                        <input id="materialCourse" type="text" placeholder="Ex.: Inglês Britânico" required>
                     </div>
                 </div>
                 <div class="form-group">
@@ -695,6 +693,15 @@
                     </div>
                     <label for="materialFile" class="material-file-button">Selecionar arquivo</label>
                     <input id="materialFile" type="file" hidden>
+                </div>
+                <div class="material-cover-box">
+                    <div class="material-cover-preview" id="materialCoverPreview"><span>🖼️</span></div>
+                    <div class="material-cover-info">
+                        <strong>Foto de capa</strong>
+                        <small id="materialCoverName">Nenhuma capa selecionada</small>
+                    </div>
+                    <label for="materialCover" class="material-file-button">Adicionar capa</label>
+                    <input id="materialCover" type="file" accept="image/*" hidden>
                 </div>
                 <div class="material-or"><span>ou cole um link</span></div>
                 <div class="form-group">
@@ -885,7 +892,7 @@
         </div>
     </div>
 
-    <script src="main.js?v=20260927-materials-final"></script>
+    <script src="main.js?v=20260927-materials-cover-final"></script>
     <script src="finance.js?v=finance-20260926"></script>
 
 </body>
