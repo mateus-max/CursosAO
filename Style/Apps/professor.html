@@ -318,16 +318,46 @@
         <!-- ALUNOS -->
         <section class="professor-list-card professor-wide-card professor-view-section" id="alunos" data-view-section="alunos" data-view-target="alunos">
 
-            <div class="section-heading">
+            <div class="section-heading professor-students-heading">
                 <div>
                     <span class="section-label">ACOMPANHAMENTO</span>
                     <h2>Meus Alunos</h2>
+                    <p class="professor-section-description">Acompanhe os seus alunos, cursos e próximas atividades.</p>
                 </div>
-                <span class="panel-badge" id="studentBadge">0</span>
+                <span class="panel-badge professor-student-total" id="studentBadge">0</span>
+            </div>
+
+            <div class="professor-student-overview">
+                <div><span>👥</span><strong id="studentOverviewTotal">0</strong><small>Alunos</small></div>
+                <div><span>🟢</span><strong id="studentOverviewActive">0</strong><small>Ativos</small></div>
+                <div><span>📅</span><strong id="studentOverviewUpcoming">0</strong><small>Aulas próximas</small></div>
+            </div>
+
+            <div class="professor-student-tools">
+                <label class="professor-student-search">
+                    <span>⌕</span>
+                    <input id="studentSearchInput" type="search" placeholder="Pesquisar aluno..." autocomplete="off">
+                </label>
+                <div class="professor-student-filters" role="group" aria-label="Filtrar alunos">
+                    <button type="button" class="student-filter active" data-student-filter="all">Todos</button>
+                    <button type="button" class="student-filter" data-student-filter="active">Ativos</button>
+                    <button type="button" class="student-filter" data-student-filter="inactive">Inativos</button>
+                </div>
             </div>
 
             <div id="studentsList">
                 <p class="empty-state">Os alunos oficiais aparecerão aqui após a matrícula e confirmação pela direção.</p>
+            </div>
+
+            <div class="professor-student-upcoming" id="studentUpcomingPanel" hidden>
+                <div class="professor-upcoming-heading">
+                    <div>
+                        <span class="section-label">PRÓXIMAS AULAS</span>
+                        <h3>Agenda dos alunos</h3>
+                    </div>
+                    <a href="#agenda">Ver agenda →</a>
+                </div>
+                <div id="studentUpcomingList"></div>
             </div>
 
         </section>
