@@ -4788,3 +4788,191 @@ main.single-panel-mode{padding-bottom:110px}
         font-size:13px;
     }
 }
+
+/* =========================================================
+   MINHAS MATRÍCULAS — EXPERIÊNCIA DO ALUNO
+   ========================================================= */
+.student-enrollment-header{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:15px;
+    margin-bottom:16px;
+}
+.student-enrollment-header h2{
+    margin:5px 0 3px;
+    color:#172033;
+    font-size:24px;
+}
+.student-enrollment-header p{
+    margin:0;
+    color:#8490a0;
+    font-size:11px;
+}
+.student-enrollment-count{
+    min-width:38px;
+    height:38px;
+    display:grid;
+    place-items:center;
+    border-radius:50%;
+    background:#eaf3ff;
+    color:#1769e0;
+    font-size:14px;
+    font-weight:800;
+}
+.student-enrollment-card{
+    margin:0;
+    padding:15px;
+    background:#fff;
+    border:1px solid #dfe9f4;
+    border-radius:17px;
+    box-shadow:0 5px 18px rgba(20,55,100,.05);
+}
+.student-enrollment-main{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+.student-enrollment-teacher-photo{
+    width:52px;
+    height:52px;
+    flex:0 0 52px;
+    overflow:hidden;
+    display:grid;
+    place-items:center;
+    border-radius:50%;
+    background:#eaf3ff;
+    color:#1769e0;
+    font-size:18px;
+    font-weight:800;
+}
+.student-enrollment-teacher-photo img{
+    width:100%;
+    height:100%;
+    display:block;
+    object-fit:cover;
+}
+.student-enrollment-label{
+    color:#1769e0;
+    font-size:8px;
+    font-weight:800;
+    letter-spacing:.08em;
+}
+.student-enrollment-info h3{
+    margin:4px 0 3px;
+    color:#172033;
+    font-size:17px;
+}
+.student-enrollment-info p{
+    margin:0;
+    color:#7c8999;
+    font-size:11px;
+}
+.student-enrollment-meta{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-top:13px;
+    padding-top:12px;
+    border-top:1px solid #edf1f6;
+}
+.student-enrollment-meta small,
+.student-enrollment-meta strong{
+    display:block;
+}
+.student-enrollment-meta small{
+    color:#8b97a6;
+    font-size:9px;
+}
+.student-enrollment-meta strong{
+    margin-top:3px;
+    color:#25344a;
+    font-size:13px;
+}
+.student-enrollment-card .enrollment-status{
+    width:auto;
+    min-height:30px;
+    padding:7px 10px;
+    display:flex;
+    align-items:center;
+    border-radius:9px;
+    font-size:9px;
+    font-weight:800;
+}
+.student-enrollment-card .enrollment-status.official{
+    background:#eaf8ef;
+    color:#27823d;
+}
+.student-enrollment-card .enrollment-status.pending{
+    background:#fff5df;
+    color:#a26b08;
+}
+.student-enrollment-actions{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:7px;
+    margin-top:12px;
+}
+.student-enrollment-actions a{
+    min-height:36px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:9px;
+    background:#f4f8fd;
+    color:#1769e0;
+    text-decoration:none;
+    font-size:9px;
+    font-weight:800;
+}
+.student-quick-access{
+    margin-top:18px;
+    padding:14px;
+    background:linear-gradient(135deg,#f7faff,#eef6ff);
+    border:1px solid #dce8f6;
+    border-radius:16px;
+}
+.student-quick-access h3{
+    margin:4px 0 10px;
+    color:#172033;
+    font-size:15px;
+}
+.student-quick-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+}
+.student-quick-grid a{
+    min-height:72px;
+    padding:10px;
+    box-sizing:border-box;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    border-radius:12px;
+    background:#fff;
+    color:#1769e0;
+    text-decoration:none;
+}
+.student-quick-grid span{font-size:16px}
+.student-quick-grid strong{
+    margin-top:4px;
+    color:#26364b;
+    font-size:10px;
+}
+.student-quick-grid small{
+    margin-top:2px;
+    color:#8995a4;
+    font-size:8px;
+}
+@media(max-width:560px){
+    .student-enrollment-header h2{font-size:22px}
+    .student-enrollment-card{padding:13px}
+    .student-enrollment-actions{
+        grid-template-columns:1fr;
+    }
+    .student-enrollment-actions a{min-height:34px}
+    .student-quick-grid{gap:6px}
+    .student-quick-grid a{padding:8px}
+}
