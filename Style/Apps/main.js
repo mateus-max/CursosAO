@@ -2030,7 +2030,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 id:"hn_live_" + Date.now() + "_" + Math.random().toString(36).slice(2,8),
                 recipientKey:recipientKey, recipientType:"aluno",
                 title:"🔴 Aula ao vivo iniciada",
-                text:live.teacherName + " iniciou a aula "" + live.title + "". Toque aqui para entrar na aula.",
+                text:live.teacherName + " iniciou a aula \"" + live.title + "\". Toque aqui para entrar na aula.",
                 kind:"live-class", liveId:liveId,
                 link:"quadro.html?live=" + encodeURIComponent(liveId),
                 createdAt:new Date().toISOString(), readAt:null
