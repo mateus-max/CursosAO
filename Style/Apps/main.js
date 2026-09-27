@@ -585,6 +585,26 @@ document.addEventListener("DOMContentLoaded", function () {
        PROTEÇÃO POR PERFIL
        ===================================================== */
 
+    function accountIsOfficial(current) {
+        if (!current) return false;
+        const status = String(
+            current.approvalStatus ||
+            current.accountStatus ||
+            (current.official === true ? "approved" : "approved")
+        ).toLowerCase();
+        return !["pending", "pending_approval", "awaiting", "rejected", "blocked", "suspended"].includes(status);
+    }
+
+    if (
+        account &&
+        (account.type === "professor" || account.type === "aluno") &&
+        !accountIsOfficial(account)
+    ) {
+        localStorage.removeItem("apsan_logged_in");
+        window.location.href = "../../index.html";
+        return;
+    }
+
     if (
         document.body.classList.contains("professor-page") &&
         (!account || account.type !== "professor")
