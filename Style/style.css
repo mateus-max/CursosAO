@@ -5692,3 +5692,173 @@ body[class*="apsan-wallpaper-"] main{
         margin-top:7px !important;
     }
 }
+
+
+/* =========================================================
+   APSAN WALLPAPER — EXPERIÊNCIA FINAL
+   O fundo ocupa o ecrã inteiro e os elementos principais
+   ficam sobre ele, como num telefone/computador.
+   ========================================================= */
+html,body{
+    min-height:100%;
+}
+body.student-page,
+body.professor-page{
+    min-height:100vh !important;
+    background-repeat:no-repeat !important;
+    background-position:center center !important;
+    background-size:cover !important;
+    background-attachment:fixed !important;
+}
+
+/* Cabeçalho translúcido sobre o próprio wallpaper. */
+body.student-page .app-header,
+body.professor-page .app-header{
+    background:rgba(255,255,255,.78) !important;
+    border-bottom:1px solid rgba(255,255,255,.42) !important;
+    box-shadow:0 4px 20px rgba(5,30,65,.10) !important;
+    backdrop-filter:blur(14px) saturate(125%) !important;
+    -webkit-backdrop-filter:blur(14px) saturate(125%) !important;
+}
+
+/* Hero do painel: deixa de parecer um cartão pesado e passa a
+   fazer parte da tela, mantendo texto e funcionalidades. */
+body.student-page .student-hero,
+body.professor-page .professor-hero{
+    background:rgba(7,48,96,.52) !important;
+    border:1px solid rgba(255,255,255,.24) !important;
+    box-shadow:0 14px 35px rgba(5,30,65,.16) !important;
+    backdrop-filter:blur(10px) saturate(125%) !important;
+    -webkit-backdrop-filter:blur(10px) saturate(125%) !important;
+}
+
+/* Resumos rápidos ficam como elementos de interface sobre o fundo. */
+body.student-page .student-summary-cards article,
+body.professor-page .professor-stat{
+    background:rgba(255,255,255,.76) !important;
+    border:1px solid rgba(255,255,255,.55) !important;
+    box-shadow:0 10px 26px rgba(8,35,70,.12) !important;
+    backdrop-filter:blur(12px) saturate(120%) !important;
+    -webkit-backdrop-filter:blur(12px) saturate(120%) !important;
+}
+
+/* Navegação inferior também pertence à tela, não a um cartão separado. */
+body.student-page .student-bottom-nav,
+body.professor-page .professor-bottom-nav{
+    background:rgba(255,255,255,.86) !important;
+    border-top:1px solid rgba(255,255,255,.62) !important;
+    box-shadow:0 -8px 26px rgba(8,35,70,.12) !important;
+    backdrop-filter:blur(16px) saturate(125%) !important;
+    -webkit-backdrop-filter:blur(16px) saturate(125%) !important;
+}
+
+/* =========================================================
+   CONFIGURAÇÕES — SELETOR COM APARÊNCIA DE ECRÃ
+   Quatro prévias altas deixam imediatamente claro que cada
+   opção é um wallpaper de ecrã inteiro.
+   ========================================================= */
+.apsan-settings-overlay{
+    background:rgba(2,12,30,.72) !important;
+    backdrop-filter:blur(7px) !important;
+    -webkit-backdrop-filter:blur(7px) !important;
+    padding:0 !important;
+}
+.apsan-settings-modal{
+    width:min(760px,100%) !important;
+    max-width:none !important;
+    max-height:94vh !important;
+    overflow-y:auto !important;
+    padding:24px !important;
+    border-radius:24px !important;
+    background:linear-gradient(180deg,#071b36 0%,#06152d 100%) !important;
+    color:#fff !important;
+    box-shadow:0 24px 80px rgba(0,0,0,.40) !important;
+}
+.apsan-settings-modal .apsan-settings-header h2,
+.apsan-settings-modal .apsan-settings-header p,
+.apsan-settings-modal .apsan-settings-label{
+    color:#fff !important;
+}
+.apsan-settings-modal .apsan-settings-header p{
+    color:rgba(255,255,255,.66) !important;
+}
+.apsan-settings-modal .close-profile{
+    background:rgba(255,255,255,.12) !important;
+    color:#fff !important;
+}
+.apsan-settings-modal .apsan-settings-group{
+    background:rgba(255,255,255,.055) !important;
+    border:1px solid rgba(255,255,255,.11) !important;
+}
+.apsan-settings-modal .apsan-settings-group>label,
+.apsan-settings-modal .apsan-settings-group small{
+    color:rgba(255,255,255,.76) !important;
+}
+
+/* A seleção ocupa quatro colunas: mais alta, mais estreita,
+   visualmente semelhante a mini-ecrãs de telefone. */
+.apsan-settings-modal .apsan-wallpaper-options{
+    grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+    gap:18px 12px !important;
+}
+.apsan-settings-modal .apsan-wallpaper-options button .wallpaper-preview{
+    aspect-ratio:9 / 16 !important;
+    border-radius:14px !important;
+    box-shadow:0 7px 20px rgba(0,0,0,.24) !important;
+}
+.apsan-settings-modal .apsan-wallpaper-options button strong{
+    color:rgba(255,255,255,.88) !important;
+    font-size:10px !important;
+    margin-top:8px !important;
+}
+.apsan-settings-modal .apsan-wallpaper-options button.active .wallpaper-preview{
+    outline:3px solid #2e8cff !important;
+    outline-offset:3px !important;
+    box-shadow:0 8px 24px rgba(23,105,224,.34) !important;
+}
+.apsan-settings-modal .apsan-wallpaper-options button.active strong{
+    color:#61a8ff !important;
+}
+.apsan-settings-modal .apsan-settings-save{
+    min-height:52px !important;
+    border-radius:13px !important;
+    font-size:14px !important;
+}
+
+/* Em telemóveis, a configuração comporta-se como uma página
+   de ecrã inteiro, não como uma pequena janela flutuante. */
+@media(max-width:560px){
+    body.student-page,
+    body.professor-page{
+        background-attachment:scroll !important;
+    }
+    .apsan-settings-overlay{
+        align-items:stretch !important;
+        padding:0 !important;
+        background:#06152d !important;
+    }
+    .apsan-settings-modal{
+        width:100% !important;
+        height:100dvh !important;
+        max-height:none !important;
+        border-radius:0 !important;
+        padding:18px 14px 24px !important;
+        box-shadow:none !important;
+    }
+    .apsan-settings-modal .apsan-wallpaper-options{
+        grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+        gap:18px 9px !important;
+    }
+    .apsan-settings-modal .apsan-wallpaper-options button .wallpaper-preview{
+        border-radius:11px !important;
+    }
+    .apsan-settings-modal .apsan-wallpaper-options button strong{
+        font-size:8px !important;
+        line-height:1.15 !important;
+        margin-top:6px !important;
+    }
+    .apsan-settings-modal .apsan-settings-group{
+        padding:12px !important;
+        border-radius:15px !important;
+    }
+}
