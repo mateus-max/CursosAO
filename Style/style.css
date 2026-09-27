@@ -3673,13 +3673,15 @@ main.single-panel-mode{padding-bottom:110px}
     aspect-ratio:479 / 348;
     margin:10px 0 24px !important;
     padding:0 !important;
-    overflow:visible !important;
+    overflow:hidden !important; 
     border:0 !important;
     border-radius:0 !important;
     box-shadow:none !important;
     background-color:transparent !important;
     background-image:url("assets/apsan-cena-referencia.webp") !important;
-    background-size:100% 100% !important;
+    /* A imagem tem cantos de cartão incorporados; este recorte esconde-os
+       e deixa PC/livros/globo integrado como assinatura visual. */
+    background-size:118% 118% !important;
     background-position:center !important;
     background-repeat:no-repeat !important;
 }
@@ -3692,5 +3694,6 @@ main.single-panel-mode{padding-bottom:110px}
     .professor-tech-scene{
         min-height:0 !important;
         aspect-ratio:479 / 348;
+        background-size:118% 118% !important;
     }
 }
