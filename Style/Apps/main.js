@@ -1277,6 +1277,9 @@ document.addEventListener("DOMContentLoaded", function () {
                             account.photo ||
                             getStoredProfessorProfileData().photo ||
                             "";
+                        currentPublicProfile.bio = account.bio || "";
+                        currentPublicProfile.province = account.province || "";
+                        currentPublicProfile.country = account.country || "";
                         currentPublicProfile.updatedAt = new Date().toISOString();
                         savePublicProfile(currentPublicProfile);
                         renderPublicProfileStatus(currentPublicProfile);
@@ -1710,6 +1713,11 @@ document.addEventListener("DOMContentLoaded", function () {
                         existing.profilePhoto = existing.profilePhoto || existing.photo || accountPhoto;
                         existing.name = existing.name || item.name || item.studentName;
                         existing.course = existing.course || item.course || item.courseName;
+                        if (account) {
+                            existing.bio = account.bio || existing.bio || "";
+                            existing.province = account.province || existing.province || "";
+                            existing.country = account.country || existing.country || "";
+                        }
                         return result;
                     }
 
@@ -1717,6 +1725,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     if (accountPhoto) {
                         mergedItem.photo = mergedItem.photo || mergedItem.profilePhoto || accountPhoto;
                         mergedItem.profilePhoto = mergedItem.profilePhoto || mergedItem.photo || accountPhoto;
+                    }
+                    if (account) {
+                        mergedItem.bio = account.bio || mergedItem.bio || "";
+                        mergedItem.province = account.province || mergedItem.province || "";
+                        mergedItem.country = account.country || mergedItem.country || "";
                     }
                     seen[key] = mergedItem;
                     result.push(mergedItem);
