@@ -367,24 +367,30 @@ document.addEventListener("DOMContentLoaded", function () {
                 '<div class="admin-virtual-card-bottom"><strong>' + esc(teacher.name || "Professor") + '</strong><span>' + money(Math.max(0, totals.balance)) + '</span></div>' +
             '</div>';
 
+            const teacherPhoto = teacher.photo || teacher.avatar || "";
+            const teacherAvatar = teacherPhoto
+                ? '<img class="admin-finance-teacher-avatar" src="' + esc(teacherPhoto) + '" alt="Foto de ' + esc(teacher.name || "Professor") + '">'
+                : '<div class="admin-finance-teacher-avatar admin-finance-teacher-avatar-letter">' + esc((teacher.name || "P").charAt(0).toUpperCase()) + '</div>';
+
             return '<div class="admin-finance-teacher-card">' +
                 '<div class="admin-finance-card-header">' + virtualCard + '</div>' +
-                '<div class="admin-finance-teacher-head">';
-                    '<div class="admin-row-avatar">' + esc((teacher.name || "P").charAt(0).toUpperCase()) + '</div>' +
-                    '<div><strong>' + esc(teacher.name || "Professor") + '</strong><small>' + esc(teacher.phone || "") + '</small></div>' +
-                    '<strong class="admin-finance-balance">' + money(totals.balance) + '</strong>' +
+                '<div class="admin-finance-teacher-head">' +
+                    teacherAvatar +
+                    '<div class="admin-finance-teacher-info"><strong>' + esc(teacher.name || "Professor") + '</strong><small>Professor · Carteira financeira</small></div>' +
+                    '<strong class="admin-finance-balance">' + money(Math.max(0, totals.balance)) + '</strong>' +
                 '</div>' +
                 '<div class="admin-finance-mini-grid">' +
-                    '<span><small>Entradas</small><strong>' + money(totals.income) + '</strong></span>' +
+                    '<span><small>Entradas confirmadas</small><strong>' + money(totals.income) + '</strong></span>' +
                     '<span><small>Saídas</small><strong>' + money(totals.expense) + '</strong></span>' +
                     '<span><small>Saques pendentes</small><strong>' + money(pending.reduce(function (s, x) { return s + moneyPlain(x.amount); }, 0)) + '</strong></span>' +
                 '</div>' +
                 '<div class="admin-finance-recent">' +
+                    '<div class="admin-finance-recent-title"><strong>Movimentos recentes</strong><span>' + recent.length + '</span></div>' +
                     (recent.length ? recent.map(function (entry) {
-                        return '<div><span>' + esc(entry.description) + '</span><strong>' + (entry.type === "entrada" ? "+" : "-") + money(entry.amount) + '</strong></div>';
+                        return '<div><span>' + esc(entry.description || "Movimentação") + '<small>' + esc(entry.course || "Financeiro") + '</small></span><strong>' + (entry.type === "entrada" ? "+" : "-") + money(entry.amount) + '</strong></div>';
                     }).join("") : '<small>Nenhuma movimentação ainda.</small>') +
                 '</div>' +
-                '</div>';
+            '</div>';
         });
 
         summary.innerHTML =
