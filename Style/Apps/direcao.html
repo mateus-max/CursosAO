@@ -487,7 +487,15 @@ document.addEventListener("DOMContentLoaded", function(){
         }
     }
 
-    showAdminView("admin-dashboard-view");
+    const initialHashView = String(window.location.hash || "").replace(/^#/, "");
+    const initialTarget = initialHashView ? document.getElementById(initialHashView) : null;
+    showAdminView(initialTarget && initialTarget.hasAttribute("data-admin-view") ? initialHashView : "admin-dashboard-view");
+
+    window.addEventListener("hashchange", function(){
+        const hashView = String(window.location.hash || "").replace(/^#/, "");
+        const hashTarget = hashView ? document.getElementById(hashView) : null;
+        showAdminView(hashTarget && hashTarget.hasAttribute("data-admin-view") ? hashView : "admin-dashboard-view");
+    });
 
     document.addEventListener("click",function(event){
         const view=event.target.closest("[data-view-enrollment]");
