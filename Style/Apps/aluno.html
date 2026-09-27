@@ -64,6 +64,8 @@
         </div>
     </section>
 
+    <div id="studentLiveClassNotice" class="student-live-class-notice" hidden></div>
+
     <section class="professor-tech-scene student-tech-scene professor-view-section" data-view-section="home" aria-label="Ambiente de tecnologia e educação">
         <div class="tech-scene-glow"></div>
         <div class="tech-scene-copy">
@@ -1626,6 +1628,100 @@ document.addEventListener("DOMContentLoaded", function () {
             '</article>';
         }).join("");
     }
+
+    function normalizeLivePhone(value) {
+        const digits = String(value || "").replace(/\D/g, "");
+        return digits.length > 9 ? digits.slice(-9) : digits;
+    }
+
+    function readLiveNotifications() {
+        try {
+            const items = JSON.parse(localStorage.getItem("apsan_live_notifications") || "[]");
+            return Array.isArray(items) ? items : [];
+        } catch (error) {
+            return [];
+        }
+    }
+
+    function getActiveLiveForStudent(item) {
+        if (!item || !item.liveId) return false;
+        try {
+            const classes = JSON.parse(localStorage.getItem("apsan_live_classes") || "[]");
+            return Array.isArray(classes) && classes.some(function (liveClass) {
+                return liveClass && liveClass.id === item.liveId && liveClass.active === true &&
+                    Array.isArray(liveClass.students) &&
+                    liveClass.students.map(normalizeLivePhone).includes(normalizeLivePhone(currentAccount.phone));
+            });
+        } catch (error) {
+            return false;
+        }
+    }
+
+    function updateStudentLiveClassNotice() {
+        const notice = document.getElementById("studentLiveClassNotice");
+        if (!notice || !currentAccount) return;
+
+        const phoneKey = normalizeLivePhone(currentAccount.phone);
+        const notifications = readLiveNotifications();
+        const current = notifications
+            .filter(function (item) {
+                return item &&
+                    !item.readAt &&
+                    normalizeLivePhone(item.recipientPhone) === phoneKey &&
+                    getActiveLiveForStudent(item);
+            })
+            .sort(function (a, b) {
+                return String(b.createdAt || "").localeCompare(String(a.createdAt || ""));
+            })[0];
+
+        if (!current) {
+            notice.hidden = true;
+            notice.innerHTML = "";
+            return;
+        }
+
+        notice.hidden = false;
+        notice.innerHTML =
+            '<div class="student-live-class-copy">' +
+                '<span>🔴 AULA AO VIVO</span>' +
+                '<strong>' + esc(current.title || "Aula ao vivo") + '</strong>' +
+                '<small>Prof. ' + esc(current.teacherName || "Professor") + ' · ' + esc(current.course || "Curso") + '</small>' +
+                '<p>O seu professor iniciou uma aula. Entre agora para acompanhar.</p>' +
+            '</div>' +
+            '<button type="button" id="studentJoinLiveClass">Entrar na aula →</button>' +
+            '<button type="button" class="student-live-dismiss" id="studentDismissLiveClass" aria-label="Fechar">×</button>';
+
+        document.getElementById("studentJoinLiveClass").onclick = function () {
+            const updated = readLiveNotifications().map(function (item) {
+                if (item && item.liveId === current.liveId && normalizeLivePhone(item.recipientPhone) === phoneKey) {
+                    item.readAt = new Date().toISOString();
+                }
+                return item;
+            });
+            localStorage.setItem("apsan_live_notifications", JSON.stringify(updated));
+            window.location.href = "quadro.html?live=" + encodeURIComponent(current.liveId);
+        };
+
+        document.getElementById("studentDismissLiveClass").onclick = function () {
+            const updated = readLiveNotifications().map(function (item) {
+                if (item && item.liveId === current.liveId && normalizeLivePhone(item.recipientPhone) === phoneKey) {
+                    item.readAt = new Date().toISOString();
+                }
+                return item;
+            });
+            localStorage.setItem("apsan_live_notifications", JSON.stringify(updated));
+            updateStudentLiveClassNotice();
+        };
+    }
+
+    window.addEventListener("storage", function (event) {
+        if (event.key === "apsan_live_notifications" || event.key === "apsan_live_classes") {
+            updateStudentLiveClassNotice();
+        }
+    });
+
+    updateStudentLiveClassNotice();
+    setInterval(updateStudentLiveClassNotice, 2000);
 
     searchInput.addEventListener("input", renderTeachers);
 
