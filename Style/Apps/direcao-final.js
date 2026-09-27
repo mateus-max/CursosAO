@@ -379,6 +379,12 @@ document.addEventListener("DOMContentLoaded", function () {
             const rows = courses.map(p => `<div class="admin-row">${(() => { const t = findAccountByPhone(p.teacherPhone, "professor"); return t ? userAvatarMarkup(t, p.teacherName || "Professor") : '<div class="admin-row-icon">•</div>'; })()}<div><strong>Perfil publicado: ${esc(p.teacherName || "Professor")}</strong></div></div>`);
             activity.innerHTML = rows.length ? rows.slice(-12).reverse().join("") : '<p class="admin-empty">Ainda não existem atividades.</p>';
         }
+
+        /* Reaplica a preferência da Direção depois de cada render para que
+           textos dinâmicos também respeitem o idioma escolhido. */
+        if (window.APSANSettings) {
+            window.APSANSettings.apply(window.APSANSettings.get());
+        }
     }
 
     function getCourseKey(profile) {
