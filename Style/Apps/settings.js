@@ -86,7 +86,8 @@
         const wallpapers = [
             "default","soft-blue","deep-blue","minimal",
             "blue-wave","global-network","academic-night","study-space",
-            "serene-nature","digital-aurora","clean-minimal","apsan-premium","library","creativity","global-education","education-future"
+            "serene-nature","digital-aurora","clean-minimal","apsan-premium","library","creativity","global-education","education-future",
+        "virtual-class","study-together","digital-classroom","reading-class","computer-learning","learning-library","education-tech","online-course","virtual-study","live-class"
         ];
         document.body.classList.remove.apply(document.body.classList, wallpapers.map(function (item) {
             return "apsan-wallpaper-" + item;
