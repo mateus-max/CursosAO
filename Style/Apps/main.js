@@ -254,12 +254,22 @@ document.addEventListener("DOMContentLoaded", function () {
                     return;
                 }
 
+                let savedDirectionProfile = {};
+                try {
+                    savedDirectionProfile = JSON.parse(localStorage.getItem("apsan_direction_profile") || "{}") || {};
+                } catch (error) {
+                    savedDirectionProfile = {};
+                }
+
                 const directionAccount = {
                     id: "direction_support",
-                    name: "Direção APSAN Academy",
+                    name: savedDirectionProfile.name || "Direção APSAN Academy",
                     email: "suporte@apsanlda.com",
                     phone: "suporte@apsanlda.com",
-                    type: "direcao"
+                    type: "direcao",
+                    photo: savedDirectionProfile.logo || "",
+                    nif: savedDirectionProfile.nif || "",
+                    location: savedDirectionProfile.location || ""
                 };
 
                 localStorage.setItem(
