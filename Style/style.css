@@ -3755,3 +3755,145 @@ main.single-panel-mode{padding-bottom:110px}
         margin:22px 0 20px !important;
     }
 }
+
+/* =========================================================
+   ACABAMENTO HD + GLOBO ANIMADO — PROFESSOR E ALUNO
+   Preserva toda a estrutura e funcionalidades existentes.
+   ========================================================= */
+.professor-tech-scene{
+    position:relative !important;
+    isolation:isolate !important;
+    filter:saturate(1.10) contrast(1.08) brightness(1.04) !important;
+}
+
+/* Limpa a área superior da imagem e devolve o texto como HTML
+   para ficar nítido em qualquer resolução/tamanho de ecrã. */
+.professor-tech-scene::before{
+    content:"" !important;
+    position:absolute !important;
+    z-index:2 !important;
+    inset:0 0 67% 0 !important;
+    display:block !important;
+    background:linear-gradient(180deg,
+        rgba(250,253,255,.98) 0%,
+        rgba(246,251,255,.94) 52%,
+        rgba(246,251,255,.58) 100%) !important;
+    pointer-events:none !important;
+}
+.professor-tech-scene .tech-scene-copy{
+    display:block !important;
+    position:absolute !important;
+    z-index:5 !important;
+    top:4.5% !important;
+    left:5.5% !important;
+    width:58% !important;
+    padding:0 !important;
+    margin:0 !important;
+    text-shadow:0 1px 0 rgba(255,255,255,.72) !important;
+}
+.professor-tech-scene .tech-scene-copy span{
+    display:block !important;
+    margin:0 0 8px !important;
+    color:#173b61 !important;
+    font-size:clamp(9px,1.45vw,13px) !important;
+    font-weight:900 !important;
+    letter-spacing:1.6px !important;
+}
+.professor-tech-scene .tech-scene-copy strong{
+    display:block !important;
+    color:#102f50 !important;
+    font-family:Georgia,"Times New Roman",serif !important;
+    font-size:clamp(23px,4.4vw,42px) !important;
+    line-height:1.08 !important;
+    letter-spacing:-.3px !important;
+}
+.professor-tech-scene .tech-scene-copy small{
+    display:block !important;
+    max-width:360px !important;
+    margin-top:10px !important;
+    color:#405b73 !important;
+    font-size:clamp(10px,1.7vw,15px) !important;
+    line-height:1.35 !important;
+    font-weight:600 !important;
+}
+
+/* Reaproveita o globo vetorial já existente no código e coloca-o
+   sobre o globo da fotografia, dando movimento lento e contínuo. */
+.professor-tech-scene .tech-scene-desk{
+    display:block !important;
+    position:absolute !important;
+    z-index:4 !important;
+    inset:0 !important;
+    height:100% !important;
+    background:none !important;
+    border:0 !important;
+    box-shadow:none !important;
+    pointer-events:none !important;
+}
+.professor-tech-scene .tech-laptop,
+.professor-tech-scene .tech-books,
+.professor-tech-scene .globe-stand{
+    display:none !important;
+}
+.professor-tech-scene .tech-globe-wrap{
+    display:block !important;
+    position:absolute !important;
+    right:3.5% !important;
+    top:31% !important;
+    bottom:auto !important;
+    width:26% !important;
+    height:auto !important;
+    aspect-ratio:132 / 146 !important;
+    transform:none !important;
+    filter:drop-shadow(0 9px 8px rgba(25,51,72,.16)) !important;
+}
+.professor-tech-scene .tech-globe{
+    display:block !important;
+    position:absolute !important;
+    left:8% !important;
+    top:0 !important;
+    width:80% !important;
+    height:auto !important;
+    aspect-ratio:1 !important;
+    animation:apsanGlobeSlow 18s linear infinite !important;
+    transform-origin:center center !important;
+    will-change:transform !important;
+}
+@keyframes apsanGlobeSlow{
+    from{transform:rotateY(0deg)}
+    to{transform:rotateY(360deg)}
+}
+
+@media(max-width:560px){
+    .professor-tech-scene::before{
+        inset:0 0 66% 0 !important;
+    }
+    .professor-tech-scene .tech-scene-copy{
+        top:5.2% !important;
+        left:5.5% !important;
+        width:66% !important;
+    }
+    .professor-tech-scene .tech-scene-copy span{
+        font-size:9px !important;
+        letter-spacing:1.25px !important;
+        margin-bottom:7px !important;
+    }
+    .professor-tech-scene .tech-scene-copy strong{
+        font-size:clamp(21px,6.7vw,31px) !important;
+        line-height:1.08 !important;
+    }
+    .professor-tech-scene .tech-scene-copy small{
+        max-width:235px !important;
+        margin-top:8px !important;
+        font-size:11px !important;
+    }
+    .professor-tech-scene .tech-globe-wrap{
+        right:2.5% !important;
+        top:31% !important;
+        width:28% !important;
+    }
+    .professor-tech-scene .tech-globe{
+        width:82% !important;
+        left:7% !important;
+    }
+}
