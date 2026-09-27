@@ -14,7 +14,7 @@
         <button class="menu-button" id="adminMenuButton" type="button" aria-label="Abrir menu">☰</button>
         <strong>APSAN Academy</strong>
     </div>
-    <button class="profile-avatar-button admin-settings" id="adminLogout" type="button" aria-label="Sair">
+    <button class="profile-avatar-button admin-settings" id="adminProfileButton" type="button" aria-label="Abrir configurações">
         <img id="adminTopAvatar" class="profile-avatar" src="" alt="Perfil">
         <span id="adminTopAvatarLetter" class="avatar-letter">D</span>
     </button>
@@ -57,7 +57,7 @@
             </div>
         </section>
 
-        <section class="admin-metrics professor-stats professor-compact-stats" id="admin-users">
+        <section class="admin-metrics professor-stats professor-compact-stats" id="admin-metrics">
             <article class="admin-metric"><span>👥</span><div><strong id="adminUserCount">0</strong><small>Utilizadores</small></div></article>
             <article class="admin-metric"><span>🎓</span><div><strong id="adminTeacherCount">0</strong><small>Professores</small></div></article>
             <article class="admin-metric"><span>👤</span><div><strong id="adminStudentCount">0</strong><small>Alunos</small></div></article>
@@ -68,6 +68,11 @@
             <div class="admin-panel-title"><h2>🔔 Requer atenção</h2><span>Decisões pendentes da Direção</span></div>
             <div id="adminAttentionList" class="admin-attention-grid"></div>
         </section>
+    </section>
+
+    <section class="admin-panel admin-wide" id="admin-users" data-view-section="admin-users" data-admin-view="admin-users">
+        <div class="admin-panel-title"><h2>Utilizadores</h2><span>Contas registadas na plataforma</span></div>
+        <div id="adminUsersList" class="admin-list"></div>
     </section>
 
     <section class="admin-grid">
@@ -247,6 +252,16 @@ document.addEventListener("DOMContentLoaded", function(){
         document.getElementById("adminCourseCount").textContent=courses.length;
         document.getElementById("adminTeacherStatus").textContent=courses.length+" publicados";
         document.getElementById("adminEnrollmentCount").textContent=enrollments.length+" matrículas";
+
+        const usersList=document.getElementById("adminUsersList");
+        if(usersList){
+            usersList.innerHTML=accounts.length ? accounts.map(function(a){
+                const typeLabel=a.type==="professor"?"Professor":a.type==="aluno"?"Aluno":a.type==="direcao"?"Direção":"Utilizador";
+                const icon=a.type==="professor"?"👨‍🏫":a.type==="aluno"?"👤":a.type==="direcao"?"⚙":"👥";
+                const status=a.status==="blocked"||a.status==="suspended"||a.status==="rejected"?"Bloqueada":"Ativa";
+                return '<div class="admin-row"><div class="admin-row-icon">'+icon+'</div><div><strong>'+esc(a.name||typeLabel)+'</strong><small>'+esc(typeLabel)+' · '+esc(a.phone||"Contacto protegido")+'</small></div><span class="admin-status '+(status!=="Ativa"?"rejected":"")+'">'+status+'</span></div>';
+            }).join("") : '<p class="admin-empty">Nenhum utilizador registado.</p>';
+        }
 
         const pendingEnrollments = enrollments.filter(function(e){
             return e && e.status !== "official" && e.status !== "rejected" && e.status !== "cancelled";
@@ -509,7 +524,12 @@ document.addEventListener("DOMContentLoaded", function(){
         localStorage.removeItem("apsan_account");
         window.location.href="../../index.html";
     }
-    document.getElementById("adminLogout").addEventListener("click",logout);
+    const adminProfileButton=document.getElementById("adminProfileButton");
+    if(adminProfileButton){
+        adminProfileButton.addEventListener("click",function(){
+            showAdminView("admin-settings");
+        });
+    }
     document.getElementById("adminLogoutSide").addEventListener("click",logout);
     document.getElementById("adminMenuButton").addEventListener("click",function(){
         document.getElementById("adminSidebar").classList.toggle("admin-sidebar-open");
