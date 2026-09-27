@@ -4453,3 +4453,45 @@ main.single-panel-mode{padding-bottom:110px}
     .student-view-details{grid-template-columns:1fr}
     .student-view-actions{display:grid;grid-template-columns:1fr 1fr}
 }
+
+/* Foto e ação no cartão do aluno */
+.professor-student-row .student-list-photo{
+    overflow:hidden;
+    position:relative;
+    background:#eaf3ff;
+}
+.student-list-photo img{
+    width:100%;
+    height:100%;
+    display:block;
+    object-fit:cover;
+}
+.student-view-button{
+    margin-left:auto;
+    flex:0 0 auto;
+    border:0;
+    border-radius:9px;
+    padding:8px 10px;
+    background:#eaf3ff;
+    color:#1769e0;
+    cursor:pointer;
+    font:inherit;
+    font-size:10px;
+    font-weight:800;
+}
+.student-view-button:hover{background:#dcecff}
+@media(max-width:620px){
+    .professor-student-row{
+        flex-wrap:wrap;
+    }
+    .professor-student-row>div{
+        flex:1 1 calc(100% - 60px);
+    }
+    .professor-student-row .professor-student-status{
+        margin-left:54px;
+    }
+    .student-view-button{
+        margin-left:54px;
+        margin-top:-2px;
+    }
+}
