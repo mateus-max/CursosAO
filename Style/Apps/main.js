@@ -1929,7 +1929,12 @@ document.addEventListener("DOMContentLoaded", function () {
                             '<small>' + escapeModuleText(lesson.time) + ' · ' + escapeModuleText(lesson.duration || "60") + ' min</small>' +
                             (lesson.description ? '<p>' + escapeModuleText(lesson.description) + '</p>' : '') +
                             '</div>' +
+                            '<div class="schedule-actions">' +
+                            (lesson.liveActive && lesson.liveId
+                                ? '<button type="button" class="primary-action live-class-button" data-open-live="' + escapeModuleAttribute(lesson.liveId) + '">🔴 Entrar no quadro</button>'
+                                : '<button type="button" class="primary-action live-class-button" data-start-live="' + escapeModuleAttribute(lesson.id) + '">▶ Iniciar aula</button>') +
                             '<button type="button" class="module-delete" data-delete-lesson="' + lesson.id + '">Excluir</button>' +
+                            '</div>' +
                             '</div>';
                     }).join("");
             }
@@ -1973,6 +1978,69 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function escapeModuleAttribute(value) {
         return escapeModuleText(value);
+    }
+
+    function getOfficialStudentsForLiveClass() {
+        let enrollments = [], accounts = [];
+        try { enrollments = JSON.parse(localStorage.getItem("apsan_enrollments") || "[]"); } catch (_) {}
+        try { accounts = JSON.parse(localStorage.getItem("apsan_accounts") || "[]"); } catch (_) {}
+        if (!Array.isArray(enrollments)) enrollments = [];
+        if (!Array.isArray(accounts)) accounts = [];
+        return enrollments.filter(function (item) {
+            return item && normalizePhone(item.teacherPhone) === professorPhoneNormalized && item.status === "official";
+        }).map(function (item) {
+            const acc = accounts.find(function (a) {
+                return a && a.type === "aluno" && normalizePhone(a.phone) === normalizePhone(item.studentPhone);
+            }) || {};
+            return {phone:normalizePhone(item.studentPhone),name:item.studentName || acc.name || "Aluno",course:item.course || item.courseName || "Curso"};
+        }).filter(function (item,index,list) {
+            return item.phone && list.findIndex(function (other) { return other.phone === item.phone; }) === index;
+        });
+    }
+
+    function startLiveClass(lessonId) {
+        const lessons = getStoredList(lessonsKey);
+        const lesson = lessons.find(function (item) { return String(item.id) === String(lessonId); });
+        const message = document.getElementById("lessonMessage");
+        if (!lesson) return;
+        const students = getOfficialStudentsForLiveClass();
+        if (!students.length) {
+            if (message) { message.textContent = "Não existem alunos oficiais confirmados para esta aula."; message.style.color = "#d93025"; }
+            return;
+        }
+        let liveClasses = [], notifications = [];
+        try { liveClasses = JSON.parse(localStorage.getItem("apsan_live_classes") || "[]"); } catch (_) {}
+        try { notifications = JSON.parse(localStorage.getItem("apsan_header_notifications") || "[]"); } catch (_) {}
+        if (!Array.isArray(liveClasses)) liveClasses = [];
+        if (!Array.isArray(notifications)) notifications = [];
+        const liveId = "live_" + Date.now() + "_" + Math.random().toString(36).slice(2,8);
+        const live = {
+            id:liveId, lessonId:String(lesson.id), title:lesson.title || "Aula ao vivo",
+            course:lesson.course || "Curso", description:lesson.description || "",
+            teacherPhone:professorPhoneNormalized,
+            teacherName:(account && account.name) || localStorage.getItem("apsan_username") || "Professor",
+            students:students.map(function (s) { return s.phone; }),
+            startedAt:new Date().toISOString(), active:true
+        };
+        liveClasses.push(live);
+        localStorage.setItem("apsan_live_classes", JSON.stringify(liveClasses.slice(-30)));
+        students.forEach(function (student) {
+            const recipientKey = "aluno:" + student.phone;
+            notifications.push({
+                id:"hn_live_" + Date.now() + "_" + Math.random().toString(36).slice(2,8),
+                recipientKey:recipientKey, recipientType:"aluno",
+                title:"🔴 Aula ao vivo iniciada",
+                text:live.teacherName + " iniciou a aula "" + live.title + "". Toque aqui para entrar na aula.",
+                kind:"live-class", liveId:liveId,
+                link:"quadro.html?live=" + encodeURIComponent(liveId),
+                createdAt:new Date().toISOString(), readAt:null
+            });
+        });
+        localStorage.setItem("apsan_header_notifications", JSON.stringify(notifications.slice(-200)));
+        lesson.liveId = liveId; lesson.liveStartedAt = live.startedAt; lesson.liveActive = true;
+        saveStoredList(lessonsKey, lessons);
+        renderProfessorModules();
+        window.location.href = "quadro.html?live=" + encodeURIComponent(liveId);
     }
 
     document.querySelectorAll("[data-open-panel]").forEach(function (button) {
@@ -2083,6 +2151,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 document.getElementById("lessonPanel").classList.remove("professor-panel-open");
                 message.textContent = "";
             }, 700);
+        });
+    }
+
+    const agendaLiveList = document.getElementById("agendaList");
+    if (agendaLiveList) {
+        agendaLiveList.addEventListener("click", function (event) {
+            const startButton = event.target.closest("[data-start-live]");
+            if (startButton) { startLiveClass(startButton.getAttribute("data-start-live")); return; }
+            const openButton = event.target.closest("[data-open-live]");
+            if (openButton) window.location.href = "quadro.html?live=" + encodeURIComponent(openButton.getAttribute("data-open-live"));
         });
     }
 
