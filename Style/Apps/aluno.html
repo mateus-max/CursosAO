@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>APSAN Academy - Aluno</title>
-<link rel="stylesheet" href="../style.css?v=20260927-settings-final"><script src="settings.js?v=20260927-settings-final"></script>
+<link rel="stylesheet" href="../style.css?v=20260927-wallpapers-final"><script src="settings.js?v=20260927-wallpapers-final"></script>
 </head>
 <body class="app-page student-page">
 
@@ -272,13 +272,21 @@
         <div class="apsan-settings-group">
             <span class="apsan-settings-label">🎨 Papel de parede</span>
             <div class="apsan-wallpaper-options">
-                <button type="button" data-wallpaper-choice="default">Fundo padrão</button>
-                <button type="button" data-wallpaper-choice="soft-blue">Azul suave</button>
-                <button type="button" data-wallpaper-choice="deep-blue">Azul profundo</button>
-                <button type="button" data-wallpaper-choice="minimal">Minimalista</button>
+                <button type="button" data-wallpaper-choice="default"><span class="wallpaper-preview wp-default"></span><strong>Fundo padrão</strong></button>
+                <button type="button" data-wallpaper-choice="blue-wave"><span class="wallpaper-preview wp-blue-wave"></span><strong>Onda Azul</strong></button>
+                <button type="button" data-wallpaper-choice="global-network"><span class="wallpaper-preview wp-global-network"></span><strong>Rede Global</strong></button>
+                <button type="button" data-wallpaper-choice="academic-night"><span class="wallpaper-preview wp-academic-night"></span><strong>Noite Académica</strong></button>
+                <button type="button" data-wallpaper-choice="study-space"><span class="wallpaper-preview wp-study-space"></span><strong>Espaço de Estudos</strong></button>
+                <button type="button" data-wallpaper-choice="serene-nature"><span class="wallpaper-preview wp-serene-nature"></span><strong>Natureza Serena</strong></button>
+                <button type="button" data-wallpaper-choice="digital-aurora"><span class="wallpaper-preview wp-digital-aurora"></span><strong>Aurora Digital</strong></button>
+                <button type="button" data-wallpaper-choice="clean-minimal"><span class="wallpaper-preview wp-clean-minimal"></span><strong>Minimalista Claro</strong></button>
+                <button type="button" data-wallpaper-choice="apsan-premium"><span class="wallpaper-preview wp-apsan-premium"></span><strong>APSAN Premium</strong></button>
             </div>
         </div>
-        <div class="apsan-settings-status" id="apsanSettingsStatus">Aplicado automaticamente</div>
+        <div class="apsan-settings-actions">
+            <button type="button" class="apsan-settings-save" id="apsanSettingsSave">Salvar alterações</button>
+        </div>
+        <div class="apsan-settings-status" id="apsanSettingsStatus">Escolha as opções e toque em salvar.</div>
     </div>
 </div>
 
@@ -832,12 +840,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const apsanLanguageSelect = document.getElementById("apsanLanguageSelect");
     const apsanSettingsStatus = document.getElementById("apsanSettingsStatus");
 
+    let apsanPendingSettings = null;
+
     function openApsanSettings() {
         if (!apsanSettingsOverlay) return;
         const settings = window.APSANSettings ? window.APSANSettings.get() : {language:"pt", wallpaper:"default"};
-        if (apsanLanguageSelect) apsanLanguageSelect.value = settings.language;
+        apsanPendingSettings = Object.assign({}, settings);
+        if (apsanLanguageSelect) apsanLanguageSelect.value = apsanPendingSettings.language;
         document.querySelectorAll("[data-wallpaper-choice]").forEach(function (button) {
-            button.classList.toggle("active", button.getAttribute("data-wallpaper-choice") === settings.wallpaper);
+            button.classList.toggle("active", button.getAttribute("data-wallpaper-choice") === apsanPendingSettings.wallpaper);
         });
         apsanSettingsOverlay.classList.add("open");
         apsanSettingsOverlay.setAttribute("aria-hidden", "false");
@@ -863,25 +874,31 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     if (apsanLanguageSelect) apsanLanguageSelect.addEventListener("change", function () {
-        const value = this.value === "en" ? "en" : "pt";
-        const settings = window.APSANSettings ? window.APSANSettings.get() : {};
-        if (window.APSANSettings) window.APSANSettings.save(Object.assign({}, settings, {language:value}));
-        if (apsanSettingsStatus) apsanSettingsStatus.textContent = value === "en" ? "Applied automatically" : "Aplicado automaticamente";
-        if (value === "pt") {
-            setTimeout(function () { window.location.reload(); }, 120);
-        }
+        if (!apsanPendingSettings) apsanPendingSettings = window.APSANSettings ? window.APSANSettings.get() : {};
+        apsanPendingSettings.language = this.value === "en" ? "en" : "pt";
+        if (apsanSettingsStatus) apsanSettingsStatus.textContent = "Toque em salvar para aplicar.";
     });
 
     document.querySelectorAll("[data-wallpaper-choice]").forEach(function (button) {
         button.addEventListener("click", function () {
+            if (!apsanPendingSettings) apsanPendingSettings = window.APSANSettings ? window.APSANSettings.get() : {};
             const value = this.getAttribute("data-wallpaper-choice") || "default";
-            const settings = window.APSANSettings ? window.APSANSettings.get() : {};
-            if (window.APSANSettings) window.APSANSettings.save(Object.assign({}, settings, {wallpaper:value}));
+            apsanPendingSettings.wallpaper = value;
             document.querySelectorAll("[data-wallpaper-choice]").forEach(function (item) {
                 item.classList.toggle("active", item === button);
             });
-            if (apsanSettingsStatus) apsanSettingsStatus.textContent = settings.language === "en" ? "Applied automatically" : "Aplicado automaticamente";
+            if (apsanSettingsStatus) apsanSettingsStatus.textContent = "Toque em salvar para aplicar.";
         });
+    });
+
+    const apsanSettingsSave = document.getElementById("apsanSettingsSave");
+    if (apsanSettingsSave) apsanSettingsSave.addEventListener("click", function () {
+        const settings = apsanPendingSettings || (window.APSANSettings ? window.APSANSettings.get() : {});
+        if (window.APSANSettings) window.APSANSettings.save(settings);
+        if (apsanSettingsStatus) apsanSettingsStatus.textContent = settings.language === "en" ? "Saved and applied automatically." : "Guardado e aplicado automaticamente.";
+        if (settings.language === "en") {
+            setTimeout(function () { window.location.reload(); }, 250);
+        }
     });
 
     document.querySelectorAll("[data-student-profile-link]").forEach(function(link) {
