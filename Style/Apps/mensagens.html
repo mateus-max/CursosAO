@@ -850,7 +850,7 @@ document.addEventListener("DOMContentLoaded", function () {
       '</button>';
     }).join("");
 
-    contactsList.querySelectorAll("[data-contact-phone]").forEach(function (button) {
+    contactsList.querySelectorAll("[data-contact-index]").forEach(function (button) {
       button.addEventListener("click", function () {
         openConversation(contacts[Number(button.getAttribute("data-contact-index"))].phone);
       });
