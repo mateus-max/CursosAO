@@ -417,7 +417,13 @@
                     type: userType,
                     bio: "",
                     photo: "",
-                    createdAt: new Date().toISOString()
+                    createdAt: new Date().toISOString(),
+                    accountStatus: "pending",
+                    official: false,
+                    approvalStatus: "pending",
+                    approvalReason: "",
+                    approvedAt: "",
+                    rejectedAt: ""
                 };
 
 
@@ -450,76 +456,22 @@
                 );
 
                 /* ==========================================
-                   GUARDAR SESSÃO
+                   CONTA AGUARDA APROVAÇÃO DA DIREÇÃO
                    ========================================== */
 
-                localStorage.setItem(
-                    "apsan_username",
-                    username
-                );
+                localStorage.removeItem("apsan_logged_in");
+                localStorage.removeItem("apsan_username");
+                localStorage.removeItem("apsan_phone");
+                localStorage.removeItem("apsan_user_type");
+                localStorage.removeItem("apsan_account");
 
-                localStorage.setItem(
-                    "apsan_phone",
-                    phone
-                );
-
-
-                localStorage.setItem(
-                    "apsan_user_type",
-                    userType
-                );
-
-
-                localStorage.setItem(
-                    "apsan_logged_in",
-                    "true"
-                );
-
-
-                /* ==========================================
-                   MENSAGEM DE SUCESSO
-                   ========================================== */
-
-                message.style.color = "#16803c";
-
+                message.style.color = "#1769e0";
                 message.textContent =
-                    "Conta criada com sucesso! A abrir o seu painel...";
-
-
-                /* ==========================================
-                   ABRIR PAINEL CORRESPONDENTE
-                   ========================================== */
+                    "Conta criada com sucesso! A Direção precisa avaliar e aprovar a sua conta antes do primeiro acesso.";
 
                 setTimeout(function() {
-
-
-                    if (userType === "professor") {
-
-                        window.location.href = "Style/Apps/professor.html";
-
-                        return;
-                    }
-
-
-                    if (userType === "aluno") {
-
-                        window.location.href = "Style/Apps/aluno.html";
-
-                        return;
-                    }
-
-
-                    /*
-                     * Segurança adicional:
-                     * caso apareça algum tipo inválido,
-                     * volta ao login.
-                     */
-
-                    window.location.href =
-                        "index.html";
-
-
-                }, 900);
+                    window.location.href = "index.html";
+                }, 1800);
 
             }
         );
