@@ -346,7 +346,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 return String(b.createdAt || "").localeCompare(String(a.createdAt || ""));
             }).slice(0, 3);
 
+            const rawPhone = digits(teacher.phone);
+            const last4 = (rawPhone || "0000").slice(-4).padStart(4, "0");
+            const virtualCard = '<div class="admin-virtual-card">' +
+                '<div class="admin-virtual-card-top"><span>CARTÃO VIRTUAL</span><span>APSAN</span></div>' +
+                '<div class="admin-virtual-card-chip"></div>' +
+                '<div class="admin-virtual-card-number">••••  ••••  ••••  ' + esc(last4) + '</div>' +
+                '<div class="admin-virtual-card-bottom"><strong>' + esc(teacher.name || "Professor") + '</strong><span>' + money(Math.max(0, totals.balance)) + '</span></div>' +
+            '</div>';
+
             return '<div class="admin-finance-teacher-card">' +
+                virtualCard +
                 '<div class="admin-finance-teacher-head">' +
                     '<div class="admin-row-avatar">' + esc((teacher.name || "P").charAt(0).toUpperCase()) + '</div>' +
                     '<div><strong>' + esc(teacher.name || "Professor") + '</strong><small>' + esc(teacher.phone || "") + '</small></div>' +
