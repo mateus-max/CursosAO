@@ -6608,19 +6608,22 @@ body.admin-page .student-side-menu-logout{
 }
 
 
-/* Menu final: conteúdo com scroll e Terminar sessão sempre visível no rodapé do menu. */
+/* Menu final definitivo — mesma estrutura visual nos três painéis. */
 .side-menu,
 .student-side-menu{
     overflow:hidden !important;
+    min-height:0 !important;
+    box-sizing:border-box !important;
 }
 .side-menu nav,
 .student-side-menu nav{
     flex:1 1 auto !important;
     min-height:0 !important;
+    height:auto !important;
     overflow-y:auto !important;
     overflow-x:hidden !important;
     -webkit-overflow-scrolling:touch !important;
-    padding-bottom:12px !important;
+    padding-bottom:8px !important;
 }
 .side-menu-logout,
 .student-side-menu-logout{
@@ -6628,8 +6631,9 @@ body.admin-page .student-side-menu-logout{
     position:relative !important;
     width:calc(100% - 24px) !important;
     box-sizing:border-box !important;
-    margin:10px 12px 16px !important;
+    margin:8px 12px 18px !important;
     min-height:52px !important;
+    max-height:52px !important;
     display:flex !important;
     align-items:center !important;
     justify-content:center !important;
@@ -6641,25 +6645,21 @@ body.admin-page .student-side-menu-logout{
     font-size:14px !important;
     font-weight:900 !important;
     box-shadow:0 5px 16px rgba(198,40,40,.10) !important;
-    z-index:10 !important;
-}
-.side-menu-logout:hover,
-.side-menu-logout:focus,
-.student-side-menu-logout:hover,
-.student-side-menu-logout:focus{
-    background:#ffe4e4 !important;
-    color:#a61b11 !important;
-    outline:3px solid rgba(198,40,40,.10) !important;
-    outline-offset:1px !important;
+    z-index:20 !important;
 }
 @media(max-width:560px){
+    .side-menu{
+        height:calc(100dvh - 58px) !important;
+        max-height:calc(100dvh - 58px) !important;
+    }
+    .student-side-menu{
+        height:calc(100dvh - 58px) !important;
+        max-height:calc(100dvh - 58px) !important;
+    }
     .side-menu-logout,
     .student-side-menu-logout{
         min-height:50px !important;
-        margin:10px 12px 20px !important;
-    }
-    .side-menu nav,
-    .student-side-menu nav{
-        padding-bottom:8px !important;
+        max-height:50px !important;
+        margin:8px 12px 12px !important;
     }
 }
