@@ -1686,6 +1686,9 @@ document.addEventListener("DOMContentLoaded", function () {
                             courseName: item.courseName || item.course || "Curso em acompanhamento",
                             photo: (findStudentAccount(item.studentPhone) || {}).photo || (findStudentAccount(item.studentPhone) || {}).profilePhoto || "",
                             profilePhoto: (findStudentAccount(item.studentPhone) || {}).profilePhoto || (findStudentAccount(item.studentPhone) || {}).photo || "",
+                            bio: (findStudentAccount(item.studentPhone) || {}).bio || "",
+                            province: (findStudentAccount(item.studentPhone) || {}).province || "",
+                            country: (findStudentAccount(item.studentPhone) || {}).country || "",
                             status: "official"
                         };
                     });
@@ -1781,7 +1784,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         '<small>🟢 ' + escapeModuleText(statusLabel) + ' · ' + escapeModuleText(course) + '</small>' +
                         '<small>' + escapeModuleText(nextInfo) + '</small></div>' +
                         '<span class="professor-student-status' + (inactive ? ' inactive' : '') + '">' + escapeModuleText(statusLabel) + '</span>' +
-                        '<button type="button" class="student-view-button" data-view-student="' + escapeModuleAttribute(student.studentPhone || student.phone || "") + '" data-view-student-name="' + escapeModuleAttribute(name) + '" data-view-student-course="' + escapeModuleAttribute(course) + '" data-view-student-status="' + (inactive ? "inactive" : "active") + '" data-view-student-photo="' + escapeModuleAttribute(student.photo || student.profilePhoto || "") + '">Ver aluno</button>' +
+                        '<button type="button" class="student-view-button" data-view-student-name="' + escapeModuleAttribute(name) + '" data-view-student-course="' + escapeModuleAttribute(course) + '" data-view-student-status="' + (inactive ? "inactive" : "active") + '" data-view-student-photo="' + escapeModuleAttribute(student.photo || student.profilePhoto || "") + '" data-view-student-bio="' + escapeModuleAttribute(student.bio || "") + '" data-view-student-province="' + escapeModuleAttribute(student.province || "") + '" data-view-student-country="' + escapeModuleAttribute(student.country || "") + '">Ver aluno</button>' +
                         '</div>';
                 }).join("");
             }
@@ -2344,20 +2347,24 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!panel) return;
 
         const name = button.getAttribute("data-view-student-name") || "Aluno";
-        const phone = button.getAttribute("data-view-student") || "—";
         const course = button.getAttribute("data-view-student-course") || "Curso em acompanhamento";
+        const bio = button.getAttribute("data-view-student-bio") || "";
+        const province = button.getAttribute("data-view-student-province") || "";
+        const country = button.getAttribute("data-view-student-country") || "";
         const status = button.getAttribute("data-view-student-status") || "active";
         const photo = button.getAttribute("data-view-student-photo") || "";
 
         const nameEl = document.getElementById("studentViewName");
-        const phoneEl = document.getElementById("studentViewPhone");
+        const bioEl = document.getElementById("studentViewBio");
+        const locationEl = document.getElementById("studentViewLocation");
         const courseEl = document.getElementById("studentViewCourse");
         const statusEl = document.getElementById("studentViewStatus");
         const photoEl = document.getElementById("studentViewPhoto");
         const letterEl = document.getElementById("studentViewLetter");
 
         if (nameEl) nameEl.textContent = name;
-        if (phoneEl) phoneEl.textContent = phone || "—";
+        if (bioEl) bioEl.textContent = bio || "Bio não definida.";
+        if (locationEl) locationEl.textContent = [province, country].filter(Boolean).join(" · ") || "Localização não definida.";
         if (courseEl) courseEl.textContent = course;
         if (statusEl) statusEl.textContent = status === "inactive" ? "⚪ Aluno inativo" : "🟢 Aluno ativo";
 
