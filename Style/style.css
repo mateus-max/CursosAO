@@ -3691,14 +3691,21 @@ main.single-panel-mode{padding-bottom:110px}
     display:none !important;
 }
 .student-tech-scene{
-    margin-top:34px !important;
+    /* Referência aprovada: cena mais alta e descida, integrada à página. */
+    aspect-ratio:1 / 1 !important;
+    margin-top:48px !important;
     margin-bottom:24px !important;
+    background-size:100% 100% !important;
+    background-position:center !important;
 }
 
 @media(max-width:560px){
     .student-tech-scene{
-        margin-top:34px !important;
+        aspect-ratio:1 / 1 !important;
+        margin-top:48px !important;
         margin-bottom:24px !important;
+        background-size:100% 100% !important;
+        background-position:center !important;
     }
     .professor-tech-scene{
         min-height:0 !important;
