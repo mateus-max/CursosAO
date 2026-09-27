@@ -476,7 +476,8 @@ body.admin-page .admin-direction-wallpapers button.active{
     </div>
     <nav aria-label="Menu da Direção">
         <a class="active" href="#admin-dashboard-view" data-admin-menu-link>🏠 <span>Painel</span></a>
-        <a href="#admin-users" data-admin-menu-link>👤 <span>Utilizadores</span></a>
+        <a href="#admin-profile" data-admin-menu-link data-admin-profile-link>👤 <span>Meu Perfil</span></a>
+        <a href="#admin-users" data-admin-menu-link>👥 <span>Utilizadores</span></a>
         <a href="#admin-teachers" data-admin-menu-link>👨‍🏫 <span>Professores</span></a>
         <a href="#admin-students" data-admin-menu-link>👥 <span>Alunos</span></a>
         <a href="#admin-courses" data-admin-menu-link>🎓 <span>Cursos</span></a>
@@ -491,6 +492,13 @@ body.admin-page .admin-direction-wallpapers button.active{
     <button class="student-side-menu-logout" id="adminLogoutSide" type="button">🚪 Sair</button>
 </aside>
 <div class="student-menu-backdrop" id="adminMenuBackdrop"></div>
+<style>
+/* Menu da Direção — acesso direto ao perfil, mantendo o Painel como início. */
+body.admin-page #adminSidebar nav a[data-admin-profile-link]{
+    position:relative;
+}
+</style>
+
 
 <main class="app-content admin-content" id="admin-dashboard">
 
