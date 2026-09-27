@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>APSAN Academy - Aluno</title>
-<link rel="stylesheet" href="../style.css?v=20260927-teacher-photo-final">
+<link rel="stylesheet" href="../style.css?v=20260927-currency-final">
 </head>
 <body class="app-page student-page">
 
@@ -789,6 +789,18 @@ document.addEventListener("DOMContentLoaded", function () {
         );
     }
 
+    function formatKz(value) {
+        const raw = String(value == null ? "" : value).trim().replace(/[^0-9,.-]/g, "");
+        if (!raw) return "0 Kz";
+        const normalized = raw.replace(/,/g, ".");
+        const number = Number(normalized);
+        if (!Number.isFinite(number)) return "0 Kz";
+        return new Intl.NumberFormat("de-DE", {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        }).format(number) + " Kz";
+    }
+
     function esc(value) {
         return String(value || "")
             .replace(/&/g, "&amp;")
@@ -844,7 +856,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     '<p>' + esc(profile.description) + '</p>' +
                     '<div class="teacher-tags">' +
                         '<span>' + esc(profile.modality) + '</span>' +
-                        '<span>' + esc(profile.price) + ' Kz matrícula</span>' +
+                        '<span>' + formatKz(profile.price) matrícula</span>' +
                     '</div>' +
                     '<button type="button" class="login-button teacher-view-button" data-profile-index="' + index + '">' +
                         'Ver perfil' +
@@ -883,7 +895,7 @@ document.addEventListener("DOMContentLoaded", function () {
             '</div>' +
             '<div class="teacher-detail-grid">' +
                 '<div><small>Modalidade</small><strong>' + esc(profile.modality) + '</strong></div>' +
-                '<div><small>Matrícula / inscrição</small><strong>' + esc(profile.price) + ' Kz</strong></div>' +
+                '<div><small>Matrícula / inscrição</small><strong>' + formatKz(profile.price)</strong></div>' +
                 '<div><small>Horários</small><strong>' + esc(profile.schedules) + '</strong></div>' +
                 '<div><small>Experiência</small><strong>' + esc(profile.experience) + '</strong></div>' +
             '</div>' +
@@ -1252,7 +1264,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     '</div>' +
                 '</div>' +
                 '<div class="student-enrollment-meta">' +
-                    '<div><small>Mensalidade</small><strong>' + esc(item.price || "0") + ' Kz</strong></div>' +
+                    '<div><small>Mensalidade</small><strong>' + formatKz(item.price || "0") + '</strong></div>' +
                     '<span class="enrollment-status ' + (official ? "official" : "pending") + '">' +
                         (official ? "● Matrícula confirmada" : "● Aguardando confirmação") +
                     '</span>' +
