@@ -1211,16 +1211,38 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
+        const quickAccess = document.getElementById("studentQuickAccess");
+        if (quickAccess) quickAccess.hidden = false;
+
         myEnrollments.innerHTML = mine.map(function (item) {
-            return '<div class="student-enrollment-row">' +
-                '<div>' +
-                    '<strong>' + esc(item.course) + '</strong>' +
-                    '<small>' + esc(item.teacherName) + ' · ' + esc(item.price) + ' Kz</small>' +
+            const official = item.status === "official";
+            const teacher = getPublishedTeacherProfile(item.teacherPhone);
+            const teacherPhoto = teacher && (teacher.photo || teacher.profilePhoto || "");
+            const photo = teacherPhoto
+                ? '<img src="' + esc(teacherPhoto) + '" alt="Foto do professor">'
+                : '<span>' + esc((item.teacherName || "P").charAt(0).toUpperCase()) + '</span>';
+
+            return '<article class="student-enrollment-card">' +
+                '<div class="student-enrollment-main">' +
+                    '<div class="student-enrollment-teacher-photo">' + photo + '</div>' +
+                    '<div class="student-enrollment-info">' +
+                        '<span class="student-enrollment-label">CURSO</span>' +
+                        '<h3>' + esc(item.course || "Curso") + '</h3>' +
+                        '<p>👨‍🏫 ' + esc(item.teacherName || "Professor") + '</p>' +
+                    '</div>' +
                 '</div>' +
-                '<span class="enrollment-status">' +
-                    (item.status === "official" ? "Aluno oficial" : "Aguardando confirmação") +
-                '</span>' +
-            '</div>';
+                '<div class="student-enrollment-meta">' +
+                    '<div><small>Mensalidade</small><strong>' + esc(item.price || "0") + ' Kz</strong></div>' +
+                    '<span class="enrollment-status ' + (official ? "official" : "pending") + '">' +
+                        (official ? "● Matrícula confirmada" : "● Aguardando confirmação") +
+                    '</span>' +
+                '</div>' +
+                '<div class="student-enrollment-actions">' +
+                    '<a href="#classroom">Ver curso →</a>' +
+                    '<a href="#classroom">Ver aulas →</a>' +
+                    '<a href="#studentMaterialsView">Ver materiais →</a>' +
+                '</div>' +
+            '</article>';
         }).join("");
     }
 
