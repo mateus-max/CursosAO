@@ -1629,6 +1629,23 @@ document.addEventListener("DOMContentLoaded", function () {
             );
 
             if (Array.isArray(enrollments)) {
+                let studentAccounts = [];
+                try {
+                    const storedAccounts = JSON.parse(localStorage.getItem("apsan_accounts") || "[]");
+                    studentAccounts = Array.isArray(storedAccounts) ? storedAccounts : [];
+                } catch (error) {
+                    studentAccounts = [];
+                }
+
+                function findStudentAccount(phone) {
+                    const normalized = normalizePhone(phone);
+                    return studentAccounts.find(function (account) {
+                        return account &&
+                            account.type === "aluno" &&
+                            normalizePhone(account.phone) === normalized;
+                    }) || null;
+                }
+
                 const official = enrollments
                     .filter(function (item) {
                         return (
@@ -1646,6 +1663,8 @@ document.addEventListener("DOMContentLoaded", function () {
                             teacherPhone: item.teacherPhone,
                             course: item.course || item.courseName || "Curso em acompanhamento",
                             courseName: item.courseName || item.course || "Curso em acompanhamento",
+                            photo: (findStudentAccount(item.studentPhone) || {}).photo || (findStudentAccount(item.studentPhone) || {}).profilePhoto || "",
+                            profilePhoto: (findStudentAccount(item.studentPhone) || {}).profilePhoto || (findStudentAccount(item.studentPhone) || {}).photo || "",
                             status: "official"
                         };
                     });
