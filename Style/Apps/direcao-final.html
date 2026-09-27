@@ -344,8 +344,8 @@ body.admin-page .admin-dashboard-stat{
   </form>
  </div>
 </div>
-<script src="direcao-final.js?v=20260927-course-management-1"></script>
-<script src="finance.js?v=finance-20260926"></script>
+<script src="direcao-final.js?v=20260927-approval-finance-1"></script>
+<script src="finance.js?v=finance-20260927-card-header"></script>
 
 <style>
 /* Ajuste visual da lista de Utilizadores — sem alterar o fundo nem a navegação. */
@@ -473,6 +473,31 @@ body.admin-page .admin-participants .admin-row-icon{
         height:32px !important;
         flex-basis:32px !important;
     }
+}
+</style>
+<style>
+/* Fluxo oficial de aprovação de contas + cartão no cabeçalho financeiro. */
+body.admin-page .admin-finance-teacher-card{
+    display:flex !important;
+    flex-direction:column !important;
+}
+body.admin-page .admin-finance-card-header{
+    order:0 !important;
+    width:100% !important;
+    margin:0 0 12px !important;
+}
+body.admin-page .admin-finance-teacher-head{
+    order:1 !important;
+}
+body.admin-page .admin-finance-mini-grid{
+    order:2 !important;
+}
+body.admin-page .admin-finance-recent{
+    order:3 !important;
+}
+body.admin-page .admin-finance-card-header .admin-virtual-card{
+    width:100% !important;
+    margin:0 !important;
 }
 </style>
 </body>
