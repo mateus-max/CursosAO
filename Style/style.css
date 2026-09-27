@@ -6619,19 +6619,22 @@ body.admin-page .student-side-menu-logout{
 .student-side-menu nav{
     flex:1 1 auto !important;
     min-height:0 !important;
-    height:auto !important;
+    height:100% !important;
     overflow-y:auto !important;
     overflow-x:hidden !important;
     -webkit-overflow-scrolling:touch !important;
-    padding-bottom:8px !important;
+    padding:12px 12px 86px !important;
+    box-sizing:border-box !important;
 }
 .side-menu-logout,
 .student-side-menu-logout{
-    flex:0 0 auto !important;
-    position:relative !important;
-    width:calc(100% - 24px) !important;
+    position:absolute !important;
+    left:12px !important;
+    right:12px !important;
+    bottom:14px !important;
+    width:auto !important;
     box-sizing:border-box !important;
-    margin:8px 12px 18px !important;
+    margin:0 !important;
     min-height:52px !important;
     max-height:52px !important;
     display:flex !important;
@@ -6658,8 +6661,11 @@ body.admin-page .student-side-menu-logout{
     }
     .side-menu-logout,
     .student-side-menu-logout{
+        left:12px !important;
+        right:12px !important;
+        bottom:10px !important;
         min-height:50px !important;
         max-height:50px !important;
-        margin:8px 12px 12px !important;
+        margin:0 !important;
     }
 }
