@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>APSAN Academy - Aluno</title>
-<link rel="stylesheet" href="../style.css?v=20260927-price-final">
+<link rel="stylesheet" href="../style.css?v=20260927-student-menu-complete">
 </head>
 <body class="app-page student-page">
 
@@ -31,7 +31,14 @@
         <a href="#studentEnrollmentsView" data-student-menu-link>▣ <span>Minhas matrículas</span></a>
         <a href="#classroom" data-student-menu-link>▶ <span>Aulas</span></a>
         <a href="#studentMaterialsView" data-student-menu-link>📚 <span>Materiais</span></a>
+        <a href="#studentAgendaView" data-student-menu-link>📅 <span>Minha agenda</span></a>
+        <a href="#studentProgressView" data-student-menu-link>📊 <span>Meu progresso</span></a>
         <a href="mensagens.html" data-student-menu-link class="messages-menu-link">💬 <span>Mensagens</span> <span id="studentMessageMenuBadge" class="menu-notification-badge" hidden>0</span></a>
+        <a href="#studentNotificationsView" data-student-menu-link>🔔 <span>Notificações</span> <span id="studentNotificationBadge" class="menu-notification-badge" hidden>0</span></a>
+        <a href="#studentPaymentsView" data-student-menu-link>💳 <span>Pagamentos</span></a>
+        <div class="student-menu-divider" aria-hidden="true"></div>
+        <a href="#studentProfileOverlay" data-student-profile-link>👤 <span>Meu perfil</span></a>
+        <a href="#studentSettingsView" data-student-menu-link>⚙️ <span>Configurações</span></a>
     </nav>
     <button type="button" class="student-side-menu-logout" id="studentMenuLogout">↪ Sair da conta</button>
 </aside>
@@ -132,6 +139,36 @@
         <div id="studentMaterialsContent">
             <div class="empty-state">Os materiais disponibilizados pelos seus professores aparecerão aqui.</div>
         </div>
+    </section>
+
+    <section class="student-extra-view professor-view-section" id="studentAgendaView" data-view-section="agenda" data-view-target="agenda">
+        <div class="section-heading"><div><h2>Minha agenda</h2><p class="section-subtitle">Veja as suas próximas aulas e atividades.</p></div><span id="studentAgendaCount">0</span></div>
+        <div id="studentAgendaContent"><div class="empty-state">As suas próximas aulas aparecerão aqui.</div></div>
+    </section>
+
+    <section class="student-extra-view professor-view-section" id="studentProgressView" data-view-section="progress" data-view-target="progress">
+        <div class="section-heading"><div><h2>Meu progresso</h2><p class="section-subtitle">Acompanhe a sua evolução nos cursos.</p></div></div>
+        <div id="studentProgressContent"></div>
+    </section>
+
+    <section class="student-extra-view professor-view-section" id="studentNotificationsView" data-view-section="notifications" data-view-target="notifications">
+        <div class="section-heading"><div><h2>Notificações</h2><p class="section-subtitle">Atualizações importantes da sua área de aluno.</p></div></div>
+        <div id="studentNotificationsContent"><div class="empty-state">Não há novas notificações.</div></div>
+    </section>
+
+    <section class="student-extra-view professor-view-section" id="studentPaymentsView" data-view-section="payments" data-view-target="payments">
+        <div class="section-heading"><div><h2>Pagamentos</h2><p class="section-subtitle">Consulte o estado das suas matrículas e mensalidades.</p></div></div>
+        <div id="studentPaymentsContent"><div class="empty-state">Ainda não existem pagamentos registados.</div></div>
+    </section>
+
+    <section class="student-extra-view professor-view-section" id="studentSettingsView" data-view-section="settings" data-view-target="settings">
+        <div class="section-heading"><div><h2>Configurações</h2><p class="section-subtitle">Gerencie as opções da sua conta.</p></div></div>
+        <div class="student-settings-grid">
+            <button type="button" id="studentSettingsProfile">👤 Editar meu perfil</button>
+            <button type="button" id="studentSettingsNotifications">🔔 Preferências de notificações</button>
+            <button type="button" id="studentSettingsSecurity">🔐 Segurança e palavra-passe</button>
+        </div>
+        <p class="settings-note">As opções de perfil e segurança são geridas no seu perfil. As notificações da plataforma aparecem automaticamente nesta área.</p>
     </section>
 
     <section class="student-enrollments professor-view-section" id="studentEnrollmentsView" data-view-section="enrollments" data-view-target="enrollments">
