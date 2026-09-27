@@ -115,6 +115,46 @@
                 linear-gradient(0deg,rgba(4,25,55,.48) 0%,rgba(4,25,55,.02) 60%);
         }
 
+        .login-hero-moving-copy{
+            position:absolute;
+            left:28px;
+            right:28px;
+            bottom:30px;
+            z-index:4;
+            max-width:620px;
+            min-height:76px;
+            display:flex;
+            align-items:flex-end;
+            pointer-events:none;
+            text-shadow:0 3px 14px rgba(0,0,0,.45);
+        }
+        .login-hero-moving-copy span{
+            position:absolute;
+            left:0;
+            bottom:0;
+            width:100%;
+            color:#fff;
+            font-size:clamp(21px,3.1vw,36px);
+            line-height:1.12;
+            font-weight:900;
+            letter-spacing:-.5px;
+            opacity:0;
+            transform:translateY(20px);
+            animation:heroMovingText 12s ease-in-out infinite;
+        }
+        .login-hero-moving-copy span:nth-child(1){animation-delay:0s}
+        .login-hero-moving-copy span:nth-child(2){animation-delay:4s}
+        .login-hero-moving-copy span:nth-child(3){animation-delay:8s}
+        @keyframes heroMovingText{
+            0%,4%{opacity:0;transform:translateY(20px)}
+            9%,27%{opacity:1;transform:translateY(0)}
+            32%,100%{opacity:0;transform:translateY(-20px)}
+        }
+        @media(max-width:560px){
+            .login-hero-moving-copy{left:18px;right:18px;bottom:22px;min-height:72px}
+            .login-hero-moving-copy span{font-size:22px;line-height:1.15}
+        }
+
         .login-hero-content{
             position:relative;
             z-index:2;
@@ -529,6 +569,11 @@
                 <div class="login-hero-photo" aria-hidden="true"></div>
                 <div class="login-hero-overlay" aria-hidden="true"></div>
                 <div class="login-hero-content">
+                <div class="login-hero-moving-copy" aria-label="APSAN Academy">
+                    <span>Plataforma digital para cursos 100% online.</span>
+                    <span>Formação online voltada para Angola.</span>
+                    <span>Aprenda. Desenvolva-se. Conquiste novas oportunidades.</span>
+                </div>
                     <div class="login-brand-lockup">
                     <img
                         class="login-header-logo"
