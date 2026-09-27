@@ -1800,14 +1800,20 @@ document.addEventListener("DOMContentLoaded", function () {
                     '<p class="empty-state">Ainda não existem materiais guardados.</p>';
             } else {
                 materialsList.innerHTML = materials.map(function (material) {
-                    const link = material.link
-                        ? '<a href="' + escapeModuleAttribute(material.link) + '" target="_blank" rel="noopener">Abrir</a>'
+                    const resource = material.link || material.fileData || "";
+                    const link = resource
+                        ? '<a href="' + escapeModuleAttribute(resource) + '" target="_blank" rel="noopener">Abrir</a>'
                         : "";
+                    const lesson = material.lessonId
+                        ? lessons.find(function (lessonItem) { return String(lessonItem.id) === String(material.lessonId); })
+                        : null;
+                    const lessonInfo = lesson ? ' · ' + (lesson.title || "Aula") : "";
                     return '<div class="module-row">' +
                         '<span class="module-row-icon">📄</span>' +
                         '<div><strong>' + escapeModuleText(material.title) + '</strong>' +
                         '<small>' + escapeModuleText(material.type || "Material") + ' · ' +
-                        escapeModuleText(material.course || "Curso") + '</small>' +
+                        escapeModuleText(material.course || "Curso") + escapeModuleText(lessonInfo) + '</small>' +
+                        (material.fileName ? '<small>📎 ' + escapeModuleText(material.fileName) + '</small>' : '') +
                         (material.description ? '<p>' + escapeModuleText(material.description) + '</p>' : '') +
                         ' ' + link + '</div>' +
                         '<button type="button" class="module-delete" data-delete-material="' + material.id + '">Excluir</button>' +
