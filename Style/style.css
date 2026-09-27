@@ -6012,6 +6012,13 @@ body.admin-page .admin-content{
     padding:18px 0 105px !important;
     box-sizing:border-box !important;
 }
+/* Cada área administrativa fica fechada por padrão e só a opção escolhida no menu é exibida. */
+body.admin-page [data-admin-view]{
+    display:none !important;
+}
+body.admin-page [data-admin-view]:not(.admin-view-hidden){
+    display:block !important;
+}
 body.admin-page .admin-dashboard-view{
     display:block !important;
 }
