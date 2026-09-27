@@ -304,7 +304,7 @@ body.admin-page .admin-dashboard-stat{
   </form>
  </div>
 </div>
-<script src="direcao-final.js?v=20260927-user-profile-1"></script>
+<script src="direcao-final.js?v=20260927-all-user-photos-1"></script>
 <script src="finance.js?v=finance-20260926"></script>
 
 <style>
@@ -402,6 +402,37 @@ body.admin-page #admin-users .admin-user-avatar img{
     display:block !important;
     object-fit:cover !important;
     border-radius:inherit !important;
+}
+</style>
+<style>
+/* Fotos dos utilizadores em todas as áreas administrativas que exibem pessoas. */
+body.admin-page .admin-row-avatar img{
+    width:100% !important;
+    height:100% !important;
+    display:block !important;
+    object-fit:cover !important;
+    border-radius:inherit !important;
+}
+body.admin-page .admin-participants{
+    display:flex !important;
+    align-items:center !important;
+    flex:0 0 auto !important;
+    gap:5px !important;
+}
+body.admin-page .admin-participants .admin-row-avatar,
+body.admin-page .admin-participants .admin-row-icon{
+    width:35px !important;
+    height:35px !important;
+    flex:0 0 35px !important;
+    border-radius:10px !important;
+}
+@media(max-width:560px){
+    body.admin-page .admin-participants .admin-row-avatar,
+    body.admin-page .admin-participants .admin-row-icon{
+        width:32px !important;
+        height:32px !important;
+        flex-basis:32px !important;
+    }
 }
 </style>
 </body>
