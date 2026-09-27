@@ -1000,12 +1000,12 @@
         const notificationLink = document.querySelector("[data-professor-notifications-link]");
         function openProfessorNotifications() {
             if (!notificationOverlay) return;
-            notificationOverlay.classList.add("panel-open");
+            notificationOverlay.classList.add("professor-panel-open");
             notificationOverlay.setAttribute("aria-hidden", "false");
         }
         function closeProfessorNotifications() {
             if (!notificationOverlay) return;
-            notificationOverlay.classList.remove("panel-open");
+            notificationOverlay.classList.remove("professor-panel-open");
             notificationOverlay.setAttribute("aria-hidden", "true");
         }
         if (notificationLink) notificationLink.addEventListener("click", function (event) {
