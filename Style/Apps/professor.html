@@ -656,30 +656,56 @@
                 <button type="button" class="close-profile" data-close-panel="material">×</button>
             </div>
 
-            <form id="materialForm" class="professor-form">
+            <form id="materialForm" class="professor-form material-form-enhanced">
                 <div class="form-group">
-                    <label for="materialTitle">Nome do material</label>
+                    <label for="materialTitle">Título do material</label>
                     <input id="materialTitle" type="text" placeholder="Ex.: Aula 01 — Present Simple" required>
                 </div>
+                <div class="professor-form-row">
+                    <div class="form-group">
+                        <label for="materialType">Tipo de material</label>
+                        <select id="materialType">
+                            <option value="PDF">📄 PDF</option>
+                            <option value="Vídeo">🎥 Vídeo</option>
+                            <option value="Link">🔗 Link externo</option>
+                            <option value="Documento">📝 Documento</option>
+                            <option value="Apresentação">📊 Apresentação</option>
+                            <option value="Exercício">📚 Exercício</option>
+                            <option value="Áudio">🎧 Áudio</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="materialCourse">Curso / disciplina</label>
+                        <select id="materialCourse">
+                            <option value="">Selecionar curso</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="form-group">
-                    <label for="materialType">Tipo</label>
-                    <select id="materialType">
-                        <option value="PDF">PDF</option>
-                        <option value="Documento">Documento</option>
-                        <option value="Vídeo">Vídeo</option>
-                        <option value="Áudio">Áudio</option>
-                        <option value="Link">Link</option>
+                    <label for="materialLesson">Aula / módulo <span class="field-optional">(opcional)</span></label>
+                    <select id="materialLesson">
+                        <option value="">Selecionar aula / módulo</option>
                     </select>
                 </div>
+                <div class="material-upload-box">
+                    <div class="material-upload-icon">📎</div>
+                    <div>
+                        <strong>Arquivo do material</strong>
+                        <small id="materialFileName">Nenhum arquivo selecionado</small>
+                    </div>
+                    <label for="materialFile" class="material-file-button">Selecionar arquivo</label>
+                    <input id="materialFile" type="file" hidden>
+                </div>
+                <div class="material-or"><span>ou cole um link</span></div>
                 <div class="form-group">
                     <label for="materialLink">Link / localização</label>
                     <input id="materialLink" type="url" placeholder="https://...">
                 </div>
                 <div class="form-group">
                     <label for="materialDescription">Descrição</label>
-                    <textarea id="materialDescription" rows="3" placeholder="Descrição do material ou vídeo-aula."></textarea>
+                    <textarea id="materialDescription" rows="2" placeholder="Explique brevemente este material..."></textarea>
                 </div>
-                <button type="submit" class="login-button">Guardar material</button>
+                <button type="submit" class="login-button">Guardar e disponibilizar</button>
                 <p id="materialMessage" class="login-message"></p>
             </form>
         </div>
