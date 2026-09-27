@@ -147,21 +147,19 @@
             border-radius:16px;
         }
 
-        .login-brand-text strong{
+        .login-header-logo{
             display:block;
-            font-size:24px;
-            line-height:1.05;
-            letter-spacing:-.5px;
-        }
-
-        .login-brand-text span{
-            display:block;
-            margin-top:4px;
-            font-size:11px;
-            font-weight:700;
-            letter-spacing:.7px;
-            text-transform:uppercase;
-            opacity:.82;
+            width:190px;
+            max-width:72%;
+            height:auto;
+            max-height:92px;
+            object-fit:contain;
+            object-position:left center;
+            margin:0;
+            mix-blend-mode:multiply;
+            border:0;
+            outline:0;
+            box-shadow:none;
         }
 
         .login-hero-copy{
@@ -401,6 +399,9 @@
             object-fit:contain;
             margin:0 auto 5px;
             mix-blend-mode:multiply;
+            border:0;
+            outline:0;
+            box-shadow:none;
         }
 
         .login-footer-signature span{
@@ -442,12 +443,10 @@
                 flex-basis:68px;
             }
 
-            .login-brand-text strong{
-                font-size:23px;
-            }
-
-            .login-brand-text span{
-                font-size:10px;
+            .login-header-logo{
+                width:205px;
+                max-width:76%;
+                max-height:92px;
             }
 
             .login-hero-copy{
@@ -528,8 +527,10 @@
                 padding:20px 18px 43px;
             }
 
-            .login-brand-text strong{
-                font-size:21px;
+            .login-header-logo{
+                width:190px;
+                max-width:78%;
+                max-height:82px;
             }
 
             .login-hero-copy{
@@ -558,11 +559,11 @@
 
             <div class="login-hero">
                 <div class="login-brand">
-                    <div class="logo-circle">A</div>
-                    <div class="login-brand-text">
-                        <strong>APSAN Academy</strong>
-                        <span>Plataforma de Ensino Online</span>
-                    </div>
+                    <img
+                        class="login-header-logo"
+                        src="data:image/jpeg;base64,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"
+                        alt="APSAN Academy"
+                    >
                 </div>
                 <div class="login-hero-copy">
                     Aprender hoje, construir um amanhã melhor!
