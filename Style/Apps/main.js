@@ -2001,19 +2001,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const materialForm = document.getElementById("materialForm");
     const materialFile = document.getElementById("materialFile");
     const materialFileName = document.getElementById("materialFileName");
+    const materialCover = document.getElementById("materialCover");
+    const materialCoverName = document.getElementById("materialCoverName");
+    const materialCoverPreview = document.getElementById("materialCoverPreview");
     const materialCourse = document.getElementById("materialCourse");
     const materialLesson = document.getElementById("materialLesson");
     let pendingMaterialFile = null;
+    let pendingMaterialCover = null;
 
     function populateMaterialSelectors() {
-        const publicProfile = typeof getPublicProfile === "function" ? getPublicProfile() : null;
-        const courseName = publicProfile && publicProfile.course ? publicProfile.course : "Curso do professor";
-
-        if (materialCourse) {
-            materialCourse.innerHTML = '<option value="' + escapeModuleAttribute(courseName) + '">' + escapeModuleText(courseName) + '</option>';
-            materialCourse.value = courseName;
-        }
-
         if (materialLesson) {
             const lessonsForProfessor = getStoredList(lessonsKey);
             materialLesson.innerHTML = '<option value="">Selecionar aula / módulo</option>' +
@@ -2022,6 +2018,168 @@ document.addEventListener("DOMContentLoaded", function () {
                     return '<option value="' + escapeModuleAttribute(lesson.id || "") + '">' + escapeModuleText(label) + '</option>';
                 }).join("");
         }
+    }
+
+    function readMaterialFile(file) {
+        if (!file) return;
+        if (file.size > 2500000) {
+            if (materialFileName) materialFileName.textContent = "Arquivo muito grande — máximo 2,5 MB";
+            if (materialFile) materialFile.value = "";
+            pendingMaterialFile = null;
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (event) {
+            pendingMaterialFile = {
+                name: file.name,
+                type: file.type || "application/octet-stream",
+                data: event.target.result
+            };
+            if (materialFileName) materialFileName.textContent = file.name + " · pronto para carregar";
+        };
+        reader.onerror = function () {
+            pendingMaterialFile = null;
+            if (materialFileName) materialFileName.textContent = "Não foi possível carregar o arquivo";
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function readMaterialCover(file) {
+        if (!file) return;
+        if (!String(file.type || "").startsWith("image/")) {
+            if (materialCoverName) materialCoverName.textContent = "Selecione uma imagem válida";
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (event) {
+            const img = new Image();
+            img.onload = function () {
+                const maxW = 1200;
+                const maxH = 675;
+                const scale = Math.min(1, maxW / img.width, maxH / img.height);
+                const canvas = document.createElement("canvas");
+                canvas.width = Math.max(1, Math.round(img.width * scale));
+                canvas.height = Math.max(1, Math.round(img.height * scale));
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                const data = canvas.toDataURL("image/jpeg", 0.82);
+
+                pendingMaterialCover = {
+                    name: file.name,
+                    type: "image/jpeg",
+                    data: data
+                };
+
+                if (materialCoverName) materialCoverName.textContent = file.name + " · capa pronta";
+                if (materialCoverPreview) {
+                    materialCoverPreview.innerHTML = '<img src="' + data + '" alt="Capa do material">';
+                }
+            };
+            img.src = event.target.result;
+        };
+        reader.onerror = function () {
+            pendingMaterialCover = null;
+            if (materialCoverName) materialCoverName.textContent = "Não foi possível carregar a capa";
+        };
+        reader.readAsDataURL(file);
+    }
+
+    document.addEventListener("click", function (event) {
+        const openMaterial = event.target.closest('[data-open-panel="material"]');
+        if (openMaterial) populateMaterialSelectors();
+    });
+
+    if (materialFile) {
+        materialFile.addEventListener("change", function () {
+            readMaterialFile(materialFile.files && materialFile.files[0]);
+        });
+    }
+
+    if (materialCover) {
+        materialCover.addEventListener("change", function () {
+            readMaterialCover(materialCover.files && materialCover.files[0]);
+        });
+    }
+
+    if (materialForm) {
+        materialForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const title = document.getElementById("materialTitle").value.trim();
+            const type = document.getElementById("materialType").value;
+            const link = document.getElementById("materialLink").value.trim();
+            const course = materialCourse ? materialCourse.value.trim() : "";
+            const lessonId = materialLesson ? materialLesson.value : "";
+            const description = document.getElementById("materialDescription")
+                ? document.getElementById("materialDescription").value.trim()
+                : "";
+            const message = document.getElementById("materialMessage");
+
+            if (!title) {
+                message.textContent = "Digite o título do material.";
+                message.style.color = "#d93025";
+                return;
+            }
+
+            if (!course) {
+                message.textContent = "Digite o nome do curso ou disciplina.";
+                message.style.color = "#d93025";
+                return;
+            }
+
+            if (!link && !pendingMaterialFile) {
+                message.textContent = "Selecione um arquivo ou cole um link.";
+                message.style.color = "#d93025";
+                return;
+            }
+
+            const materials = getStoredList(materialsKey);
+
+            materials.push({
+                id: Date.now().toString(),
+                title: title,
+                type: type,
+                link: link,
+                fileName: pendingMaterialFile ? pendingMaterialFile.name : "",
+                fileData: pendingMaterialFile ? pendingMaterialFile.data : "",
+                description: description,
+                course: course,
+                lessonId: lessonId,
+                coverName: pendingMaterialCover ? pendingMaterialCover.name : "",
+                coverData: pendingMaterialCover ? pendingMaterialCover.data : "",
+                teacherPhone: professorPhone,
+                published: true,
+                createdAt: new Date().toISOString()
+            });
+
+            try {
+                saveStoredList(materialsKey, materials);
+            } catch (storageError) {
+                message.textContent = "Não foi possível guardar este arquivo. Tente um arquivo menor.";
+                message.style.color = "#d93025";
+                return;
+            }
+
+            renderProfessorModules();
+
+            message.textContent = "Material guardado e disponibilizado.";
+            message.style.color = "#16803c";
+
+            materialForm.reset();
+            pendingMaterialFile = null;
+            pendingMaterialCover = null;
+            if (materialFileName) materialFileName.textContent = "Nenhum arquivo selecionado";
+            if (materialCoverName) materialCoverName.textContent = "Nenhuma capa selecionada";
+            if (materialCoverPreview) materialCoverPreview.innerHTML = "<span>🖼️</span>";
+            populateMaterialSelectors();
+
+            setTimeout(function () {
+                document.getElementById("materialPanel").classList.remove("professor-panel-open");
+                message.textContent = "";
+            }, 700);
+        });
     }
 
     document.addEventListener("click", function (event) {
