@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>APSAN Academy - Aluno</title>
-<link rel="stylesheet" href="../style.css?v=20260927-enrollments-final">
+<link rel="stylesheet" href="../style.css?v=20260927-teacher-photo-final">
 </head>
 <body class="app-page student-page">
 
@@ -984,9 +984,30 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function getPublishedTeacherProfile(teacherPhone) {
-        return getProfiles().find(function (profile) {
-            return profile.teacherPhone === teacherPhone;
+        const profile = getProfiles().find(function (item) {
+            return item.teacherPhone === teacherPhone;
         }) || null;
+
+        let accountPhoto = "";
+        try {
+            const accounts = JSON.parse(localStorage.getItem("apsan_accounts") || "[]");
+            const accountList = Array.isArray(accounts) ? accounts : [];
+            const teacherAccount = accountList.find(function (item) {
+                return item &&
+                    (item.type === "professor" || item.userType === "professor" || item.role === "professor") &&
+                    String(item.phone || "") === String(teacherPhone || "");
+            });
+            accountPhoto = teacherAccount
+                ? (teacherAccount.photo || teacherAccount.profilePhoto || teacherAccount.avatar || "")
+                : "";
+        } catch (error) {}
+
+        if (!profile && !accountPhoto) return null;
+
+        return Object.assign({}, profile || {}, {
+            teacherPhoto: (profile && (profile.teacherPhoto || profile.photo || profile.profilePhoto)) || accountPhoto,
+            photo: (profile && (profile.teacherPhoto || profile.photo || profile.profilePhoto)) || accountPhoto
+        });
     }
 
     function safeHttpUrl(value) {
@@ -1217,7 +1238,7 @@ document.addEventListener("DOMContentLoaded", function () {
         myEnrollments.innerHTML = mine.map(function (item) {
             const official = item.status === "official";
             const teacher = getPublishedTeacherProfile(item.teacherPhone);
-            const teacherPhoto = teacher && (teacher.photo || teacher.profilePhoto || "");
+            const teacherPhoto = teacher && (teacher.teacherPhoto || teacher.photo || teacher.profilePhoto || "");
             const photo = teacherPhoto
                 ? '<img src="' + esc(teacherPhoto) + '" alt="Foto do professor">'
                 : '<span>' + esc((item.teacherName || "P").charAt(0).toUpperCase()) + '</span>';
