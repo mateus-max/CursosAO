@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 700" preserveAspectRatio="xMidYMid slice">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbfdff"/><stop offset=".52" stop-color="#eaf4ff"/><stop offset="1" stop-color="#ffffff"/></linearGradient><filter id="soft"><feGaussianBlur stdDeviation="14"/></filter></defs>
+<rect width="1600" height="700" fill="url(#bg)"/><rect width="1600" height="700" fill="#fff" opacity=".035"/>
+<g><circle cx="1330" cy="120" r="100" fill="#dceeff"/><g transform="translate(480 400)"><rect x="-180" y="-110" width="360" height="210" rx="15" fill="#283747"/><rect x="-155" y="-85" width="310" height="165" rx="10" fill="#dff3ff"/><path d="M-220 115H220L170 145H-170Z" fill="#b7c6d3"/></g><g transform="translate(1100 450)"><rect x="-170" y="30" width="340" height="35" rx="8" fill="#b8c7d5"/><rect x="-160" y="-8" width="320" height="35" rx="8" fill="#d9e5ef"/><rect x="-150" y="-46" width="300" height="35" rx="8" fill="#a9c3d8"/></g><path d="M1210 350V210" stroke="#71859a" stroke-width="12"/><path d="M1210 250Q1130 170 1080 240Q1120 300 1210 270Q1300 300 1340 240Q1290 170 1210 250Z" fill="#8bbd9b"/></g>
+<rect y="0" width="1600" height="700" fill="url(#shade)" opacity="0"/>
+</svg>
