@@ -994,7 +994,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const accountList = Array.isArray(accounts) ? accounts : [];
             const teacherAccount = accountList.find(function (item) {
                 return item &&
-                    (item.type === "professor" || item.userType === "professor" || item.role === "professor") &&
                     String(item.phone || "") === String(teacherPhone || "");
             });
             accountPhoto = teacherAccount
