@@ -1678,6 +1678,20 @@ document.addEventListener("DOMContentLoaded", function () {
         if (agendaCount) agendaCount.textContent = lessons.length;
 
         const studentsList = document.getElementById("studentsList");
+        const studentOverviewTotal = document.getElementById("studentOverviewTotal");
+        const studentOverviewActive = document.getElementById("studentOverviewActive");
+        const studentOverviewUpcoming = document.getElementById("studentOverviewUpcoming");
+        const studentUpcomingPanel = document.getElementById("studentUpcomingPanel");
+        const studentUpcomingList = document.getElementById("studentUpcomingList");
+
+        if (studentOverviewTotal) studentOverviewTotal.textContent = students.length;
+
+        const activeStudents = students.filter(function (student) {
+            return String(student.status || "active").toLowerCase() !== "inactive";
+        });
+
+        if (studentOverviewActive) studentOverviewActive.textContent = activeStudents.length;
+        if (studentOverviewUpcoming) studentOverviewUpcoming.textContent = lessons.length;
 
         if (studentsList) {
             if (!students.length) {
@@ -1687,25 +1701,54 @@ document.addEventListener("DOMContentLoaded", function () {
                 const upcomingLesson = lessons
                     .slice()
                     .sort(function (a, b) {
-                        return (a.date + a.time).localeCompare(b.date + b.time);
+                        return (String(a.date || "") + String(a.time || "")).localeCompare(String(b.date || "") + String(b.time || ""));
                     })[0];
 
                 studentsList.innerHTML = students.map(function (student) {
                     const name = student.name || student.studentName || "Aluno";
                     const course = student.course || student.courseName || "Curso em acompanhamento";
+                    const inactive = String(student.status || "active").toLowerCase() === "inactive";
+                    const statusLabel = inactive ? "Inativo" : "Ativo";
                     const nextInfo = upcomingLesson
                         ? "Próxima aula: " + formatLessonDate(upcomingLesson.date) + " · " + upcomingLesson.time
                         : "Sem próxima aula agendada";
 
-                    return '<div class="module-row">' +
+                    return '<div class="professor-student-row" data-student-name="' + escapeModuleAttribute(name) + '" data-student-course="' + escapeModuleAttribute(course) + '" data-student-status="' + (inactive ? "inactive" : "active") + '">' +
                         '<span class="module-row-icon">👤</span>' +
                         '<div><strong>' + escapeModuleText(name) + '</strong>' +
-                        '<small>🟢 Aluno ativo · ' + escapeModuleText(course) + '</small>' +
+                        '<small>🟢 ' + escapeModuleText(statusLabel) + ' · ' + escapeModuleText(course) + '</small>' +
                         '<small>' + escapeModuleText(nextInfo) + '</small></div>' +
+                        '<span class="professor-student-status' + (inactive ? ' inactive' : '') + '">' + escapeModuleText(statusLabel) + '</span>' +
                         '</div>';
                 }).join("");
             }
         }
+
+        if (studentUpcomingPanel && studentUpcomingList) {
+            const upcomingLessons = lessons
+                .slice()
+                .sort(function (a, b) {
+                    return (String(a.date || "") + String(a.time || "")).localeCompare(String(b.date || "") + String(b.time || ""));
+                })
+                .slice(0, 3);
+
+            if (upcomingLessons.length) {
+                studentUpcomingPanel.hidden = false;
+                studentUpcomingList.innerHTML = upcomingLessons.map(function (lesson) {
+                    const title = lesson.title || lesson.course || "Aula";
+                    const date = formatLessonDate(lesson.date);
+                    const time = lesson.time || "--:--";
+                    return '<div class="professor-upcoming-row">' +
+                        '<span class="professor-upcoming-date">' + escapeModuleText(date) + '<br>' + escapeModuleText(time) + '</span>' +
+                        '<div><strong>' + escapeModuleText(title) + '</strong><small>' + escapeModuleText(lesson.course || "Curso em acompanhamento") + '</small></div>' +
+                        '</div>';
+                }).join("");
+            } else {
+                studentUpcomingPanel.hidden = true;
+                studentUpcomingList.innerHTML = "";
+            }
+        }
+
 
         const materialsList = document.getElementById("materialsList");
 
@@ -1999,7 +2042,37 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    if (document.body.classList.contains("professor-page")) {
+    const studentSearchInput = document.getElementById("studentSearchInput");
+    let studentFilter = "all";
+
+    function filterProfessorStudents() {
+        const query = studentSearchInput ? studentSearchInput.value.trim().toLowerCase() : "";
+        document.querySelectorAll("#studentsList .professor-student-row").forEach(function (row) {
+            const name = (row.getAttribute("data-student-name") || "").toLowerCase();
+            const course = (row.getAttribute("data-student-course") || "").toLowerCase();
+            const status = row.getAttribute("data-student-status") || "active";
+            const matchesQuery = !query || name.indexOf(query) !== -1 || course.indexOf(query) !== -1;
+            const matchesFilter = studentFilter === "all" || status === studentFilter;
+            row.style.display = matchesQuery && matchesFilter ? "" : "flex";
+        });
+    }
+
+    if (studentSearchInput) {
+        studentSearchInput.addEventListener("input", filterProfessorStudents);
+    }
+
+    document.querySelectorAll("[data-student-filter]").forEach(function (button) {
+        button.addEventListener("click", function () {
+            document.querySelectorAll("[data-student-filter]").forEach(function (item) {
+                item.classList.remove("active");
+            });
+            button.classList.add("active");
+            studentFilter = button.getAttribute("data-student-filter") || "all";
+            filterProfessorStudents();
+        });
+    });
+
+        if (document.body.classList.contains("professor-page")) {
         renderProfessorModules();
     }
 
