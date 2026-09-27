@@ -833,13 +833,13 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    contactsList.innerHTML = contacts.map(function (contact) {
+    contactsList.innerHTML = contacts.map(function (contact, index) {
       const key = conversationKey(myPhone, contact.phone);
       const conversation = all.filter(function (item) { return item.conversationKey === key; });
       const last = conversation.length ? conversation[conversation.length - 1] : null;
       const unread = unreadForConversation(contact.phone).length;
 
-      return '<button type="button" class="messages-contact' + (unread ? ' has-unread' : '') + '" data-contact-phone="' + esc(contact.phone) + '">' +
+      return '<button type="button" class="messages-contact' + (unread ? ' has-unread' : '') + '" data-contact-index="' + index + '">' +
         avatarMarkup(contact.name, contact.photo, "messages-contact-avatar") +
         '<span class="messages-contact-copy">' +
           '<strong>' + esc(contact.name) + '</strong>' +
@@ -852,7 +852,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     contactsList.querySelectorAll("[data-contact-phone]").forEach(function (button) {
       button.addEventListener("click", function () {
-        openConversation(button.getAttribute("data-contact-phone"));
+        openConversation(contacts[Number(button.getAttribute("data-contact-index"))].phone);
       });
     });
 
