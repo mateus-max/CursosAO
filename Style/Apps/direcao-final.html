@@ -255,6 +255,152 @@ body.admin-page .admin-finance-profile-edit{
     }
 }
 </style>
+<style>
+/* Pagamentos da Direção — cartão compacto e otimizado para telemóvel */
+body.admin-page .admin-payment-card{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    width:100%;
+    box-sizing:border-box;
+    padding:13px 0;
+    border-bottom:1px solid #e8eef5;
+}
+body.admin-page .admin-payment-card:last-child{
+    border-bottom:0;
+}
+body.admin-page .admin-payment-main{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    min-width:0;
+    flex:1 1 auto;
+}
+body.admin-page .admin-payment-avatar{
+    width:54px;
+    height:54px;
+    flex:0 0 54px;
+    border-radius:13px;
+    object-fit:cover;
+    display:block;
+    background:#edf4fb;
+}
+body.admin-page .admin-payment-avatar-letter{
+    display:grid;
+    place-items:center;
+    font-size:20px;
+}
+body.admin-page .admin-payment-info{
+    min-width:0;
+}
+body.admin-page .admin-payment-topline{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+}
+body.admin-page .admin-payment-topline>strong{
+    color:#1769e0;
+    font-size:18px;
+    line-height:1.15;
+    white-space:nowrap;
+}
+body.admin-page .admin-payment-status{
+    display:inline-flex;
+    align-items:center;
+    padding:5px 8px;
+    border-radius:999px;
+    font-size:9px;
+    font-weight:900;
+    white-space:nowrap;
+}
+body.admin-page .admin-payment-status.confirmed{
+    background:#eaf8ef;
+    color:#16803c;
+}
+body.admin-page .admin-payment-status.rejected{
+    background:#fff0f0;
+    color:#c62828;
+}
+body.admin-page .admin-payment-status.pending{
+    background:#fff7e6;
+    color:#9a6500;
+}
+body.admin-page .admin-payment-student{
+    display:block;
+    margin-top:4px;
+    color:#172033;
+    font-size:12px;
+    overflow-wrap:anywhere;
+}
+body.admin-page .admin-payment-info>small{
+    display:block;
+    margin-top:2px;
+    color:#718096;
+    font-size:9px;
+    line-height:1.35;
+    overflow-wrap:anywhere;
+}
+body.admin-page .admin-payment-actions{
+    flex:0 0 auto;
+}
+body.admin-page .admin-payment-actions .admin-action{
+    white-space:nowrap;
+}
+@media(max-width:560px){
+    body.admin-page .admin-payment-card{
+        align-items:flex-start;
+        padding:12px 0;
+    }
+    body.admin-page .admin-payment-main{
+        align-items:flex-start;
+    }
+    body.admin-page .admin-payment-avatar{
+        width:50px;
+        height:50px;
+        flex-basis:50px;
+        border-radius:12px;
+    }
+    body.admin-page .admin-payment-topline{
+        display:block;
+    }
+    body.admin-page .admin-payment-topline>strong{
+        display:block;
+        margin-bottom:5px;
+        font-size:17px;
+    }
+    body.admin-page .admin-payment-status{
+        font-size:8px;
+        padding:4px 7px;
+    }
+    body.admin-page .admin-payment-actions .admin-action{
+        padding:8px 9px;
+        font-size:9px;
+    }
+}
+@media(max-width:390px){
+    body.admin-page .admin-payment-card{
+        gap:8px;
+    }
+    body.admin-page .admin-payment-avatar{
+        width:44px;
+        height:44px;
+        flex-basis:44px;
+    }
+    body.admin-page .admin-payment-topline>strong{
+        font-size:15px;
+    }
+    body.admin-page .admin-payment-student{
+        font-size:11px;
+    }
+    body.admin-page .admin-payment-actions .admin-action{
+        max-width:92px;
+        white-space:normal;
+        text-align:center;
+    }
+}
+</style>
 </head>
 <body class="app-page admin-page">
 
