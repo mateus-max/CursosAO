@@ -386,16 +386,140 @@
             font-size:12px;
         }
 
-        @media(max-width:520px){
-            .login-container{padding:0 0 12px;align-items:flex-start}
-            .login-card{width:100%;min-height:100vh;border-radius:0;box-shadow:none}
-            .login-hero{min-height:190px;padding:22px 22px 30px}
-            .login-brand-text strong{font-size:21px}
-            .login-hero-copy{margin-top:21px;font-size:18px}
-            .login-body{padding:24px 20px 20px}
-            .login-heading h1{font-size:24px}
-            .login-benefits{gap:5px}
-            .login-benefit{font-size:10px}
+        @media(max-width:760px){
+            .login-container{
+                padding:0;
+                align-items:flex-start;
+            }
+
+            .login-card{
+                width:100%;
+                min-height:100vh;
+                border-radius:0;
+                box-shadow:none;
+            }
+
+            .login-hero{
+                min-height:285px;
+                padding:22px 22px 48px;
+            }
+
+            .login-brand{
+                gap:12px;
+            }
+
+            .logo-circle{
+                width:68px;
+                height:68px;
+                flex-basis:68px;
+            }
+
+            .login-brand-text strong{
+                font-size:23px;
+            }
+
+            .login-brand-text span{
+                font-size:10px;
+            }
+
+            .login-hero-copy{
+                margin-top:28px;
+                max-width:500px;
+                font-size:22px;
+                line-height:1.15;
+            }
+
+            .login-hero-copy span{
+                margin-top:10px;
+                font-size:14px;
+                line-height:1.35;
+            }
+
+            .login-body{
+                padding:34px 22px 22px;
+            }
+
+            .login-heading h1{
+                font-size:27px;
+            }
+
+            .login-subtitle{
+                margin-bottom:23px;
+            }
+
+            #loginForm{
+                gap:15px;
+            }
+
+            .form-group{
+                gap:7px;
+            }
+
+            .form-group input,
+            .form-group select{
+                height:58px;
+                border-radius:17px;
+            }
+
+            .login-button{
+                height:58px;
+                border-radius:17px;
+            }
+
+            .create-account{
+                margin-top:18px;
+                padding:16px 12px;
+            }
+
+            .login-benefits{
+                margin-top:17px;
+                padding-top:17px;
+                gap:5px;
+            }
+
+            .login-benefit{
+                font-size:10px;
+            }
+
+            .login-benefit-icon{
+                width:36px;
+                height:36px;
+                margin-bottom:6px;
+            }
+
+            .login-footer{
+                margin-top:16px;
+                padding-top:14px;
+                padding-bottom:8px;
+            }
+        }
+
+        @media(max-width:390px){
+            .login-hero{
+                min-height:265px;
+                padding:20px 18px 43px;
+            }
+
+            .login-brand-text strong{
+                font-size:21px;
+            }
+
+            .login-hero-copy{
+                margin-top:23px;
+                font-size:19px;
+            }
+
+            .login-body{
+                padding:28px 17px 18px;
+            }
+
+            .login-heading h1{
+                font-size:24px;
+            }
+
+            .login-benefit{
+                font-size:9px;
+            }
         }
     </style>
 </head>
