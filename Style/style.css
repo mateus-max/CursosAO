@@ -6692,3 +6692,28 @@ body.admin-page .student-side-menu-logout{
     .schedule-actions{justify-content:flex-start}
     .schedule-actions .live-class-button{width:100%}
 }
+
+
+/* Notificação de aula ao vivo para o aluno */
+.student-live-class-notice{
+    position:relative;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin:14px 0 0;
+    padding:14px 16px;
+    border:1px solid #b9d7c5;
+    border-radius:15px;
+    background:#f1fbf4;
+    color:#173322;
+    box-shadow:0 7px 22px rgba(22,101,52,.08);
+}
+.student-live-class-notice[hidden]{display:none!important}
+.student-live-class-copy{min-width:0;flex:1;display:grid;gap:3px}
+.student-live-class-copy>span{font-size:9px;font-weight:1000;color:#16803c;letter-spacing:.08em}
+.student-live-class-copy>strong{font-size:14px;line-height:1.25}
+.student-live-class-copy>small{font-size:10px;color:#5c6f62}
+.student-live-class-copy>p{margin:3px 0 0;font-size:10px;color:#52665a}
+.student-live-class-notice>button:not(.student-live-dismiss){border:0;border-radius:10px;padding:10px 13px;background:#16803c;color:#fff;font-size:11px;font-weight:900;cursor:pointer;white-space:nowrap}
+.student-live-dismiss{width:28px;height:28px;flex:0 0 28px;border:0;border-radius:8px;background:transparent;color:#718096;font-size:20px;cursor:pointer}
+@media(max-width:600px){.student-live-class-notice{align-items:flex-start;padding:12px;gap:8px}.student-live-class-notice>button:not(.student-live-dismiss){padding:9px 10px}.student-live-class-copy>p{display:none}.student-live-class-dismiss{display:block}}
