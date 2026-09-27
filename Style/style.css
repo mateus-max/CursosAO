@@ -3661,3 +3661,31 @@ main.single-panel-mode{padding-bottom:110px}
     .tech-books{left:39%;transform:scale(.82) rotate(-2deg);transform-origin:bottom left}
     .tech-globe-wrap{right:4%;transform:scale(.88);transform-origin:bottom right}
 }
+
+
+/* =========================================================
+   CENA REALISTA — REFERÊNCIA APROVADA
+   Mantém a saudação, cabeçalho, navegação e funcionalidades.
+   Apenas a cena de PC/livros/globo usa a imagem realista aprovada.
+   ========================================================= */
+.professor-tech-scene{
+    min-height:0 !important;
+    aspect-ratio:479 / 348;
+    background-image:url("assets/apsan-cena-referencia.webp") !important;
+    background-size:100% 100% !important;
+    background-position:center !important;
+    background-repeat:no-repeat !important;
+    border:none;
+    box-shadow:0 16px 38px rgba(18,54,91,.10);
+}
+.professor-tech-scene .tech-scene-glow,
+.professor-tech-scene .tech-scene-copy,
+.professor-tech-scene .tech-scene-desk{
+    display:none !important;
+}
+@media(max-width:560px){
+    .professor-tech-scene{
+        min-height:0 !important;
+        aspect-ratio:479 / 348;
+    }
+}
