@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 700" preserveAspectRatio="xMidYMid slice">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#79c4d7"/><stop offset=".52" stop-color="#d8f0e7"/><stop offset="1" stop-color="#6da994"/></linearGradient><filter id="soft"><feGaussianBlur stdDeviation="14"/></filter></defs>
+<rect width="1600" height="700" fill="url(#bg)"/><rect width="1600" height="700" fill="#fff" opacity=".035"/>
+<g><path d="M0 390L250 170L480 390L700 130L980 390L1220 160L1600 400V700H0Z" fill="#5a8f82"/><path d="M0 450L300 260L540 450L780 210L1060 450L1300 250L1600 430V700H0Z" fill="#3f756d" opacity=".8"/><path d="M0 500Q380 430 800 520T1600 500V700H0Z" fill="#78c5ca"/><ellipse cx="1160" cy="550" rx="310" ry="55" fill="#d8f5f2" opacity=".45"/><g transform="translate(300 470)"><rect x="-130" y="-80" width="260" height="155" rx="10" fill="#29383c"/><rect x="-110" y="-62" width="220" height="112" rx="7" fill="#b9e6e7"/></g><g transform="translate(1360 365)"><path d="M0 150V-10" stroke="#61452d" stroke-width="18"/><path d="M0 30Q-120-60-165 25Q-100 100 0 55Q100 100 165 25Q120-60 0 30Z" fill="#4c9a68"/></g></g>
+<rect y="0" width="1600" height="700" fill="url(#shade)" opacity="0"/>
+</svg>
