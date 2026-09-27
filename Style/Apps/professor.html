@@ -498,6 +498,38 @@
         <a href="#agenda">▥<small>Agenda</small></a>
     </nav>
 
+    <!-- PERFIL DO ALUNO -->
+    <div class="professor-panel-overlay" id="studentViewPanel">
+        <div class="professor-panel-modal student-view-modal">
+            <div class="profile-modal-header">
+                <div>
+                    <span class="section-label">PERFIL DO ALUNO</span>
+                    <h2 id="studentViewName">Aluno</h2>
+                    <p>Informações do aluno acompanhado pelo professor.</p>
+                </div>
+                <button type="button" class="close-profile" data-close-panel="studentView">×</button>
+            </div>
+            <div class="student-view-profile-head">
+                <div class="student-view-avatar">
+                    <img id="studentViewPhoto" src="" alt="Foto do aluno">
+                    <span id="studentViewLetter">A</span>
+                </div>
+                <div>
+                    <strong id="studentViewStatus">🟢 Aluno ativo</strong>
+                    <span id="studentViewCourse">Curso em acompanhamento</span>
+                </div>
+            </div>
+            <div class="student-view-details">
+                <div><small>Telefone</small><strong id="studentViewPhone">—</strong></div>
+                <div><small>Próxima aula</small><strong id="studentViewNext">—</strong></div>
+            </div>
+            <div class="student-view-actions">
+                <a href="#aulas" class="secondary-action" data-close-panel="studentView">Ver aulas →</a>
+                <a href="#agenda" class="primary-action" data-close-panel="studentView">Ver agenda →</a>
+            </div>
+        </div>
+    </div>
+
     <!-- =====================================================
          MODAIS DE AULAS E MATERIAIS
          ===================================================== -->
