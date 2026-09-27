@@ -274,5 +274,89 @@ body.admin-page .admin-dashboard-stat{
 </div>
 <script src="direcao-final.js?v=20260927-menu-final-1"></script>
 <script src="finance.js?v=finance-20260926"></script>
+
+<style>
+/* Ajuste visual da lista de Utilizadores — sem alterar o fundo nem a navegação. */
+body.admin-page #admin-users{
+    padding:18px 20px 12px !important;
+}
+body.admin-page #admin-users .admin-panel-title{
+    margin-bottom:6px !important;
+    padding-bottom:10px !important;
+    border-bottom:1px solid #edf1f6 !important;
+}
+body.admin-page #admin-users .admin-panel-title h2{
+    font-size:20px !important;
+    line-height:1.15 !important;
+    letter-spacing:-.2px !important;
+}
+body.admin-page #admin-users .admin-panel-title span{
+    font-size:10px !important;
+    font-weight:800 !important;
+    color:#1769e0 !important;
+}
+body.admin-page #admin-users .admin-list{
+    margin-top:0 !important;
+}
+body.admin-page #admin-users .admin-row{
+    min-height:66px !important;
+    padding:10px 0 !important;
+    gap:12px !important;
+}
+body.admin-page #admin-users .admin-row-icon{
+    width:42px !important;
+    height:42px !important;
+    flex:0 0 42px !important;
+    border-radius:12px !important;
+    font-size:20px !important;
+    background:#eaf3ff !important;
+}
+body.admin-page #admin-users .admin-row strong{
+    font-size:14px !important;
+    line-height:1.25 !important;
+}
+body.admin-page #admin-users .admin-row small{
+    margin-top:4px !important;
+    font-size:11px !important;
+    line-height:1.25 !important;
+}
+body.admin-page #admin-users .admin-status{
+    padding:7px 10px !important;
+    border-radius:999px !important;
+    font-size:10px !important;
+    line-height:1 !important;
+}
+@media(max-width:560px){
+    body.admin-page #admin-users{
+        padding:16px 15px 10px !important;
+        border-radius:18px !important;
+    }
+    body.admin-page #admin-users .admin-panel-title{
+        align-items:flex-start !important;
+        gap:5px !important;
+    }
+    body.admin-page #admin-users .admin-panel-title span{
+        margin-top:2px !important;
+        text-align:right !important;
+        line-height:1.25 !important;
+    }
+    body.admin-page #admin-users .admin-row{
+        min-height:64px !important;
+        padding:9px 0 !important;
+    }
+    body.admin-page #admin-users .admin-row-icon{
+        width:40px !important;
+        height:40px !important;
+        flex-basis:40px !important;
+    }
+    body.admin-page #admin-users .admin-row strong{
+        font-size:13.5px !important;
+    }
+    body.admin-page #admin-users .admin-row small{
+        font-size:10.5px !important;
+    }
+}
+</style>
+
 </body>
 </html>
