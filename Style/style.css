@@ -4495,3 +4495,99 @@ main.single-panel-mode{padding-bottom:110px}
         margin-top:-2px;
     }
 }
+
+/* =========================================================
+   MATERIAIS — FORMULÁRIO PROFISSIONAL
+   ========================================================= */
+.material-form-enhanced .form-group{margin-bottom:12px}
+.material-form-enhanced .professor-form-row{gap:10px}
+.material-form-enhanced .professor-form-row .form-group{flex:1}
+.field-optional{
+    color:#98a4b3;
+    font-size:10px;
+    font-weight:500;
+}
+.material-upload-box{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    min-height:58px;
+    padding:10px 12px;
+    box-sizing:border-box;
+    background:#f7faff;
+    border:1px dashed #cddced;
+    border-radius:13px;
+}
+.material-upload-icon{
+    width:36px;
+    height:36px;
+    display:grid;
+    place-items:center;
+    flex:0 0 36px;
+    border-radius:10px;
+    background:#eaf3ff;
+    font-size:17px;
+}
+.material-upload-box>div:nth-child(2){
+    min-width:0;
+    flex:1;
+}
+.material-upload-box strong,
+.material-upload-box small{
+    display:block;
+}
+.material-upload-box strong{
+    color:#26364b;
+    font-size:11px;
+}
+.material-upload-box small{
+    margin-top:3px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    color:#8795a6;
+    font-size:10px;
+}
+.material-file-button{
+    flex:0 0 auto;
+    padding:8px 10px;
+    border-radius:9px;
+    background:#eaf3ff;
+    color:#1769e0;
+    cursor:pointer;
+    font-size:10px;
+    font-weight:800;
+}
+.material-or{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin:9px 0;
+    color:#9aa6b5;
+    font-size:10px;
+}
+.material-or::before,
+.material-or::after{
+    content:"";
+    height:1px;
+    flex:1;
+    background:#e5ebf2;
+}
+.material-form-enhanced .login-button{
+    margin-top:4px;
+}
+@media(max-width:560px){
+    .material-form-enhanced .professor-form-row{
+        display:block;
+    }
+    .material-upload-box{
+        align-items:flex-start;
+        flex-wrap:wrap;
+    }
+    .material-upload-box>div:nth-child(2){
+        max-width:calc(100% - 55px);
+    }
+    .material-file-button{
+        margin-left:46px;
+    }
+}
