@@ -5391,81 +5391,85 @@ body.apsan-wallpaper-apsan-premium .app-content{
 }
 
 /* =========================================================
-   TEMAS COM IMAGEM PRINCIPAL — DASHBOARD ALUNO + PROFESSOR
-   A preferência salva troca a própria cena visual, não só a cor.
+   PAPEL DE PAREDE REAL — DASHBOARD ALUNO + PROFESSOR
+   A área visual mostra somente a fotografia escolhida.
+   Não há texto, globo, laptop, livros ou ilustrações HTML por cima.
    ========================================================= */
-body.apsan-wallpaper-default .professor-tech-scene{
-    background-image:url("assets/apsan-cena-aprovada.webp") !important;
-    background-size:100% 100% !important;
+.professor-tech-scene{
+    position:relative !important;
+    width:100% !important;
+    max-width:100% !important;
+    min-height:0 !important;
+    height:auto !important;
+    aspect-ratio:16 / 9 !important;
+    margin:28px auto 24px !important;
+    padding:0 !important;
+    overflow:hidden !important;
+    border:0 !important;
+    border-radius:18px !important;
+    box-shadow:0 10px 28px rgba(12,44,84,.12) !important;
+    background-color:#e9eef4 !important;
+    background-position:center center !important;
+    background-repeat:no-repeat !important;
+    background-size:cover !important;
+    filter:none !important;
 }
-body.apsan-wallpaper-blue-wave .professor-tech-scene{
-    background-image:url("assets/themes/dashboard-blue-wave.svg") !important;
+.professor-tech-scene::before,
+.professor-tech-scene::after,
+.professor-tech-scene .tech-scene-glow,
+.professor-tech-scene .tech-scene-copy,
+.professor-tech-scene .tech-scene-desk{
+    display:none !important;
+    content:none !important;
 }
-body.apsan-wallpaper-study-space .professor-tech-scene{
-    background-image:url("assets/themes/dashboard-study-space.svg") !important;
+.student-tech-scene{
+    width:100% !important;
+    max-width:100% !important;
+    aspect-ratio:16 / 9 !important;
+    margin:28px auto 24px !important;
 }
-body.apsan-wallpaper-global-network .professor-tech-scene{
-    background-image:url("assets/themes/dashboard-global-network.svg") !important;
-}
-body.apsan-wallpaper-library .professor-tech-scene{
-    background-image:url("assets/themes/dashboard-library.svg") !important;
-}
-body.apsan-wallpaper-clean-minimal .professor-tech-scene{
-    background-image:url("assets/themes/dashboard-clean-minimal.svg") !important;
-}
-body.apsan-wallpaper-serene-nature .professor-tech-scene{
-    background-image:url("assets/themes/dashboard-serene-nature.svg") !important;
-}
-body.apsan-wallpaper-academic-night .professor-tech-scene{
-    background-image:url("assets/themes/dashboard-academic-night.svg") !important;
-}
-body.apsan-wallpaper-creativity .professor-tech-scene{
-    background-image:url("assets/themes/dashboard-creativity.svg") !important;
-}
-body.apsan-wallpaper-global-education .professor-tech-scene{
-    background-image:url("assets/themes/dashboard-global-education.svg") !important;
-}
-body.apsan-wallpaper-digital-aurora .professor-tech-scene{
-    background-image:url("assets/themes/dashboard-digital-aurora.svg") !important;
-}
-body.apsan-wallpaper-education-future .professor-tech-scene{
-    background-image:url("assets/themes/dashboard-education-future.svg") !important;
-}
-body.apsan-wallpaper-apsan-premium .professor-tech-scene{
-    background-image:url("assets/themes/dashboard-apsan-premium.svg") !important;
-}
-body.apsan-wallpaper-soft-blue .professor-tech-scene,
+
+/* Fotografias reais, sem ilustração vetorial. */
+body.apsan-wallpaper-default .professor-tech-scene,
+body.apsan-wallpaper-blue-wave .professor-tech-scene,
 body.apsan-wallpaper-deep-blue .professor-tech-scene,
 body.apsan-wallpaper-minimal .professor-tech-scene{
-    background-image:url("assets/apsan-cena-aprovada.webp") !important;
+    background-image:url("https://upload.wikimedia.org/wikipedia/commons/c/c0/Laptop_on_desk_book_stacks_%28Unsplash%29.jpg") !important;
+}
+body.apsan-wallpaper-study-space .professor-tech-scene,
+body.apsan-wallpaper-serene-nature .professor-tech-scene{
+    background-image:url("https://upload.wikimedia.org/wikipedia/commons/7/79/Laptop_on_a_desk_%28Unsplash%29.jpg") !important;
+}
+body.apsan-wallpaper-global-network .professor-tech-scene,
+body.apsan-wallpaper-digital-aurora .professor-tech-scene,
+body.apsan-wallpaper-apsan-premium .professor-tech-scene{
+    background-image:url("https://upload.wikimedia.org/wikipedia/commons/2/29/An_office_table_and_computers_%28Unsplash%29.jpg") !important;
+}
+body.apsan-wallpaper-library .professor-tech-scene{
+    background-image:url("https://upload.wikimedia.org/wikipedia/commons/1/13/Bookshelf_%28Unsplash%29.jpg") !important;
+}
+body.apsan-wallpaper-clean-minimal .professor-tech-scene,
+body.apsan-wallpaper-education-future .professor-tech-scene{
+    background-image:url("https://upload.wikimedia.org/wikipedia/commons/3/3e/Books%2C_pencils%2C_laptop%2C_and_iphone_on_a_desk_%28Unsplash%29.jpg") !important;
+}
+body.apsan-wallpaper-academic-night .professor-tech-scene,
+body.apsan-wallpaper-creativity .professor-tech-scene,
+body.apsan-wallpaper-global-education .professor-tech-scene{
+    background-image:url("https://upload.wikimedia.org/wikipedia/commons/c/c0/Laptop_on_desk_book_stacks_%28Unsplash%29.jpg") !important;
 }
 
-/* As cenas tem o mesmo enquadramento e funcionam nos dois perfis. */
-body[class*="apsan-wallpaper-"] .professor-tech-scene{
-    background-repeat:no-repeat !important;
-    background-position:center !important;
-    background-size:cover !important;
+@media(max-width:560px){
+    .professor-tech-scene,
+    .student-tech-scene{
+        width:100% !important;
+        max-width:none !important;
+        aspect-ratio:16 / 9 !important;
+        margin:22px 0 20px !important;
+        border-radius:14px !important;
+    }
 }
-body.apsan-wallpaper-default .professor-tech-scene{
-    background-size:100% 100% !important;
-}
 
-/* Miniaturas das imagens reais no seletor. */
-.wp-blue-wave{background-image:url("assets/themes/dashboard-blue-wave.svg") !important;background-size:cover}
-.wp-global-network{background-image:url("assets/themes/dashboard-global-network.svg") !important;background-size:cover}
-.wp-study-space{background-image:url("assets/themes/dashboard-study-space.svg") !important;background-size:cover}
-.wp-library{background-image:url("assets/themes/dashboard-library.svg") !important;background-size:cover}
-.wp-clean-minimal{background-image:url("assets/themes/dashboard-clean-minimal.svg") !important;background-size:cover}
-.wp-serene-nature{background-image:url("assets/themes/dashboard-serene-nature.svg") !important;background-size:cover}
-.wp-academic-night{background-image:url("assets/themes/dashboard-academic-night.svg") !important;background-size:cover}
-.wp-creativity{background-image:url("assets/themes/dashboard-creativity.svg") !important;background-size:cover}
-.wp-global-education{background-image:url("assets/themes/dashboard-global-education.svg") !important;background-size:cover}
-.wp-digital-aurora{background-image:url("assets/themes/dashboard-digital-aurora.svg") !important;background-size:cover}
-.wp-education-future{background-image:url("assets/themes/dashboard-education-future.svg") !important;background-size:cover}
-.wp-apsan-premium{background-image:url("assets/themes/dashboard-apsan-premium.svg") !important;background-size:cover}
-
-
-/* MINIATURAS REAIS — SELETOR DE PAPEL DE PAREDE */
+/* Miniaturas: mostram as mesmas fotografias reais usadas no dashboard. */
 .apsan-wallpaper-options .wallpaper-preview{
     position:absolute !important;
     inset:0 !important;
@@ -5487,43 +5491,29 @@ body.apsan-wallpaper-default .professor-tech-scene{
     position:relative !important;
     z-index:2 !important;
 }
-.apsan-wallpaper-options .wp-default{
-    background-image:url("assets/apsan-cena-aprovada.webp") !important;
-    background-size:cover !important;
+.apsan-wallpaper-options .wp-default,
+.apsan-wallpaper-options .wp-blue-wave,
+.apsan-wallpaper-options .wp-deep-blue,
+.apsan-wallpaper-options .wp-minimal,
+.apsan-wallpaper-options .wp-academic-night,
+.apsan-wallpaper-options .wp-creativity,
+.apsan-wallpaper-options .wp-global-education{
+    background-image:url("https://upload.wikimedia.org/wikipedia/commons/c/c0/Laptop_on_desk_book_stacks_%28Unsplash%29.jpg") !important;
 }
-.apsan-wallpaper-options .wp-blue-wave{
-    background-image:url("assets/themes/dashboard-blue-wave.svg") !important;
+.apsan-wallpaper-options .wp-study-space,
+.apsan-wallpaper-options .wp-serene-nature{
+    background-image:url("https://upload.wikimedia.org/wikipedia/commons/7/79/Laptop_on_a_desk_%28Unsplash%29.jpg") !important;
 }
-.apsan-wallpaper-options .wp-study-space{
-    background-image:url("assets/themes/dashboard-study-space.svg") !important;
-}
-.apsan-wallpaper-options .wp-global-network{
-    background-image:url("assets/themes/dashboard-global-network.svg") !important;
+.apsan-wallpaper-options .wp-global-network,
+.apsan-wallpaper-options .wp-digital-aurora,
+.apsan-wallpaper-options .wp-apsan-premium{
+    background-image:url("https://upload.wikimedia.org/wikipedia/commons/2/29/An_office_table_and_computers_%28Unsplash%29.jpg") !important;
 }
 .apsan-wallpaper-options .wp-library{
-    background-image:url("assets/themes/dashboard-library.svg") !important;
+    background-image:url("https://upload.wikimedia.org/wikipedia/commons/1/13/Bookshelf_%28Unsplash%29.jpg") !important;
 }
-.apsan-wallpaper-options .wp-clean-minimal{
-    background-image:url("assets/themes/dashboard-clean-minimal.svg") !important;
-}
-.apsan-wallpaper-options .wp-serene-nature{
-    background-image:url("assets/themes/dashboard-serene-nature.svg") !important;
-}
-.apsan-wallpaper-options .wp-academic-night{
-    background-image:url("assets/themes/dashboard-academic-night.svg") !important;
-}
-.apsan-wallpaper-options .wp-creativity{
-    background-image:url("assets/themes/dashboard-creativity.svg") !important;
-}
-.apsan-wallpaper-options .wp-global-education{
-    background-image:url("assets/themes/dashboard-global-education.svg") !important;
-}
-.apsan-wallpaper-options .wp-digital-aurora{
-    background-image:url("assets/themes/dashboard-digital-aurora.svg") !important;
-}
+.apsan-wallpaper-options .wp-clean-minimal,
 .apsan-wallpaper-options .wp-education-future{
-    background-image:url("assets/themes/dashboard-education-future.svg") !important;
+    background-image:url("https://upload.wikimedia.org/wikipedia/commons/3/3e/Books%2C_pencils%2C_laptop%2C_and_iphone_on_a_desk_%28Unsplash%29.jpg") !important;
 }
-.apsan-wallpaper-options .wp-apsan-premium{
-    background-image:url("assets/themes/dashboard-apsan-premium.svg") !important;
-}
+
