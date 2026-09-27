@@ -260,6 +260,38 @@ body.admin-page .admin-dashboard-stat{
  </div>
 </div>
 
+<div class="admin-modal" id="adminUserProfileModal">
+ <div class="admin-modal-card admin-user-profile-card">
+  <div class="admin-modal-head">
+   <h2>Perfil do utilizador</h2>
+   <button class="admin-close" type="button" data-close-admin-modal="adminUserProfileModal" aria-label="Fechar">×</button>
+  </div>
+  <div id="adminUserProfileContent"></div>
+ </div>
+</div>
+
+<style>
+.admin-user-profile-card{width:min(100%,620px) !important}
+.admin-user-profile-head{display:flex;align-items:center;gap:16px;padding:4px 0 18px;border-bottom:1px solid #edf1f6}
+.admin-user-profile-avatar{width:88px;height:88px;flex:0 0 88px;border-radius:50%;overflow:hidden;background:#eaf3ff;display:grid;place-items:center}
+.admin-user-profile-photo{width:100%;height:100%;display:block;object-fit:cover}
+.admin-user-profile-letter{width:100%;height:100%;display:grid;place-items:center;background:#1769e0;color:#fff;font-size:32px;font-weight:800}
+.admin-user-profile-title{min-width:0;display:grid;gap:5px}
+.admin-user-profile-title h3{margin:0;color:#172033;font-size:20px;line-height:1.2;word-break:break-word}
+.admin-user-profile-type{color:#1769e0;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
+.admin-user-profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.admin-user-profile-bio{margin-top:10px;padding:14px;border:1px solid #e4ebf3;border-radius:11px;background:#f8fbff}
+.admin-user-profile-bio small{display:block;color:#718096;font-size:10px;font-weight:800}
+.admin-user-profile-bio p{margin:6px 0 0;color:#344054;font-size:13px;line-height:1.55;white-space:pre-wrap;word-break:break-word}
+@media(max-width:560px){
+ .admin-user-profile-card{padding:16px !important}
+ .admin-user-profile-head{gap:12px}
+ .admin-user-profile-avatar{width:72px;height:72px;flex-basis:72px}
+ .admin-user-profile-title h3{font-size:17px}
+ .admin-user-profile-grid{grid-template-columns:1fr}
+}
+</style>
+
 <div class="admin-modal" id="adminEditModal">
  <div class="admin-modal-card">
   <div class="admin-modal-head"><h2>Editar matrícula</h2><button class="admin-close" type="button" data-close-admin-modal="adminEditModal">×</button></div>
@@ -272,7 +304,7 @@ body.admin-page .admin-dashboard-stat{
   </form>
  </div>
 </div>
-<script src="direcao-final.js?v=20260927-profile-photos-1"></script>
+<script src="direcao-final.js?v=20260927-user-profile-1"></script>
 <script src="finance.js?v=finance-20260926"></script>
 
 <style>
