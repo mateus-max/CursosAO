@@ -5862,3 +5862,46 @@ body.professor-page .professor-bottom-nav{
         border-radius:15px !important;
     }
 }
+
+/* =========================================================
+   10 NOVOS WALLPAPERS — EDUCAÇÃO E CURSOS ONLINE
+   Fotografias reais aplicadas diretamente ao fundo do app.
+   ========================================================= */
+body.apsan-wallpaper-virtual-class{background-image:url("https://commons.wikimedia.org/wiki/Special:Redirect/file/Students_using_a_computer_laptop.jpg") !important;}
+body.apsan-wallpaper-study-together{background-image:url("https://commons.wikimedia.org/wiki/Special:Redirect/file/Pupils_studying_a_book.jpg") !important;}
+body.apsan-wallpaper-digital-classroom{background-image:url("https://commons.wikimedia.org/wiki/Special:Redirect/file/A_group_of_students_using_a_computer_laptop.jpg") !important;}
+body.apsan-wallpaper-reading-class{background-image:url("https://commons.wikimedia.org/wiki/Special:Redirect/file/Students_reading_in_a_classroom.jpg") !important;}
+body.apsan-wallpaper-computer-learning{background-image:url("https://commons.wikimedia.org/wiki/Special:Redirect/file/Students_using_a_computer.jpg") !important;}
+body.apsan-wallpaper-learning-library{background-image:url("https://commons.wikimedia.org/wiki/Special:Redirect/file/Students_and_Readers_in_the_Library.jpg") !important;}
+body.apsan-wallpaper-education-tech{background-image:url("https://commons.wikimedia.org/wiki/Special:Redirect/file/The_use_of_computer_in_education.jpg") !important;}
+body.apsan-wallpaper-online-course{background-image:url("https://commons.wikimedia.org/wiki/Special:Redirect/file/Learning_schooling.jpg") !important;}
+body.apsan-wallpaper-virtual-study{background-image:url("https://commons.wikimedia.org/wiki/Special:Redirect/file/A_group_of_female_students_looking_on_a_laptop.jpg") !important;}
+body.apsan-wallpaper-live-class{background-image:url("https://commons.wikimedia.org/wiki/Special:Redirect/file/JHS_students_looking_on_a_laptop.jpg") !important;}
+
+.apsan-wallpaper-options .wp-virtual-class{background-image:url("https://commons.wikimedia.org/wiki/Special:Redirect/file/Students_using_a_computer_laptop.jpg") !important;}
+.apsan-wallpaper-options .wp-study-together{background-image:url("https://commons.wikimedia.org/wiki/Special:Redirect/file/Pupils_studying_a_book.jpg") !important;}
+.apsan-wallpaper-options .wp-digital-classroom{background-image:url("https://commons.wikimedia.org/wiki/Special:Redirect/file/A_group_of_students_using_a_computer_laptop.jpg") !important;}
+.apsan-wallpaper-options .wp-reading-class{background-image:url("https://commons.wikimedia.org/wiki/Special:Redirect/file/Students_reading_in_a_classroom.jpg") !important;}
+.apsan-wallpaper-options .wp-computer-learning{background-image:url("https://commons.wikimedia.org/wiki/Special:Redirect/file/Students_using_a_computer.jpg") !important;}
+.apsan-wallpaper-options .wp-learning-library{background-image:url("https://commons.wikimedia.org/wiki/Special:Redirect/file/Students_and_Readers_in_the_Library.jpg") !important;}
+.apsan-wallpaper-options .wp-education-tech{background-image:url("https://commons.wikimedia.org/wiki/Special:Redirect/file/The_use_of_computer_in_education.jpg") !important;}
+.apsan-wallpaper-options .wp-online-course{background-image:url("https://commons.wikimedia.org/wiki/Special:Redirect/file/Learning_schooling.jpg") !important;}
+.apsan-wallpaper-options .wp-virtual-study{background-image:url("https://commons.wikimedia.org/wiki/Special:Redirect/file/A_group_of_female_students_looking_on_a_laptop.jpg") !important;}
+.apsan-wallpaper-options .wp-live-class{background-image:url("https://commons.wikimedia.org/wiki/Special:Redirect/file/JHS_students_looking_on_a_laptop.jpg") !important;}
+
+/* Hero "Olá" mais forte e nítido, sem efeito fosco. */
+body.student-page .student-hero,
+body.professor-page .professor-hero{
+    background:
+        radial-gradient(circle at 88% 18%,rgba(72,182,255,.38),transparent 28%),
+        linear-gradient(115deg,#031d48 0%,#0759ae 58%,#087fd1 100%) !important;
+    border:1px solid rgba(255,255,255,.22) !important;
+    box-shadow:0 16px 38px rgba(3,35,82,.26) !important;
+    backdrop-filter:none !important;
+    -webkit-backdrop-filter:none !important;
+    opacity:1 !important;
+}
+body.student-page .student-hero h1,
+body.professor-page .professor-hero h1{
+    text-shadow:0 2px 10px rgba(0,20,50,.24) !important;
+}
