@@ -750,7 +750,7 @@ document.addEventListener("DOMContentLoaded", function () {
      * com espaços/hífens/pontos ou com o indicativo internacional +244.
      * Ex.: 923456789, 923 456 789, 923-456-789, +244 923 456 789.
      */
-    const phonePattern = /(?<!\d)(?:\+?244[\s.-]*)?(?:9\d{2}[\s.-]*\d{3}[\s.-]*\d{3})(?!\d)/;
+    const phonePattern = /(?<!\d)(?:\+?244[\s.-]*)?(?:\d{3}[\s.-]*\d{3}[\s.-]*\d{3})(?!\d)/;
     if (phonePattern.test(value)) {
       return true;
     }
