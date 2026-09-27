@@ -300,6 +300,23 @@ body.admin-page .admin-dashboard-stat{
  </div>
 </div>
 
+<div class="admin-modal" id="adminDirectionProfileModal">
+  <div class="admin-modal-card admin-direction-profile-card">
+    <div class="admin-modal-head"><h2>Perfil da Direção</h2><button class="admin-close" type="button" data-close-admin-modal="adminDirectionProfileModal" aria-label="Fechar">×</button></div>
+    <form id="adminDirectionProfileForm" class="admin-form">
+      <div class="admin-direction-logo-row">
+        <div class="admin-direction-logo-preview" id="adminDirectionLogoPreview"><span>D</span></div>
+        <div><strong>Logotipo da Direção</strong><small>Será usado como avatar no cabeçalho.</small><label class="admin-upload-button">Carregar imagem<input id="adminDirectionLogo" type="file" accept="image/*" hidden></label></div>
+      </div>
+      <label>Nome da Direção<input id="adminDirectionName" type="text" required placeholder="Nome da Direção / Empresa"></label>
+      <label>NIF da empresa<input id="adminDirectionNif" type="text" inputmode="text" placeholder="NIF"></label>
+      <label>Localização<input id="adminDirectionLocation" type="text" placeholder="Local / Cidade / Província"></label>
+      <div class="admin-modal-buttons"><button class="admin-save" type="submit">Salvar perfil</button><button class="admin-cancel" type="button" data-close-admin-modal="adminDirectionProfileModal">Cancelar</button></div>
+      <p id="adminDirectionProfileMessage" class="admin-settings-message"></p>
+    </form>
+  </div>
+</div>
+
 <div class="admin-modal" id="adminUserProfileModal">
  <div class="admin-modal-card admin-user-profile-card">
   <div class="admin-modal-head">
@@ -344,7 +361,7 @@ body.admin-page .admin-dashboard-stat{
   </form>
  </div>
 </div>
-<script src="direcao-final.js?v=20260927-approval-finance-1"></script>
+<script src="direcao-final.js?v=20260927-direction-profile-mobile-1"></script>
 <script src="finance.js?v=finance-20260927-card-header"></script>
 
 <style>
@@ -498,6 +515,26 @@ body.admin-page .admin-finance-recent{
 body.admin-page .admin-finance-card-header .admin-virtual-card{
     width:100% !important;
     margin:0 !important;
+}
+</style>
+<style>
+.admin-direction-profile-card{width:min(100%,620px)!important}
+.admin-direction-logo-row{display:flex;align-items:center;gap:14px;padding:4px 0 14px}
+.admin-direction-logo-preview{width:82px;height:82px;border-radius:50%;overflow:hidden;background:#eaf3ff;display:grid;place-items:center;color:#1769e0;font-size:30px;font-weight:800;flex:0 0 82px}
+.admin-direction-logo-preview img{width:100%;height:100%;object-fit:cover;display:block}
+.admin-direction-logo-row strong,.admin-direction-logo-row small{display:block}
+.admin-direction-logo-row small{color:#718096;font-size:11px;margin:4px 0 8px}
+.admin-upload-button{display:inline-flex!important;width:max-content!important;background:#eaf3ff;color:#1769e0;padding:8px 11px;border-radius:8px;cursor:pointer;font-size:11px!important}
+.admin-page .admin-grid{min-width:0}
+@media(max-width:700px){
+ body.admin-page{overflow-x:hidden}
+ body.admin-page .admin-content{width:100%;max-width:100%;box-sizing:border-box}
+ body.admin-page .admin-grid{grid-template-columns:1fr!important;width:100%!important}
+ body.admin-page .admin-panel{min-width:0!important;width:100%!important;box-sizing:border-box}
+ body.admin-page .admin-actions{justify-content:flex-start}
+ body.admin-page .admin-row{min-width:0!important;max-width:100%!important;overflow:hidden}
+ body.admin-page .admin-row>div:nth-child(2){min-width:0}
+ body.admin-page .admin-row small,body.admin-page .admin-row strong{overflow-wrap:anywhere}
 }
 </style>
 </body>
