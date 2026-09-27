@@ -187,6 +187,74 @@ body.admin-page .admin-finance-recent>div span small{
     }
 }
 </style>
+<style>
+body.admin-page .admin-finance-profile{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    margin:12px 0;
+    padding:14px;
+    border:1px solid #e1e9f2;
+    border-radius:15px;
+    background:#fbfdff;
+}
+body.admin-page .admin-finance-profile-main{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    min-width:0;
+}
+body.admin-page .admin-finance-profile-logo{
+    width:58px;
+    height:58px;
+    border-radius:50%;
+    object-fit:contain;
+    background:#fff;
+    border:1px solid #e1e9f2;
+    padding:3px;
+    box-sizing:border-box;
+}
+body.admin-page .admin-finance-profile-logo-letter{
+    display:grid;
+    place-items:center;
+    color:#1769e0;
+    font-weight:900;
+    font-size:22px;
+}
+body.admin-page .admin-finance-profile-copy{
+    min-width:0;
+}
+body.admin-page .admin-finance-profile-copy strong,
+body.admin-page .admin-finance-profile-copy small{
+    display:block;
+    overflow-wrap:anywhere;
+}
+body.admin-page .admin-finance-profile-copy strong{font-size:15px;color:#172033}
+body.admin-page .admin-finance-profile-copy small{margin-top:3px;color:#718096;font-size:10px}
+body.admin-page .admin-finance-profile-edit{
+    border:0;
+    border-radius:9px;
+    padding:9px 12px;
+    background:#eaf3ff;
+    color:#1769e0;
+    font-size:10px;
+    font-weight:900;
+    cursor:pointer;
+    white-space:nowrap;
+}
+@media(max-width:560px){
+    body.admin-page .admin-finance-profile{
+        align-items:flex-start;
+    }
+    body.admin-page .admin-finance-profile-main{
+        align-items:flex-start;
+    }
+    body.admin-page .admin-finance-profile-edit{
+        padding:8px 9px;
+    }
+}
+</style>
 </head>
 <body class="app-page admin-page">
 
@@ -289,6 +357,7 @@ body.admin-page .admin-finance-recent>div span small{
 
         <article class="admin-panel admin-wide admin-finance-panel" id="admin-finance" data-view-section="admin-finance" data-admin-view="admin-finance">
             <div class="admin-panel-title"><h2>Financeiro dos Professores</h2><span>Entradas confirmadas e pedidos de saque</span></div>
+            <div id="adminFinanceProfile" class="admin-finance-profile"></div>
             <div class="admin-finance-summary" id="adminFinanceSummary"></div>
             <div id="adminTeacherFinanceList" class="admin-list"></div>
         </article>
