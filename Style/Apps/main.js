@@ -2533,6 +2533,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     "apsan_user_type"
                 );
 
+                localStorage.removeItem(
+                    "apsan_phone"
+                );
+
+                localStorage.removeItem(
+                    "apsan_account"
+                );
 
                 window.location.href =
                     "../../index.html";
