@@ -5517,3 +5517,81 @@ body.apsan-wallpaper-global-education .professor-tech-scene{
     background-image:url("https://upload.wikimedia.org/wikipedia/commons/3/3e/Books%2C_pencils%2C_laptop%2C_and_iphone_on_a_desk_%28Unsplash%29.jpg") !important;
 }
 
+
+
+/* =========================================================
+   WALLPAPER REAL DO PAINEL — FUNDO DO APP
+   O wallpaper não é um cartaz/card. É o próprio fundo da
+   área do painel, como num telefone ou computador.
+   ========================================================= */
+body[class*="apsan-wallpaper-"]{
+    background-repeat:no-repeat !important;
+    background-position:center center !important;
+    background-size:cover !important;
+    background-attachment:fixed !important;
+    background-color:#e9eef4 !important;
+}
+
+/* A fotografia passa a ser o fundo real do painel. */
+body.apsan-wallpaper-default,
+body.apsan-wallpaper-soft-blue,
+body.apsan-wallpaper-deep-blue,
+body.apsan-wallpaper-minimal{
+    background-image:url("https://upload.wikimedia.org/wikipedia/commons/c/c0/Laptop_on_desk_book_stacks_%28Unsplash%29.jpg") !important;
+}
+body.apsan-wallpaper-blue-wave,
+body.apsan-wallpaper-global-network,
+body.apsan-wallpaper-digital-aurora,
+body.apsan-wallpaper-apsan-premium{
+    background-image:url("https://upload.wikimedia.org/wikipedia/commons/2/29/An_office_table_and_computers_%28Unsplash%29.jpg") !important;
+}
+body.apsan-wallpaper-study-space,
+body.apsan-wallpaper-serene-nature{
+    background-image:url("https://upload.wikimedia.org/wikipedia/commons/7/79/Laptop_on_a_desk_%28Unsplash%29.jpg") !important;
+}
+body.apsan-wallpaper-library{
+    background-image:url("https://upload.wikimedia.org/wikipedia/commons/1/13/Bookshelf_%28Unsplash%29.jpg") !important;
+}
+body.apsan-wallpaper-clean-minimal,
+body.apsan-wallpaper-education-future{
+    background-image:url("https://upload.wikimedia.org/wikipedia/commons/3/3e/Books%2C_pencils%2C_laptop%2C_and_iphone_on_a_desk_%28Unsplash%29.jpg") !important;
+}
+body.apsan-wallpaper-academic-night,
+body.apsan-wallpaper-creativity,
+body.apsan-wallpaper-global-education{
+    background-image:url("https://upload.wikimedia.org/wikipedia/commons/c/c0/Laptop_on_desk_book_stacks_%28Unsplash%29.jpg") !important;
+}
+
+/* O conteúdo deixa o wallpaper respirar; os cartões funcionais
+   continuam com os seus próprios fundos e não são alterados. */
+body[class*="apsan-wallpaper-"] .app-content,
+body[class*="apsan-wallpaper-"] main{
+    background-color:transparent !important;
+}
+
+/* Remove a antiga área em formato de cartaz. O wallpaper agora
+   pertence ao próprio fundo do painel. */
+.professor-tech-scene,
+.student-tech-scene{
+    display:none !important;
+}
+
+/* Mantém a navegação e os elementos funcionais acima do wallpaper. */
+.app-header,
+.professor-header{
+    position:sticky;
+    z-index:100;
+}
+.professor-bottom-nav,
+.student-bottom-nav{
+    position:fixed;
+    z-index:120;
+}
+
+@media(max-width:560px){
+    body[class*="apsan-wallpaper-"]{
+        background-attachment:scroll !important;
+        background-position:center center !important;
+        background-size:cover !important;
+    }
+}
