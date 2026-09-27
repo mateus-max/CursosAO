@@ -892,7 +892,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 "profilePassword"
             );
 
-        const profileBio = document.getElementById("profileBio");
         const profileProvince = document.getElementById("profileProvince");
         const profileCountry = document.getElementById("profileCountry");
 
