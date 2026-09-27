@@ -467,6 +467,12 @@ body.admin-page .admin-direction-wallpapers button.active{
         <img id="adminTopAvatar" class="profile-avatar" src="" alt="Perfil">
         <span id="adminTopAvatarLetter" class="avatar-letter">D</span>
     </button>
+    <div class="header-notification-area">
+        <button class="header-notification-button" id="apsanHeaderNotificationButton" type="button" aria-label="Notificações">
+            🔔
+            <span id="adminHeaderNotificationBadge" class="header-notification-badge" hidden>0</span>
+        </button>
+    </div>
 </header>
 
 <aside class="student-side-menu" id="adminSidebar" aria-hidden="true">
@@ -849,6 +855,17 @@ body.admin-page .admin-dashboard-stat{
  </div>
 </div>
 <script src="settings.js?v=20260927-direction-settings-2"></script>
+
+<div class="apsan-header-notification-overlay" id="apsanHeaderNotifications" aria-hidden="true">
+    <div class="apsan-header-notification-card" role="dialog" aria-modal="true" aria-label="Notificações">
+        <div class="apsan-header-notification-head">
+            <div><h2>Notificações</h2><small>Mensagens e atualizações da sua área</small></div>
+            <button type="button" class="apsan-header-notification-close" id="apsanHeaderNotificationClose" aria-label="Fechar">×</button>
+        </div>
+        <div class="apsan-header-notification-list" id="apsanHeaderNotificationList"></div>
+    </div>
+</div>
+<script src="header-notifications.js?v=20260927-header-notifications-1"></script>
 <script src="direcao-final.js?v=20260927-direction-settings-2"></script>
 <script src="finance.js?v=finance-20260927-payment-ui-2"></script>
 
