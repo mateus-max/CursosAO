@@ -48,7 +48,16 @@
         "Minimalista": "Minimal",
         "Guardar alterações": "Save changes",
         "Aplicado automaticamente": "Applied automatically",
-        "Fechar": "Close"
+        "Fechar": "Close",
+        "Salvar alterações": "Save changes",
+        "Onda Azul": "Blue Wave",
+        "Rede Global": "Global Network",
+        "Noite Académica": "Academic Night",
+        "Espaço de Estudos": "Study Space",
+        "Natureza Serena": "Serene Nature",
+        "Aurora Digital": "Digital Aurora",
+        "Minimalista Claro": "Clean Minimal",
+        "APSAN Premium": "APSAN Premium"
     };
 
     function read() {
@@ -67,13 +76,15 @@
     }
 
     function applyWallpaper(name) {
-        document.body.classList.remove(
-            "apsan-wallpaper-default",
-            "apsan-wallpaper-soft-blue",
-            "apsan-wallpaper-deep-blue",
-            "apsan-wallpaper-minimal"
-        );
-        document.body.classList.add("apsan-wallpaper-" + (name || "default"));
+        const wallpapers = [
+            "default","soft-blue","deep-blue","minimal",
+            "blue-wave","global-network","academic-night","study-space",
+            "serene-nature","digital-aurora","clean-minimal","apsan-premium"
+        ];
+        document.body.classList.remove.apply(document.body.classList, wallpapers.map(function (item) {
+            return "apsan-wallpaper-" + item;
+        }));
+        document.body.classList.add("apsan-wallpaper-" + (wallpapers.indexOf(name) >= 0 ? name : "default"));
     }
 
     function translateTree(root, language) {
