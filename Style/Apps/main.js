@@ -326,6 +326,26 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
+            const approvalStatus = String(
+                loginAccount.approvalStatus ||
+                loginAccount.accountStatus ||
+                (loginAccount.official ? "approved" : "approved")
+            ).toLowerCase();
+
+            if (["pending", "pending_approval", "awaiting"].includes(approvalStatus)) {
+                message.textContent =
+                    "A sua conta está pendente de aprovação pela Direção. Aguarde a avaliação antes de entrar.";
+                return;
+            }
+
+            if (["rejected", "blocked", "suspended"].includes(approvalStatus)) {
+                message.textContent =
+                    loginAccount.approvalReason
+                        ? "A sua conta não foi aprovada: " + loginAccount.approvalReason
+                        : "A sua conta não foi aprovada pela Direção.";
+                return;
+            }
+
             localStorage.setItem(
                 "apsan_account",
                 JSON.stringify(loginAccount)
