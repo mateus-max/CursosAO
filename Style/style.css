@@ -5389,3 +5389,77 @@ body.apsan-wallpaper-apsan-premium .app-content{
     font-weight:800;
     box-shadow:0 7px 18px rgba(23,105,224,.2);
 }
+
+/* =========================================================
+   TEMAS COM IMAGEM PRINCIPAL — DASHBOARD ALUNO + PROFESSOR
+   A preferência salva troca a própria cena visual, não só a cor.
+   ========================================================= */
+body.apsan-wallpaper-default .professor-tech-scene{
+    background-image:url("assets/apsan-cena-aprovada.webp") !important;
+    background-size:100% 100% !important;
+}
+body.apsan-wallpaper-blue-wave .professor-tech-scene{
+    background-image:url("assets/themes/dashboard-blue-wave.svg") !important;
+}
+body.apsan-wallpaper-study-space .professor-tech-scene{
+    background-image:url("assets/themes/dashboard-study-space.svg") !important;
+}
+body.apsan-wallpaper-global-network .professor-tech-scene{
+    background-image:url("assets/themes/dashboard-global-network.svg") !important;
+}
+body.apsan-wallpaper-library .professor-tech-scene{
+    background-image:url("assets/themes/dashboard-library.svg") !important;
+}
+body.apsan-wallpaper-clean-minimal .professor-tech-scene{
+    background-image:url("assets/themes/dashboard-clean-minimal.svg") !important;
+}
+body.apsan-wallpaper-serene-nature .professor-tech-scene{
+    background-image:url("assets/themes/dashboard-serene-nature.svg") !important;
+}
+body.apsan-wallpaper-academic-night .professor-tech-scene{
+    background-image:url("assets/themes/dashboard-academic-night.svg") !important;
+}
+body.apsan-wallpaper-creativity .professor-tech-scene{
+    background-image:url("assets/themes/dashboard-creativity.svg") !important;
+}
+body.apsan-wallpaper-global-education .professor-tech-scene{
+    background-image:url("assets/themes/dashboard-global-education.svg") !important;
+}
+body.apsan-wallpaper-digital-aurora .professor-tech-scene{
+    background-image:url("assets/themes/dashboard-digital-aurora.svg") !important;
+}
+body.apsan-wallpaper-education-future .professor-tech-scene{
+    background-image:url("assets/themes/dashboard-education-future.svg") !important;
+}
+body.apsan-wallpaper-apsan-premium .professor-tech-scene{
+    background-image:url("assets/themes/dashboard-apsan-premium.svg") !important;
+}
+body.apsan-wallpaper-soft-blue .professor-tech-scene,
+body.apsan-wallpaper-deep-blue .professor-tech-scene,
+body.apsan-wallpaper-minimal .professor-tech-scene{
+    background-image:url("assets/apsan-cena-aprovada.webp") !important;
+}
+
+/* As cenas tem o mesmo enquadramento e funcionam nos dois perfis. */
+body[class*="apsan-wallpaper-"] .professor-tech-scene{
+    background-repeat:no-repeat !important;
+    background-position:center !important;
+    background-size:cover !important;
+}
+body.apsan-wallpaper-default .professor-tech-scene{
+    background-size:100% 100% !important;
+}
+
+/* Miniaturas das imagens reais no seletor. */
+.wp-blue-wave{background-image:url("assets/themes/dashboard-blue-wave.svg") !important;background-size:cover}
+.wp-global-network{background-image:url("assets/themes/dashboard-global-network.svg") !important;background-size:cover}
+.wp-study-space{background-image:url("assets/themes/dashboard-study-space.svg") !important;background-size:cover}
+.wp-library{background-image:url("assets/themes/dashboard-library.svg") !important;background-size:cover}
+.wp-clean-minimal{background-image:url("assets/themes/dashboard-clean-minimal.svg") !important;background-size:cover}
+.wp-serene-nature{background-image:url("assets/themes/dashboard-serene-nature.svg") !important;background-size:cover}
+.wp-academic-night{background-image:url("assets/themes/dashboard-academic-night.svg") !important;background-size:cover}
+.wp-creativity{background-image:url("assets/themes/dashboard-creativity.svg") !important;background-size:cover}
+.wp-global-education{background-image:url("assets/themes/dashboard-global-education.svg") !important;background-size:cover}
+.wp-digital-aurora{background-image:url("assets/themes/dashboard-digital-aurora.svg") !important;background-size:cover}
+.wp-education-future{background-image:url("assets/themes/dashboard-education-future.svg") !important;background-size:cover}
+.wp-apsan-premium{background-image:url("assets/themes/dashboard-apsan-premium.svg") !important;background-size:cover}
