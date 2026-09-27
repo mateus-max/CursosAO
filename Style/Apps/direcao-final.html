@@ -253,6 +253,46 @@ body.admin-page .admin-dashboard-stat{
 }
 </style>
 
+<div class="admin-modal" id="adminCourseViewModal">
+ <div class="admin-modal-card admin-course-modal-card">
+  <div class="admin-modal-head"><h2>Observar curso</h2><button class="admin-close" type="button" data-close-admin-modal="adminCourseViewModal">×</button></div>
+  <div id="adminCourseViewContent"></div>
+ </div>
+</div>
+
+<div class="admin-modal" id="adminCourseEditModal">
+ <div class="admin-modal-card admin-course-modal-card">
+  <div class="admin-modal-head"><h2>Editar curso / matéria</h2><button class="admin-close" type="button" data-close-admin-modal="adminCourseEditModal">×</button></div>
+  <form id="adminCourseEditForm" class="admin-form">
+   <input id="editCourseKey" type="hidden">
+   <label>Curso / matéria<input id="editCourseName" type="text" required></label>
+   <label>Descrição<textarea id="editCourseDescription" rows="4" required></textarea></label>
+   <div class="admin-form-row"><label>Modalidade<select id="editCourseModality"><option>Online</option><option>Presencial</option><option>Online e Presencial</option></select></label><label>Preço (Kz)<input id="editCoursePrice" type="number" min="0" step="1" required></label></div>
+   <label>Horários<textarea id="editCourseSchedules" rows="3" required></textarea></label>
+   <label>Experiência<textarea id="editCourseExperience" rows="3" required></textarea></label>
+   <label>Vantagens / diferenciais<textarea id="editCourseAdvantages" rows="3"></textarea></label>
+   <div class="admin-modal-buttons"><button class="admin-save" type="submit">Guardar alterações</button><button class="admin-cancel" type="button" data-close-admin-modal="adminCourseEditModal">Cancelar</button></div>
+  </form>
+ </div>
+</div>
+
+<style>
+.admin-course-modal-card{width:min(100%,700px) !important}
+.admin-course-view-head{display:flex;gap:14px;align-items:center;padding-bottom:14px;border-bottom:1px solid #edf1f6}
+.admin-course-cover{width:86px;height:64px;flex:0 0 86px;border-radius:12px;overflow:hidden;background:#eaf3ff;display:grid;place-items:center;font-size:26px}
+.admin-course-cover img{width:100%;height:100%;object-fit:cover;display:block}
+.admin-course-view-head h3{margin:3px 0;font-size:20px;color:#172033}
+.admin-course-view-head p{margin:0;color:#718096;font-size:12px}
+.admin-course-teacher{display:flex;align-items:center;gap:10px;margin-top:14px;padding:10px;border:1px solid #e4ebf3;border-radius:12px;background:#f8fbff}
+.admin-course-teacher .admin-user-profile-avatar{width:48px;height:48px;flex-basis:48px}
+.admin-form{display:grid;gap:12px}
+.admin-form label{display:grid;gap:5px;font-size:11px;font-weight:800;color:#475467}
+.admin-form input,.admin-form select,.admin-form textarea{width:100%;box-sizing:border-box;border:1px solid #dce4ee;border-radius:9px;padding:10px;font:inherit;font-size:13px;background:#fff}
+.admin-form textarea{resize:vertical}
+.admin-form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:560px){.admin-form-row{grid-template-columns:1fr}.admin-course-view-head h3{font-size:17px}}
+</style>
+
 <div class="admin-modal" id="adminViewModal">
  <div class="admin-modal-card">
   <div class="admin-modal-head"><h2>Detalhes da matrícula</h2><button class="admin-close" type="button" data-close-admin-modal="adminViewModal">×</button></div>
@@ -304,7 +344,7 @@ body.admin-page .admin-dashboard-stat{
   </form>
  </div>
 </div>
-<script src="direcao-final.js?v=20260927-teacher-view-1"></script>
+<script src="direcao-final.js?v=20260927-course-management-1"></script>
 <script src="finance.js?v=finance-20260926"></script>
 
 <style>
