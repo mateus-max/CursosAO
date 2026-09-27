@@ -231,7 +231,8 @@ body.admin-page [data-admin-view]{
     box-sizing:border-box !important;
 }
 body.admin-page [data-admin-view][hidden],
-body.admin-page [data-admin-view].admin-view-hidden{
+body.admin-page [data-admin-view].admin-view-hidden,
+body.admin-page [data-admin-view]:not(#admin-dashboard-view):not(.menu-focus-active){
     display:none !important;
 }
 body.admin-page #admin-dashboard-view:not([hidden]):not(.admin-view-hidden){
@@ -316,24 +317,6 @@ document.addEventListener("DOMContentLoaded", function(){
         document.getElementById("adminTeacherCount").textContent=teachers.length;
         document.getElementById("adminStudentCount").textContent=students.length;
         document.getElementById("adminCourseCount").textContent=courses.length;
-        document.getElementById("adminEnrollmentMetric").textContent=enrollments.length;
-        const pendingPaymentMetric = enrollments.filter(function(e){
-            return e && e.status !== "rejected" && e.paymentStatus !== "confirmed";
-        }).length;
-        document.getElementById("adminPaymentMetric").textContent=pendingPaymentMetric;
-        let dashboardFinanceTotal=0;
-        teachers.forEach(function(teacher){
-            try{
-                const financeDigits=String(teacher.phone||"").replace(/\D/g,"");
-                const financePhoneKey=financeDigits.length>9?financeDigits.slice(-9):(financeDigits||"default");
-                const ledger=read("apsan_teacher_finance_"+financePhoneKey,[]);
-                dashboardFinanceTotal += ledger.reduce(function(sum,item){
-                    const amount=parseFloat(String(item&&item.amount||0).replace(/[^0-9,.-]/g,"").replace(/\./g,"").replace(",","."));
-                    return sum + (item&&item.type==="saida" ? -Math.abs(amount||0) : Math.abs(amount||0));
-                },0);
-            }catch(e){}
-        });
-        document.getElementById("adminFinanceMetric").textContent=formatKz(dashboardFinanceTotal);
         document.getElementById("adminTeacherStatus").textContent=courses.length+" publicados";
         document.getElementById("adminEnrollmentCount").textContent=enrollments.length+" matrículas";
 
