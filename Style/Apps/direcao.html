@@ -28,7 +28,10 @@
         <a href="#admin-enrollments">▣ <span>Matrículas</span></a>
         <a href="#admin-payments">💳 <span>Pagamentos</span></a>
         <a href="#admin-finance">💰 <span>Financeiro</span></a>
+        <a href="#admin-moderation">🛡️ <span>Moderação</span></a>
+        <a href="#admin-occurrences">🚨 <span>Ocorrências</span></a>
         <a href="#admin-reports">📊 <span>Relatórios</span></a>
+        <a href="#admin-settings">⚙️ <span>Configurações</span></a>
     </nav>
     <button class="admin-logout" id="adminLogoutSide" type="button">🚪 Sair</button>
 </aside>
@@ -39,7 +42,7 @@
         <div>
             <span>PAINEL DE ADMINISTRAÇÃO</span>
             <h1>Visão geral da plataforma</h1>
-            <p>Gerir utilizadores, professores, alunos, cursos, matrículas e pagamentos.</p>
+            <p>Controlar, observar, aprovar, rejeitar e acompanhar toda a operação da plataforma.</p>
         </div>
         <div class="admin-hero-icon">⚙</div>
     </section>
@@ -49,6 +52,11 @@
         <article class="admin-metric"><span>🎓</span><div><strong id="adminTeacherCount">0</strong><small>Professores</small></div></article>
         <article class="admin-metric"><span>👤</span><div><strong id="adminStudentCount">0</strong><small>Alunos</small></div></article>
         <article class="admin-metric"><span>📚</span><div><strong id="adminCourseCount">0</strong><small>Cursos publicados</small></div></article>
+    </section>
+
+    <section class="admin-panel admin-wide admin-attention-panel" id="admin-attention" data-view-section="admin-attention">
+        <div class="admin-panel-title"><h2>🔔 Requer atenção</h2><span>Decisões pendentes da Direção</span></div>
+        <div id="adminAttentionList" class="admin-attention-grid"></div>
     </section>
 
     <section class="admin-grid">
@@ -83,9 +91,30 @@
             <div id="adminTeacherFinanceList" class="admin-list"></div>
         </article>
 
+        <article class="admin-panel admin-wide" id="admin-moderation" data-view-section="admin-moderation">
+            <div class="admin-panel-title"><h2>🛡️ Moderação</h2><span>Controlo de perfis e contas</span></div>
+            <div id="adminModerationList" class="admin-list"></div>
+        </article>
+
+        <article class="admin-panel admin-wide" id="admin-occurrences" data-view-section="admin-occurrences">
+            <div class="admin-panel-title"><h2>🚨 Ocorrências</h2><span>Eventos que exigem acompanhamento</span></div>
+            <div id="adminOccurrencesList" class="admin-list"></div>
+        </article>
+
         <article class="admin-panel admin-wide" id="admin-reports" data-view-section="admin-reports">
             <div class="admin-panel-title"><h2>Atividades recentes</h2><span>Dados reais guardados no navegador</span></div>
             <div id="adminActivityList" class="admin-list"></div>
+        </article>
+
+        <article class="admin-panel admin-wide" id="admin-settings" data-view-section="admin-settings">
+            <div class="admin-panel-title"><h2>⚙️ Configurações</h2><span>Controlo geral da plataforma</span></div>
+            <div class="admin-settings-grid">
+                <label><span>Aprovação de perfis</span><select id="adminProfileApproval"><option value="manual">Manual pela Direção</option><option value="automatic">Automática</option></select></label>
+                <label><span>Aprovação de cursos</span><select id="adminCourseApproval"><option value="manual">Manual pela Direção</option><option value="automatic">Automática</option></select></label>
+                <label><span>Estado da plataforma</span><select id="adminPlatformStatus"><option value="active">Ativa</option><option value="maintenance">Manutenção</option></select></label>
+                <button type="button" class="admin-save" id="adminSaveSettings">Guardar configurações</button>
+                <p id="adminSettingsMessage" class="admin-settings-message"></p>
+            </div>
         </article>
     </section>
 </main>
@@ -122,12 +151,23 @@
 .admin-modal-buttons button{border:0;border-radius:10px;padding:11px 14px;font-weight:800;cursor:pointer}
 .admin-save{background:#1769e0;color:#fff}
 .admin-cancel{background:#edf2f7;color:#344054}
+.admin-attention-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.admin-attention-card{padding:14px;border:1px solid #e4ebf3;border-radius:13px;background:#f8fbff}
+.admin-attention-card strong{display:block;font-size:18px;color:#172033}
+.admin-attention-card small{display:block;margin-top:4px;color:#718096}
+.admin-attention-card button{margin-top:10px}
+.admin-settings-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.admin-settings-grid label{display:grid;gap:6px;font-size:11px;font-weight:800;color:#344054}
+.admin-settings-grid select{padding:10px;border:1px solid #d8e1eb;border-radius:10px;background:#fff}
+.admin-settings-message{grid-column:1/-1;margin:0;font-size:12px;font-weight:700}
+@media(max-width:760px){.admin-attention-grid,.admin-settings-grid{grid-template-columns:1fr}}
+
 @media(max-width:620px){
  .admin-detail-grid{grid-template-columns:1fr}
  .admin-actions{justify-content:flex-start}
  .admin-receipt iframe{height:420px}
 }
-</style>
+.admin-virtual-card{margin-bottom:12px;padding:15px;border-radius:16px;background:linear-gradient(135deg,#0b4d91,#123c69);color:#fff;box-shadow:0 12px 28px rgba(11,77,145,.2);overflow:hidden;position:relative}.admin-virtual-card-top,.admin-virtual-card-bottom{display:flex;justify-content:space-between;gap:10px;align-items:center}.admin-virtual-card-top{font-size:10px;font-weight:900;letter-spacing:.08em}.admin-virtual-card-chip{width:38px;height:27px;border-radius:7px;background:#d8b45a;margin:18px 0 10px}.admin-virtual-card-number{font-size:17px;letter-spacing:.12em;font-weight:800}.admin-virtual-card-bottom{margin-top:16px;font-size:11px}.admin-virtual-card-bottom span{font-size:13px;font-weight:900}</style>
 
 <div class="admin-modal" id="adminViewModal">
  <div class="admin-modal-card">
@@ -189,6 +229,26 @@ document.addEventListener("DOMContentLoaded", function(){
         document.getElementById("adminTeacherStatus").textContent=courses.length+" publicados";
         document.getElementById("adminEnrollmentCount").textContent=enrollments.length+" matrículas";
 
+        const pendingEnrollments = enrollments.filter(function(e){
+            return e && e.status !== "official" && e.status !== "rejected" && e.status !== "cancelled";
+        }).length;
+        const pendingPayments = enrollments.filter(function(e){
+            return e && e.status !== "rejected" && e.paymentStatus !== "confirmed";
+        }).length;
+        const unpublishedTeachers = teachers.filter(function(a){
+            return !profiles.some(function(p){ return p && p.published && String(p.teacherPhone) === String(a.phone); });
+        }).length;
+        const attention = document.getElementById("adminAttentionList");
+        if(attention){
+            attention.innerHTML = [
+                {count: pendingEnrollments, label:"Matrículas pendentes", target:"#admin-enrollments"},
+                {count: pendingPayments, label:"Pagamentos por confirmar", target:"#admin-payments"},
+                {count: unpublishedTeachers, label:"Professores sem perfil publicado", target:"#admin-teachers"}
+            ].map(function(item){
+                return '<div class="admin-attention-card"><strong>'+item.count+'</strong><small>'+item.label+'</small><button type="button" class="admin-action view" data-admin-jump="'+item.target+'">Observar</button></div>';
+            }).join("");
+        }
+
         document.getElementById("adminTeachersList").innerHTML=teachers.length?teachers.map(a=>{
             const profile=courses.find(p=>p.teacherPhone===a.phone);
             return '<div class="admin-row"><div class="admin-row-avatar">'+esc((a.name||"P").charAt(0))+'</div><div><strong>'+esc(a.name||"Professor")+'</strong><small>'+esc(a.phone||"")+'</small></div><span class="admin-status">'+(profile?"Publicado":"Sem perfil")+'</span></div>';
@@ -219,6 +279,32 @@ document.addEventListener("DOMContentLoaded", function(){
             const status=e.paymentStatus==="confirmed"?"Pagamento confirmado":e.status==="rejected"?"Pagamento rejeitado":"Aguardando confirmação";
             return '<div class="admin-row"><div class="admin-row-icon">💳</div><div><strong>'+formatKz(e.price||"0")</strong><small>'+esc(e.studentName||"Aluno")+' · '+(hasReceipt?"Comprovativo disponível":"Sem comprovativo")+' · Ref.: '+esc(e.paymentReference||"—")+'</small></div><button type="button" class="admin-action view" data-view-enrollment="'+esc(e.id)+'">'+(hasReceipt?"Ver comprovativo":"Observar")+'</button><span class="admin-status '+(e.status==="rejected"?"rejected":"")+'">'+esc(status)+'</span></div>';
         }).join(""):'<p class="admin-empty">Nenhum pagamento registado.</p>';
+
+        const moderation = document.getElementById("adminModerationList");
+        if(moderation){
+            const flaggedAccounts = accounts.filter(function(a){
+                return a && (a.status === "suspended" || a.status === "blocked" || a.status === "rejected");
+            });
+            const rejectedProfiles = profiles.filter(function(p){ return p && (p.status === "rejected" || p.moderationStatus === "rejected"); });
+            const rows = flaggedAccounts.map(function(a){
+                return '<div class="admin-row"><div class="admin-row-icon">⛔</div><div><strong>'+esc(a.name||"Utilizador")+'</strong><small>Conta '+esc(a.status)+'</small></div><span class="admin-status rejected">Atenção</span></div>';
+            }).concat(rejectedProfiles.map(function(p){
+                return '<div class="admin-row"><div class="admin-row-icon">⚠️</div><div><strong>'+esc(p.teacherName||"Professor")+'</strong><small>Perfil rejeitado</small></div><span class="admin-status rejected">Rejeitado</span></div>';
+            }));
+            moderation.innerHTML = rows.length ? rows.join("") : '<p class="admin-empty">Não existem ocorrências de moderação pendentes.</p>';
+        }
+
+        const occurrences = document.getElementById("adminOccurrencesList");
+        if(occurrences){
+            const occurrenceRows = [];
+            enrollments.filter(function(e){ return e && e.status === "rejected"; }).forEach(function(e){
+                occurrenceRows.push('<div class="admin-row"><div class="admin-row-icon">❌</div><div><strong>Matrícula rejeitada</strong><small>'+esc(e.studentName||"Aluno")+' · '+esc(e.course||"Curso")+' · '+esc(e.rejectionReason||"Sem motivo registado")+'</small></div></div>');
+            });
+            read("apsan_finance_withdrawals",[]).filter(function(w){ return w && w.status === "rejected"; }).forEach(function(w){
+                occurrenceRows.push('<div class="admin-row"><div class="admin-row-icon">💰</div><div><strong>Saque rejeitado</strong><small>'+esc(w.teacherName||"Professor")+' · '+esc(w.rejectionReason||"Sem motivo registado")+'</small></div></div>');
+            });
+            occurrences.innerHTML = occurrenceRows.length ? occurrenceRows.join("") : '<p class="admin-empty">Nenhuma ocorrência registada.</p>';
+        }
 
         const activities=[];
         courses.forEach(p=>activities.push({date:p.updatedAt||"",text:"Perfil publicado: "+(p.teacherName||"Professor")}));
@@ -306,6 +392,35 @@ document.addEventListener("DOMContentLoaded", function(){
         document.getElementById("editNote").value=e.adminNote||e.paymentNote||"";
         document.getElementById("adminEditModal").classList.add("open");
     }
+
+    document.querySelectorAll("[data-admin-jump]").forEach(function(button){
+        button.addEventListener("click",function(){
+            const target=document.getElementById((button.getAttribute("data-admin-jump")||"").replace("#",""));
+            if(target) target.scrollIntoView({behavior:"smooth",block:"start"});
+        });
+    });
+
+    const adminSettingsKey="apsan_admin_settings";
+    function loadAdminSettings(){
+        let settings={profileApproval:"manual",courseApproval:"manual",platformStatus:"active"};
+        try{ settings=Object.assign(settings,JSON.parse(localStorage.getItem(adminSettingsKey)||"{}")); }catch(e){}
+        const a=document.getElementById("adminProfileApproval"), b=document.getElementById("adminCourseApproval"), c=document.getElementById("adminPlatformStatus");
+        if(a)a.value=settings.profileApproval;
+        if(b)b.value=settings.courseApproval;
+        if(c)c.value=settings.platformStatus;
+    }
+    const adminSaveSettings=document.getElementById("adminSaveSettings");
+    if(adminSaveSettings) adminSaveSettings.addEventListener("click",function(){
+        const settings={
+            profileApproval:document.getElementById("adminProfileApproval").value,
+            courseApproval:document.getElementById("adminCourseApproval").value,
+            platformStatus:document.getElementById("adminPlatformStatus").value
+        };
+        localStorage.setItem(adminSettingsKey,JSON.stringify(settings));
+        const message=document.getElementById("adminSettingsMessage");
+        if(message){message.style.color="#16803c";message.textContent="Configurações guardadas.";}
+    });
+    loadAdminSettings();
 
     document.addEventListener("click",function(event){
         const view=event.target.closest("[data-view-enrollment]");
