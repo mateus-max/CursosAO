@@ -3707,3 +3707,51 @@ main.single-panel-mode{padding-bottom:110px}
         background-size:100% 100% !important;
     }
 }
+
+/* =========================================================
+   AJUSTE FINAL — CENA PROFISSIONAL NOS DOIS PERFIS
+   ========================================================= */
+.professor-tech-scene{
+    position:relative !important;
+    width:100% !important;
+    max-width:720px !important;
+    min-height:0 !important;
+    height:auto !important;
+    aspect-ratio:823 / 865 !important;
+    margin:28px auto 24px !important;
+    padding:0 !important;
+    overflow:hidden !important;
+    border:0 !important;
+    border-radius:0 !important;
+    box-shadow:none !important;
+    background-color:transparent !important;
+    background-image:url("assets/apsan-cena-aprovada.webp") !important;
+    background-size:100% 100% !important;
+    background-position:center center !important;
+    background-repeat:no-repeat !important;
+    filter:saturate(1.08) contrast(1.07) brightness(1.02) !important;
+    image-rendering:auto !important;
+}
+.professor-tech-scene::before,
+.professor-tech-scene::after,
+.professor-tech-scene .tech-scene-glow,
+.professor-tech-scene .tech-scene-copy,
+.professor-tech-scene .tech-scene-desk{
+    display:none !important;
+    content:none !important;
+}
+.student-tech-scene{
+    width:100% !important;
+    max-width:720px !important;
+    aspect-ratio:823 / 865 !important;
+    margin:28px auto 24px !important;
+}
+@media(max-width:560px){
+    .professor-tech-scene,
+    .student-tech-scene{
+        width:100% !important;
+        max-width:none !important;
+        aspect-ratio:823 / 865 !important;
+        margin:22px 0 20px !important;
+    }
+}
