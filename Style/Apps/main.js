@@ -1714,11 +1714,14 @@ document.addEventListener("DOMContentLoaded", function () {
                         : "Sem próxima aula agendada";
 
                     return '<div class="professor-student-row" data-student-name="' + escapeModuleAttribute(name) + '" data-student-course="' + escapeModuleAttribute(course) + '" data-student-status="' + (inactive ? "inactive" : "active") + '">' +
-                        '<span class="module-row-icon">👤</span>' +
+                        '<span class="module-row-icon student-list-photo" data-student-photo="' + escapeModuleAttribute(student.photo || student.profilePhoto || "") + '">' +
+                            ((student.photo || student.profilePhoto) ? '<img src="' + escapeModuleAttribute(student.photo || student.profilePhoto) + '" alt="Foto de ' + escapeModuleAttribute(name) + '">' : '👤') +
+                        '</span>' +
                         '<div><strong>' + escapeModuleText(name) + '</strong>' +
                         '<small>🟢 ' + escapeModuleText(statusLabel) + ' · ' + escapeModuleText(course) + '</small>' +
                         '<small>' + escapeModuleText(nextInfo) + '</small></div>' +
                         '<span class="professor-student-status' + (inactive ? ' inactive' : '') + '">' + escapeModuleText(statusLabel) + '</span>' +
+                        '<button type="button" class="student-view-button" data-view-student="' + escapeModuleAttribute(student.studentPhone || student.phone || "") + '" data-view-student-name="' + escapeModuleAttribute(name) + '" data-view-student-course="' + escapeModuleAttribute(course) + '" data-view-student-status="' + (inactive ? "inactive" : "active") + '" data-view-student-photo="' + escapeModuleAttribute(student.photo || student.profilePhoto || "") + '">Ver aluno</button>' +
                         '</div>';
                 }).join("");
             }
@@ -2039,6 +2042,66 @@ document.addEventListener("DOMContentLoaded", function () {
 
             saveStoredList(materialsKey, materials);
             renderProfessorModules();
+        }
+    });
+
+    function openStudentView(button) {
+        const panel = document.getElementById("studentViewPanel");
+        if (!panel) return;
+
+        const name = button.getAttribute("data-view-student-name") || "Aluno";
+        const phone = button.getAttribute("data-view-student") || "—";
+        const course = button.getAttribute("data-view-student-course") || "Curso em acompanhamento";
+        const status = button.getAttribute("data-view-student-status") || "active";
+        const photo = button.getAttribute("data-view-student-photo") || "";
+
+        const nameEl = document.getElementById("studentViewName");
+        const phoneEl = document.getElementById("studentViewPhone");
+        const courseEl = document.getElementById("studentViewCourse");
+        const statusEl = document.getElementById("studentViewStatus");
+        const photoEl = document.getElementById("studentViewPhoto");
+        const letterEl = document.getElementById("studentViewLetter");
+
+        if (nameEl) nameEl.textContent = name;
+        if (phoneEl) phoneEl.textContent = phone || "—";
+        if (courseEl) courseEl.textContent = course;
+        if (statusEl) statusEl.textContent = status === "inactive" ? "⚪ Aluno inativo" : "🟢 Aluno ativo";
+
+        const upcoming = getStoredList(lessonsKey).slice().sort(function(a,b){
+            return (String(a.date||"")+String(a.time||"")).localeCompare(String(b.date||"")+String(b.time||""));
+        })[0];
+
+        const nextEl = document.getElementById("studentViewNext");
+        if (nextEl) nextEl.textContent = upcoming
+            ? formatLessonDate(upcoming.date) + " · " + (upcoming.time || "—")
+            : "Sem aula agendada";
+
+        if (photoEl && photo) {
+            photoEl.src = photo;
+            photoEl.style.display = "block";
+            if (letterEl) letterEl.style.display = "none";
+        } else {
+            if (photoEl) {
+                photoEl.removeAttribute("src");
+                photoEl.style.display = "none";
+            }
+            if (letterEl) {
+                letterEl.textContent = (name.charAt(0) || "A").toUpperCase();
+                letterEl.style.display = "flex";
+            }
+        }
+
+        panel.classList.add("professor-panel-open");
+    }
+
+    document.addEventListener("click", function(event) {
+        const viewButton = event.target.closest("[data-view-student]");
+        if (viewButton) openStudentView(viewButton);
+
+        const closeStudent = event.target.closest('[data-close-panel="studentView"]');
+        if (closeStudent) {
+            const panel = document.getElementById("studentViewPanel");
+            if (panel) panel.classList.remove("professor-panel-open");
         }
     });
 
