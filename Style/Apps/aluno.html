@@ -26,9 +26,9 @@
     </div>
     <nav aria-label="Menu do aluno">
         <a href="#top" data-student-menu-link>⌂ <span>Início</span></a>
-        <a href="#teacherSearchPanel" data-student-menu-link>🔎 <span>Pesquisar professores</span></a>
+        <a href="#studentSearchView" data-student-menu-link>🔎 <span>Pesquisar professores</span></a>
         <a href="#classroom" data-student-menu-link>📚 <span>Meus cursos</span></a>
-        <a href="#myEnrollments" data-student-menu-link>▣ <span>Minhas matrículas</span></a>
+        <a href="#studentEnrollmentsView" data-student-menu-link>▣ <span>Minhas matrículas</span></a>
         <a href="#classroom" data-student-menu-link>▶ <span>Aulas</span></a>
         <a href="mensagens.html" data-student-menu-link class="messages-menu-link">💬 <span>Mensagens</span> <span id="studentMessageMenuBadge" class="menu-notification-badge" hidden>0</span></a>
     </nav>
@@ -36,24 +36,57 @@
 </aside>
 <div class="student-menu-backdrop" id="studentMenuBackdrop"></div>
 
-<main class="app-content student-content" id="top">
+<main class="app-content student-content student-option2" id="top">
 
-    <section class="student-hero">
-        <div>
+    <section class="professor-hero student-hero professor-view-section" data-view-section="home">
+        <div class="professor-hero-copy">
             <span class="hero-kicker">ÁREA DO ALUNO</span>
             <h1>Olá, <span id="studentName">Aluno</span>! 👋</h1>
             <p>Pesquise professores, acompanhe os seus cursos e aceda às suas aulas.</p>
         </div>
+        <div class="hero-brand">
+            <div class="hero-logo">A</div>
+            <strong>APSAN Academy</strong>
+        </div>
     </section>
 
-    <section class="student-summary-cards">
+    <section class="professor-tech-scene student-tech-scene professor-view-section" data-view-section="home" aria-label="Ambiente de tecnologia e educação">
+        <div class="tech-scene-glow"></div>
+        <div class="tech-scene-copy">
+            <span>TECNOLOGIA & EDUCAÇÃO</span>
+            <strong>Conhecimento que<br>conecta o mundo.</strong>
+            <small>Um espaço para aprender, criar e crescer.</small>
+        </div>
+        <div class="tech-scene-desk" aria-hidden="true">
+            <div class="tech-laptop">
+                <div class="tech-screen">
+                    <div class="tech-screen-line"></div>
+                    <div class="tech-screen-line short"></div>
+                    <div class="tech-screen-dot"></div>
+                </div>
+                <div class="tech-keyboard"></div>
+            </div>
+            <div class="tech-books"><i></i><i></i><i></i></div>
+            <div class="tech-globe-wrap">
+                <div class="tech-globe">
+                    <span class="globe-line globe-line-a"></span>
+                    <span class="globe-line globe-line-b"></span>
+                    <span class="globe-line globe-line-c"></span>
+                    <span class="globe-line globe-line-d"></span>
+                </div>
+                <div class="globe-stand"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="student-summary-cards professor-stats professor-compact-stats professor-view-section" data-view-section="dashboard-extra">
         <article><span>🎓</span><strong id="studentCourseCount">0</strong><small>Meus Cursos</small></article>
         <article><span>📅</span><strong id="studentLessonCount">0</strong><small>Aulas agendadas</small></article>
         <article><span>📈</span><strong id="studentProgress">0%</strong><small>Meu progresso</small></article>
         <article><span>✓</span><strong id="studentOfficialCount">0</strong><small>Matrículas oficiais</small></article>
     </section>
 
-    <div id="studentMessageNotice" class="student-message-notice" hidden>
+    <div id="studentMessageNotice" class="student-message-notice professor-view-section" data-view-section="dashboard-extra" hidden>
         <div>
             <strong id="studentMessageNoticeTitle">Nova mensagem</strong>
             <small id="studentMessageNoticeText">Tem mensagens novas do seu professor.</small>
@@ -61,7 +94,8 @@
         <a href="mensagens.html">Abrir mensagens →</a>
     </div>
 
-    <section class="teacher-search-panel" id="teacherSearchPanel">
+    <section class="student-feature-view professor-view-section" data-view-section="teacher-search" id="studentSearchView">
+<section class="teacher-search-panel" id="teacherSearchPanel">
         <div class="section-heading">
             <h2>Pesquisar professores</h2>
             <span id="teacherResultCount">0 professores</span>
@@ -70,10 +104,10 @@
             <input id="teacherSearch" type="search" placeholder="Pesquisar por nome, curso ou modalidade...">
         </div>
     </section>
-
     <section id="teacherResults" class="teacher-results"></section>
+</section>
 
-    <section class="student-classroom" id="classroom">
+    <section class="student-classroom professor-view-section" id="classroom" data-view-section="classroom" data-view-target="classroom">
         <div class="section-heading">
             <div>
                 <h2>Meus Cursos</h2>
@@ -86,7 +120,7 @@
         </div>
     </section>
 
-    <section class="student-enrollments">
+    <section class="student-enrollments professor-view-section" id="studentEnrollmentsView" data-view-section="enrollments" data-view-target="enrollments">
         <div class="section-heading">
             <h2>Minhas matrículas</h2>
             <span id="enrollmentCount">0</span>
@@ -103,7 +137,7 @@
         <a href="#teacherSearchPanel">🔎<small>Pesquisar</small></a>
         <a href="#classroom">▣<small>Meus Cursos</small></a>
         <a href="#classroom">▶<small>Aulas</small></a>
-        <a href="#myEnrollments">●<small>Perfil</small></a>
+        <a href="#studentEnrollmentsView">●<small>Perfil</small></a>
     </nav>
 
 <div class="professor-panel-overlay" id="teacherProfilePanel">
@@ -608,21 +642,81 @@ document.addEventListener("DOMContentLoaded", function () {
             if (href.charAt(0) !== "#") return;
             event.preventDefault();
             closeStudentMenu();
-            const target = document.getElementById(href.slice(1));
-            if (target) {
-                document.querySelectorAll("[data-student-menu-focus]").forEach(function(item) {
-                    item.classList.remove("menu-focus-active");
-                });
-                target.setAttribute("data-student-menu-focus", "true");
-                target.classList.add("menu-focus-active");
-                target.scrollIntoView({behavior:"smooth", block:"start"});
-                window.history.replaceState(null, "", href);
-            }
+            setStudentPanelView(href.slice(1));
         });
     });
     document.addEventListener("keydown", function(event) {
         if (event.key === "Escape") closeStudentMenu();
     });
+
+    /* =====================================================
+       NAVEGAÇÃO POR PAINÉIS — ALUNO
+       O dashboard inicial fica limpo como no painel do professor.
+       Cada área escolhida no menu abre isoladamente.
+       ===================================================== */
+    function syncStudentBottomNav(targetId) {
+        const nav = document.querySelector(".student-bottom-nav");
+        if (!nav) return;
+        nav.querySelectorAll("a").forEach(function(link) {
+            const href = link.getAttribute("href") || "";
+            const linkTarget = href.charAt(0) === "#" ? href.slice(1) : "";
+            const isHome = !targetId && href === "#top";
+            link.classList.toggle("active", targetId ? linkTarget === targetId : isHome);
+        });
+    }
+
+    function setStudentPanelView(targetId, options) {
+        const main = document.querySelector(".student-content");
+        if (!main) return false;
+
+        if (!targetId || targetId === "top") {
+            main.querySelectorAll(".professor-view-section").forEach(function(section) {
+                section.classList.toggle(
+                    "single-panel-hidden",
+                    section.getAttribute("data-view-section") !== "home"
+                );
+                section.classList.remove("menu-focus-active");
+            });
+            main.classList.remove("single-panel-mode");
+            syncStudentBottomNav("");
+            window.scrollTo({top: 0, behavior: "smooth"});
+            if (!(options && options.keepHash)) {
+                window.history.replaceState(null, "", window.location.pathname + window.location.search);
+            }
+            return true;
+        }
+
+        const target = document.getElementById(targetId);
+        if (!target) return false;
+
+        main.querySelectorAll(".professor-view-section").forEach(function(section) {
+            const keep = section === target;
+            section.classList.toggle("single-panel-hidden", !keep);
+            section.classList.toggle("menu-focus-active", keep);
+        });
+
+        main.classList.add("single-panel-mode");
+        syncStudentBottomNav(targetId);
+        window.scrollTo({top: 0, behavior: "smooth"});
+
+        if (!(options && options.keepHash)) {
+            window.history.replaceState(null, "", "#" + targetId);
+        }
+        return true;
+    }
+
+    function restoreStudentPanelView() {
+        const hash = window.location.hash ? window.location.hash.slice(1) : "";
+        if (hash === "top" || !hash) {
+            setStudentPanelView("", {keepHash: true});
+            return;
+        }
+        if (!setStudentPanelView(hash, {keepHash: true})) {
+            setStudentPanelView("", {keepHash: true});
+        }
+    }
+
+    window.addEventListener("hashchange", restoreStudentPanelView);
 
     const searchInput = document.getElementById("teacherSearch");
     const results = document.getElementById("teacherResults");
@@ -1038,6 +1132,7 @@ document.addEventListener("DOMContentLoaded", function () {
     renderTeachers();
     renderEnrollments();
     renderClassroom();
+    restoreStudentPanelView();
 });
 </script>
 </body>
