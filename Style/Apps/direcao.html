@@ -195,7 +195,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
         document.getElementById("adminStudentsList").innerHTML=students.length?students.map(a=>'<div class="admin-row"><div class="admin-row-avatar">👤</div><div><strong>'+esc(a.name||"Aluno")+'</strong><small>'+esc(a.phone||"")+'</small></div></div>').join(""):'<p class="admin-empty">Nenhum aluno registado.</p>';
 
-        document.getElementById("adminCoursesList").innerHTML=courses.length?courses.map(p=>'<div class="admin-row"><div class="admin-row-icon">📚</div><div><strong>'+esc(p.course)+'</strong><small>'+esc(p.teacherName)+' · '+esc(p.modality)+'</small></div><span class="admin-status">'+esc(p.price)+' Kz</span></div>').join(""):'<p class="admin-empty">Nenhum curso publicado.</p>';
+        document.getElementById("adminCoursesList").innerHTML=courses.length?courses.map(p=>'<div class="admin-row"><div class="admin-row-icon">📚</div><div><strong>'+esc(p.course)+'</strong><small>'+esc(p.teacherName)+' · '+esc(p.modality)+'</small></div><span class="admin-status">'+formatKz(p.price)</span></div>').join(""):'<p class="admin-empty">Nenhum curso publicado.</p>';
 
         document.getElementById("adminEnrollmentsList").innerHTML=enrollments.length?enrollments.map(e=>{
             const status=e.status==="official"
@@ -203,7 +203,7 @@ document.addEventListener("DOMContentLoaded", function(){
                 :e.status==="rejected"||e.status==="cancelled"
                     ?'<span class="admin-status rejected">Rejeitada</span>'
                     :'<span class="admin-status pending">Pendente</span>';
-            return '<div class="admin-row"><div class="admin-row-icon">▣</div><div><strong>'+esc(e.course||"Curso")+'</strong><small>'+esc(e.studentName||"Aluno")+' → '+esc(e.teacherName||"Professor")+' · '+esc(e.price||"0")+' Kz</small></div><div class="admin-actions">'+
+            return '<div class="admin-row"><div class="admin-row-icon">▣</div><div><strong>'+esc(e.course||"Curso")+'</strong><small>'+esc(e.studentName||"Aluno")+' → '+esc(e.teacherName||"Professor")+' · '+formatKz(e.price||"0")</small></div><div class="admin-actions">'+
                 '<button type="button" class="admin-action view" data-view-enrollment="'+esc(e.id)+'">Observar</button>'+
                 (e.status==="official"
                     ? ''
@@ -216,7 +216,7 @@ document.addEventListener("DOMContentLoaded", function(){
         document.getElementById("adminPaymentsList").innerHTML=enrollments.length?enrollments.map(e=>{
             const hasReceipt=!!e.receipt;
             const status=e.paymentStatus==="confirmed"?"Pagamento confirmado":e.status==="rejected"?"Pagamento rejeitado":"Aguardando confirmação";
-            return '<div class="admin-row"><div class="admin-row-icon">💳</div><div><strong>'+esc(e.price||"0")+' Kz</strong><small>'+esc(e.studentName||"Aluno")+' · '+(hasReceipt?"Comprovativo disponível":"Sem comprovativo")+' · Ref.: '+esc(e.paymentReference||"—")+'</small></div><button type="button" class="admin-action view" data-view-enrollment="'+esc(e.id)+'">'+(hasReceipt?"Ver comprovativo":"Observar")+'</button><span class="admin-status '+(e.status==="rejected"?"rejected":"")+'">'+esc(status)+'</span></div>';
+            return '<div class="admin-row"><div class="admin-row-icon">💳</div><div><strong>'+formatKz(e.price||"0")</strong><small>'+esc(e.studentName||"Aluno")+' · '+(hasReceipt?"Comprovativo disponível":"Sem comprovativo")+' · Ref.: '+esc(e.paymentReference||"—")+'</small></div><button type="button" class="admin-action view" data-view-enrollment="'+esc(e.id)+'">'+(hasReceipt?"Ver comprovativo":"Observar")+'</button><span class="admin-status '+(e.status==="rejected"?"rejected":"")+'">'+esc(status)+'</span></div>';
         }).join(""):'<p class="admin-empty">Nenhum pagamento registado.</p>';
 
         const activities=[];
@@ -253,7 +253,7 @@ document.addEventListener("DOMContentLoaded", function(){
             '<div class="admin-detail-box"><small>Telefone</small><strong>'+esc(e.studentPhone)+'</strong></div>'+
             '<div class="admin-detail-box"><small>Professor</small><strong>'+esc(e.teacherName)+'</strong></div>'+
             '<div class="admin-detail-box"><small>Curso</small><strong>'+esc(e.course)+'</strong></div>'+
-            '<div class="admin-detail-box"><small>Valor</small><strong>'+esc(e.price)+' Kz</strong></div>'+
+            '<div class="admin-detail-box"><small>Valor</small><strong>'+formatKz(e.price)</strong></div>'+
             '<div class="admin-detail-box"><small>Método</small><strong>'+esc(e.paymentMethod||"—")+'</strong></div>'+
             '<div class="admin-detail-box"><small>Referência</small><strong>'+esc(e.paymentReference||"—")+'</strong></div>'+
             '<div class="admin-detail-box"><small>Estado</small><strong>'+esc(e.status==="official"?"Aprovada":e.status==="rejected"?"Rejeitada":"Pendente")+'</strong></div>'+
