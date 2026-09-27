@@ -3690,7 +3690,16 @@ main.single-panel-mode{padding-bottom:110px}
 .professor-tech-scene .tech-scene-desk{
     display:none !important;
 }
+.student-tech-scene{
+    margin-top:34px !important;
+    margin-bottom:24px !important;
+}
+
 @media(max-width:560px){
+    .student-tech-scene{
+        margin-top:34px !important;
+        margin-bottom:24px !important;
+    }
     .professor-tech-scene{
         min-height:0 !important;
         aspect-ratio:479 / 348;
