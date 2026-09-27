@@ -57,7 +57,11 @@
         "Natureza Serena": "Serene Nature",
         "Aurora Digital": "Digital Aurora",
         "Minimalista Claro": "Clean Minimal",
-        "APSAN Premium": "APSAN Premium"
+        "APSAN Premium": "APSAN Premium",
+        "Biblioteca": "Library",
+        "Criatividade": "Creativity",
+        "Global Education": "Global Education",
+        "Educação & Futuro": "Education & Future"
     };
 
     function read() {
@@ -79,7 +83,7 @@
         const wallpapers = [
             "default","soft-blue","deep-blue","minimal",
             "blue-wave","global-network","academic-night","study-space",
-            "serene-nature","digital-aurora","clean-minimal","apsan-premium"
+            "serene-nature","digital-aurora","clean-minimal","apsan-premium","library","creativity","global-education","education-future"
         ];
         document.body.classList.remove.apply(document.body.classList, wallpapers.map(function (item) {
             return "apsan-wallpaper-" + item;
