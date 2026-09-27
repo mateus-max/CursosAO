@@ -11,7 +11,7 @@
 
 <header class="app-header admin-header">
     <div class="header-left">
-        <button class="menu-button" id="adminMenuButton" type="button" aria-label="Abrir menu">☰</button>
+        <button class="menu-button" id="adminMenuButton" type="button" aria-label="Abrir menu" aria-expanded="false">☰</button>
         <strong>APSAN Academy</strong>
     </div>
     <button class="profile-avatar-button admin-settings" id="adminProfileButton" type="button" aria-label="Abrir configurações">
@@ -41,6 +41,7 @@
     </nav>
     <button class="admin-logout" id="adminLogoutSide" type="button">🚪 Sair</button>
 </aside>
+<div class="admin-menu-backdrop" id="adminMenuBackdrop" aria-hidden="true"></div>
 
 <main class="app-content admin-content" id="admin-dashboard">
 
@@ -182,6 +183,52 @@
  .admin-actions{justify-content:flex-start}
  .admin-receipt iframe{height:420px}
 }
+/* Menu da Direção: mesma interação lateral dos painéis de aluno/professor. */
+body.admin-page .admin-sidebar{
+    top:64px !important;
+    left:-292px !important;
+    width:276px !important;
+    height:calc(100vh - 64px) !important;
+    transition:left .25s ease !important;
+    z-index:400 !important;
+}
+body.admin-page .admin-sidebar.admin-sidebar-open{left:0 !important}
+body.admin-page .admin-sidebar-brand{
+    padding:24px 20px 18px !important;
+    background:linear-gradient(135deg,#061d3a,#0b63c7) !important;
+    color:#fff !important;
+}
+body.admin-page .admin-sidebar-brand strong{font-size:17px !important}
+body.admin-page .admin-sidebar-brand span{color:rgba(255,255,255,.82) !important;font-size:12px !important}
+body.admin-page .admin-sidebar nav{padding:14px 12px !important}
+body.admin-page .admin-sidebar nav a{
+    min-height:48px !important;
+    box-sizing:border-box !important;
+    padding:10px 14px !important;
+    margin-bottom:5px !important;
+    border-radius:12px !important;
+    font-size:14px !important;
+    font-weight:700 !important;
+}
+body.admin-page .admin-sidebar nav a.active{background:#eaf3ff !important;color:#1769e0 !important}
+body.admin-page .admin-menu-backdrop{
+    position:fixed !important;
+    inset:64px 0 0 0 !important;
+    z-index:390 !important;
+    background:rgba(4,20,40,.34) !important;
+    opacity:0 !important;
+    visibility:hidden !important;
+    pointer-events:none !important;
+    transition:opacity .2s ease,visibility .2s ease !important;
+}
+body.admin-page .admin-menu-backdrop.open{
+    opacity:1 !important;
+    visibility:visible !important;
+    pointer-events:auto !important;
+}
+body.admin-page [data-admin-view][hidden],
+body.admin-page [data-admin-view].admin-view-hidden{display:none !important}
+
 .admin-virtual-card{margin-bottom:12px;padding:15px;border-radius:16px;background:linear-gradient(135deg,#0b4d91,#123c69);color:#fff;box-shadow:0 12px 28px rgba(11,77,145,.2);overflow:hidden;position:relative}.admin-virtual-card-top,.admin-virtual-card-bottom{display:flex;justify-content:space-between;gap:10px;align-items:center}.admin-virtual-card-top{font-size:10px;font-weight:900;letter-spacing:.08em}.admin-virtual-card-chip{width:38px;height:27px;border-radius:7px;background:#d8b45a;margin:18px 0 10px}.admin-virtual-card-number{font-size:17px;letter-spacing:.12em;font-weight:800}.admin-virtual-card-bottom{margin-top:16px;font-size:11px}.admin-virtual-card-bottom span{font-size:13px;font-weight:900}</style>
 
 <div class="admin-modal" id="adminViewModal">
@@ -425,22 +472,29 @@ document.addEventListener("DOMContentLoaded", function(){
         document.getElementById("adminEditModal").classList.add("open");
     }
 
-    function showAdminView(viewId){
-        const targetId = viewId || "admin-dashboard-view";
+    function showAdminView(viewId, options){
+        const requestedId=String(viewId||"admin-dashboard-view").replace(/^#/,"");
+        const requestedTarget=document.getElementById(requestedId);
+        const targetId=requestedTarget&&requestedTarget.hasAttribute("data-admin-view")?requestedId:"admin-dashboard-view";
+
         document.querySelectorAll("[data-admin-view]").forEach(function(section){
-            section.classList.toggle("admin-view-hidden", section.getAttribute("data-admin-view") !== targetId);
+            const active=section.getAttribute("data-admin-view")===targetId;
+            section.hidden=!active;
+            section.classList.toggle("admin-view-hidden",!active);
+            section.classList.toggle("menu-focus-active",active&&targetId!=="admin-dashboard-view");
         });
+
         document.querySelectorAll("#adminSidebar nav a").forEach(function(link){
-            const href=link.getAttribute("href")||"";
-            link.classList.toggle("active", href === "#"+targetId || (targetId === "admin-dashboard-view" && href === "#admin-dashboard"));
+            const href=String(link.getAttribute("href")||"").replace(/^#/,"");
+            const active=href===targetId;
+            link.classList.toggle("active",active);
+            link.setAttribute("aria-current",active?"page":"false");
         });
-        document.querySelectorAll(".admin-bottom-nav a").forEach(function(link){
-            const href=link.getAttribute("href")||"";
-            link.classList.toggle("active", href === "#"+targetId);
-        });
-        const target=document.getElementById(targetId);
-        if(target) target.scrollIntoView({behavior:"smooth",block:"start"});
-        if(history.replaceState) history.replaceState(null,"","#"+targetId);
+
+        if(!(options&&options.keepHash)&&history.replaceState){
+            history.replaceState(null,"","#"+targetId);
+        }
+        window.scrollTo({top:0,behavior:(options&&options.instant)?"auto":"smooth"});
     }
 
     document.addEventListener("click",function(event){
@@ -487,14 +541,14 @@ document.addEventListener("DOMContentLoaded", function(){
         }
     }
 
-    const initialHashView = String(window.location.hash || "").replace(/^#/, "");
-    const initialTarget = initialHashView ? document.getElementById(initialHashView) : null;
-    showAdminView(initialTarget && initialTarget.hasAttribute("data-admin-view") ? initialHashView : "admin-dashboard-view");
+    const initialHashView=String(window.location.hash||"").replace(/^#/,"");
+    const initialTarget=initialHashView?document.getElementById(initialHashView):null;
+    showAdminView(initialTarget&&initialTarget.hasAttribute("data-admin-view")?initialHashView:"admin-dashboard-view",{instant:true});
 
-    window.addEventListener("hashchange", function(){
-        const hashView = String(window.location.hash || "").replace(/^#/, "");
-        const hashTarget = hashView ? document.getElementById(hashView) : null;
-        showAdminView(hashTarget && hashTarget.hasAttribute("data-admin-view") ? hashView : "admin-dashboard-view");
+    window.addEventListener("hashchange",function(){
+        const hashView=String(window.location.hash||"").replace(/^#/,"");
+        const hashTarget=hashView?document.getElementById(hashView):null;
+        showAdminView(hashTarget&&hashTarget.hasAttribute("data-admin-view")?hashView:"admin-dashboard-view",{instant:true,keepHash:true});
     });
 
     document.addEventListener("click",function(event){
@@ -538,29 +592,47 @@ document.addEventListener("DOMContentLoaded", function(){
         });
     }
     document.getElementById("adminLogoutSide").addEventListener("click",logout);
-    document.getElementById("adminMenuButton").addEventListener("click",function(){
-        document.getElementById("adminSidebar").classList.toggle("admin-sidebar-open");
+
+    const adminMenuButton=document.getElementById("adminMenuButton");
+    const adminSidebar=document.getElementById("adminSidebar");
+    const adminMenuBackdrop=document.getElementById("adminMenuBackdrop");
+
+    function closeAdminMenu(){
+        if(adminSidebar) adminSidebar.classList.remove("admin-sidebar-open");
+        if(adminMenuBackdrop) adminMenuBackdrop.classList.remove("open");
+        if(adminMenuButton) adminMenuButton.setAttribute("aria-expanded","false");
+        if(adminMenuBackdrop) adminMenuBackdrop.setAttribute("aria-hidden","true");
+    }
+
+    function openAdminMenu(){
+        if(adminSidebar) adminSidebar.classList.add("admin-sidebar-open");
+        if(adminMenuBackdrop) adminMenuBackdrop.classList.add("open");
+        if(adminMenuButton) adminMenuButton.setAttribute("aria-expanded","true");
+        if(adminMenuBackdrop) adminMenuBackdrop.setAttribute("aria-hidden","false");
+    }
+
+    if(adminMenuButton){
+        adminMenuButton.addEventListener("click",function(){
+            if(adminSidebar&&adminSidebar.classList.contains("admin-sidebar-open")) closeAdminMenu();
+            else openAdminMenu();
+        });
+    }
+    if(adminMenuBackdrop) adminMenuBackdrop.addEventListener("click",closeAdminMenu);
+
+    document.addEventListener("keydown",function(event){
+        if(event.key==="Escape") closeAdminMenu();
     });
 
     document.querySelectorAll("#adminSidebar nav a").forEach(function(link){
         link.addEventListener("click",function(event){
-            const href=link.getAttribute("href")||"";
+            const href=String(link.getAttribute("href")||"");
             if(href.charAt(0)!=="#") return;
             event.preventDefault();
-            const sidebar=document.getElementById("adminSidebar");
-            if(sidebar) sidebar.classList.remove("admin-sidebar-open");
-            showAdminView(href.slice(1) === "admin-dashboard" ? "admin-dashboard-view" : href.slice(1));
+            showAdminView(href.slice(1),{instant:true});
+            closeAdminMenu();
         });
     });
-
-    document.querySelectorAll(".admin-bottom-nav a").forEach(function(link){
-        link.addEventListener("click",function(event){
-            const href=link.getAttribute("href")||"";
-            if(href.charAt(0)!=="#") return;
-            event.preventDefault();
-            showAdminView(href.slice(1));
-        });
-    });
+;
 
     render();
 });
