@@ -17,6 +17,12 @@
         <img id="studentTopAvatar" class="profile-avatar" src="" alt="Perfil">
         <span id="studentTopAvatarLetter" class="avatar-letter">A</span>
     </button>
+    <div class="header-notification-area">
+        <button class="header-notification-button" id="apsanHeaderNotificationButton" type="button" aria-label="Notificações">
+            🔔
+            <span id="studentHeaderNotificationBadge" class="header-notification-badge" hidden>0</span>
+        </button>
+    </div>
 </header>
 
 <aside class="student-side-menu" id="studentSideMenu" aria-hidden="true">
@@ -1650,5 +1656,16 @@ document.addEventListener("DOMContentLoaded", function () {
     restoreStudentPanelView();
 });
 </script>
+
+<div class="apsan-header-notification-overlay" id="apsanHeaderNotifications" aria-hidden="true">
+    <div class="apsan-header-notification-card" role="dialog" aria-modal="true" aria-label="Notificações">
+        <div class="apsan-header-notification-head">
+            <div><h2>Notificações</h2><small>Mensagens e atualizações da sua área</small></div>
+            <button type="button" class="apsan-header-notification-close" id="apsanHeaderNotificationClose" aria-label="Fechar">×</button>
+        </div>
+        <div class="apsan-header-notification-list" id="apsanHeaderNotificationList"></div>
+    </div>
+</div>
+<script src="header-notifications.js?v=20260927-header-notifications-1"></script>
 </body>
 </html>
