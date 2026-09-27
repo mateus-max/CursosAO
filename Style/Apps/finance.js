@@ -346,8 +346,20 @@ document.addEventListener("DOMContentLoaded", function () {
                 return String(b.createdAt || "").localeCompare(String(a.createdAt || ""));
             }).slice(0, 3);
 
-            const rawPhone = digits(teacher.phone);
-            const last4 = (rawPhone || "0000").slice(-4).padStart(4, "0");
+            /*
+             * O cartão virtual tem um identificador próprio e não reutiliza
+             * o número de telefone da conta. A Direção vê somente os últimos
+             * 4 dígitos do cartão.
+             */
+            const cardKey = "apsan_virtual_card_" + phoneKey(teacher.phone);
+            let virtualCardNumber = localStorage.getItem(cardKey);
+            if (!/^\d{16}$/.test(String(virtualCardNumber || ""))) {
+                virtualCardNumber = Array.from({length:16}, function(){
+                    return Math.floor(Math.random() * 10);
+                }).join("");
+                localStorage.setItem(cardKey, virtualCardNumber);
+            }
+            const last4 = virtualCardNumber.slice(-4);
             const virtualCard = '<div class="admin-virtual-card">' +
                 '<div class="admin-virtual-card-top"><span>CARTÃO VIRTUAL</span><span>APSAN</span></div>' +
                 '<div class="admin-virtual-card-chip"></div>' +
