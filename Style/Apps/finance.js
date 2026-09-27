@@ -368,8 +368,8 @@ document.addEventListener("DOMContentLoaded", function () {
             '</div>';
 
             return '<div class="admin-finance-teacher-card">' +
-                virtualCard +
-                '<div class="admin-finance-teacher-head">' +
+                '<div class="admin-finance-card-header">' + virtualCard + '</div>' +
+                '<div class="admin-finance-teacher-head">';
                     '<div class="admin-row-avatar">' + esc((teacher.name || "P").charAt(0).toUpperCase()) + '</div>' +
                     '<div><strong>' + esc(teacher.name || "Professor") + '</strong><small>' + esc(teacher.phone || "") + '</small></div>' +
                     '<strong class="admin-finance-balance">' + money(totals.balance) + '</strong>' +
