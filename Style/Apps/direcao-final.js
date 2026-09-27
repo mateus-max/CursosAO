@@ -133,7 +133,7 @@ document.addEventListener("DOMContentLoaded", function () {
             username: account?.username || "",
             phone: account?.phone || "",
             type: account?.type === "professor" ? "Professor" : account?.type === "aluno" ? "Aluno" : account?.type === "direcao" ? "Direção" : "Utilizador",
-            status: account?.status || "active",
+            status: account?.approvalStatus || account?.accountStatus || account?.status || "approved",
             bio: account?.bio || "",
             province: account?.province || "",
             country: account?.country || "",
@@ -164,6 +164,43 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         return data;
+    }
+
+    function getAccountKey(account) {
+        return String(account?.id || account?.phone || account?.username || account?.name || "");
+    }
+
+    function getAccountApprovalState(account) {
+        const value = String(account?.approvalStatus || account?.accountStatus || account?.status || "").toLowerCase();
+        if (["pending", "pending_approval", "awaiting"].includes(value)) return "pending";
+        if (["rejected", "blocked", "suspended"].includes(value)) return "rejected";
+        return "approved";
+    }
+
+    function setAccountDecision(key, decision) {
+        const accounts = read("apsan_accounts", []);
+        const index = accounts.findIndex(a => getAccountKey(a) === String(key));
+        if (index < 0) return;
+
+        if (decision === "rejected") {
+            const reason = prompt("Motivo da rejeição (opcional):", "A conta necessita de revisão.");
+            accounts[index].approvalStatus = "rejected";
+            accounts[index].accountStatus = "rejected";
+            accounts[index].official = false;
+            accounts[index].approvalReason = reason || "";
+            accounts[index].rejectedAt = new Date().toISOString();
+            accounts[index].approvedAt = "";
+        } else {
+            accounts[index].approvalStatus = "approved";
+            accounts[index].accountStatus = "active";
+            accounts[index].official = true;
+            accounts[index].approvalReason = "";
+            accounts[index].approvedAt = new Date().toISOString();
+            accounts[index].rejectedAt = "";
+        }
+
+        write("apsan_accounts", accounts);
+        render();
     }
 
     function openUserProfile(account) {
@@ -225,19 +262,34 @@ document.addEventListener("DOMContentLoaded", function () {
         if (users) users.innerHTML = accounts.length ? accounts.map(a => {
             const label = a.type === "professor" ? "Professor" : a.type === "aluno" ? "Aluno" : a.type === "direcao" ? "Direção" : "Utilizador";
             const icon = a.type === "professor" ? "👨‍🏫" : a.type === "aluno" ? "👤" : a.type === "direcao" ? "⚙️" : "👥";
-            const blocked = ["blocked", "suspended", "rejected"].includes(a.status);
-            return `<div class="admin-row">${userAvatarMarkup(a, a.name || label)}<div><strong>${esc(a.name || label)}</strong><small>${esc(label)} · ${esc(a.phone || "Contacto protegido")}</small></div><button type="button" class="admin-action view" data-view-user="${esc(a.id || a.phone || a.username || a.name || "")}">Ver perfil</button><span class="admin-status ${blocked ? "rejected" : ""}">${blocked ? "Bloqueada" : "Ativa"}</span></div>`;
+            const approval = getAccountApprovalState(a);
+            const statusText = approval === "pending" ? "Pendente" : approval === "rejected" ? "Rejeitada" : "Oficial";
+            const statusClass = approval === "pending" ? "pending" : approval === "rejected" ? "rejected" : "";
+            const key = getAccountKey(a);
+            const decisionButtons = approval === "pending"
+                ? '<button type="button" class="admin-action approve" data-approve-account="' + esc(key) + '">Aprovar</button><button type="button" class="admin-action reject" data-reject-account="' + esc(key) + '">Rejeitar</button>'
+                : approval === "rejected"
+                    ? '<button type="button" class="admin-action approve" data-approve-account="' + esc(key) + '">Aprovar</button>'
+                    : '<button type="button" class="admin-action reject" data-reject-account="' + esc(key) + '">Rejeitar</button>';
+            return `<div class="admin-row">${userAvatarMarkup(a, a.name || label)}<div><strong>${esc(a.name || label)}</strong><small>${esc(label)} · ${esc(a.phone || "Contacto protegido")}</small></div><div class="admin-actions"><button type="button" class="admin-action view" data-view-user="${esc(key)}">Ver perfil</button>${decisionButtons}</div><span class="admin-status ${statusClass}">${statusText}</span></div>`;
         }).join("") : '<p class="admin-empty">Nenhum utilizador registado.</p>';
 
         const teacherList = document.getElementById("adminTeachersList");
         if (teacherList) teacherList.innerHTML = teachers.length ? teachers.map(a => {
             const profile = courses.find(p => p.teacherPhone === a.phone);
-            return `<div class="admin-row">${userAvatarMarkup(a, a.name || "Professor")}<div><strong>${esc(a.name || "Professor")}</strong><small>${esc(a.phone || "")}</small></div><button type="button" class="admin-action view" data-view-user="${esc(a.id || a.phone || a.username || a.name || "")}">Ver perfil</button><span class="admin-status">${profile ? "Publicado" : "Sem perfil"}</span></div>`;
+            const approval = getAccountApprovalState(a);
+            const key = getAccountKey(a);
+            const decisionButtons = approval === "pending"
+                ? '<button type="button" class="admin-action approve" data-approve-account="' + esc(key) + '">Aprovar</button><button type="button" class="admin-action reject" data-reject-account="' + esc(key) + '">Rejeitar</button>'
+                : approval === "rejected"
+                    ? '<button type="button" class="admin-action approve" data-approve-account="' + esc(key) + '">Aprovar</button>'
+                    : '<button type="button" class="admin-action reject" data-reject-account="' + esc(key) + '">Rejeitar</button>';
+            return `<div class="admin-row">${userAvatarMarkup(a, a.name || "Professor")}<div><strong>${esc(a.name || "Professor")}</strong><small>${esc(a.phone || "")}</small></div><div class="admin-actions"><button type="button" class="admin-action view" data-view-user="${esc(key)}">Ver perfil</button>${decisionButtons}</div><span class="admin-status ${approval === "pending" ? "pending" : approval === "rejected" ? "rejected" : ""}">${approval === "pending" ? "Pendente" : approval === "rejected" ? "Rejeitado" : (profile ? "Publicado" : "Sem perfil")}</span></div>`;
         }).join("") : '<p class="admin-empty">Nenhum professor registado.</p>';
 
         const studentList = document.getElementById("adminStudentsList");
         if (studentList) studentList.innerHTML = students.length ? students.map(a =>
-            `<div class="admin-row">${userAvatarMarkup(a, a.name || "Aluno")}<div><strong>${esc(a.name || "Aluno")}</strong><small>${esc(a.phone || "")}</small></div><button type="button" class="admin-action view" data-view-user="${esc(a.id || a.phone || a.username || a.name || "")}">Ver perfil</button></div>`
+            (() => { const approval = getAccountApprovalState(a); const key = getAccountKey(a); const decisionButtons = approval === "pending" ? '<button type="button" class="admin-action approve" data-approve-account="' + esc(key) + '">Aprovar</button><button type="button" class="admin-action reject" data-reject-account="' + esc(key) + '">Rejeitar</button>' : approval === "rejected" ? '<button type="button" class="admin-action approve" data-approve-account="' + esc(key) + '">Aprovar</button>' : '<button type="button" class="admin-action reject" data-reject-account="' + esc(key) + '">Rejeitar</button>'; return `<div class="admin-row">${userAvatarMarkup(a, a.name || "Aluno")}<div><strong>${esc(a.name || "Aluno")}</strong><small>${esc(a.phone || "")}</small></div><div class="admin-actions"><button type="button" class="admin-action view" data-view-user="${esc(key)}">Ver perfil</button>${decisionButtons}</div><span class="admin-status ${approval === "pending" ? "pending" : approval === "rejected" ? "rejected" : ""}">${approval === "pending" ? "Pendente" : approval === "rejected" ? "Rejeitado" : "Oficial"}</span></div>`; })()`
         ).join("") : '<p class="admin-empty">Nenhum aluno registado.</p>';
 
         const courseList = document.getElementById("adminCoursesList");
@@ -419,6 +471,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     document.addEventListener("click", event => {
+        const approveAccount = event.target.closest("[data-approve-account]");
+        if (approveAccount) return setAccountDecision(approveAccount.dataset.approveAccount, "approved");
+        const rejectAccount = event.target.closest("[data-reject-account]");
+        if (rejectAccount) return setAccountDecision(rejectAccount.dataset.rejectAccount, "rejected");
         const userView = event.target.closest("[data-view-user]");
         if (userView) {
             const key = userView.dataset.viewUser;
