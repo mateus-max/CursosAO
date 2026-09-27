@@ -1122,7 +1122,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 profile.teacherName,
                 profile.course,
                 profile.modality,
-                profile.description
+                profile.description,
+                profile.bio,
+                profile.province,
+                profile.country
             ].join(" ").toLowerCase();
 
             return !query || text.includes(query);
