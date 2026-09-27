@@ -221,6 +221,36 @@ body.admin-page .admin-grid > .admin-panel:not(.admin-view-hidden):not([hidden])
     display:block !important;
 }
 </style>
+<style>
+/* PAINEL FINAL DA DIREÇÃO — isolado dos painéis de Professor e Aluno */
+body.admin-page #admin-dashboard{
+    display:block !important;
+}
+body.admin-page [data-admin-view]{
+    width:100% !important;
+    box-sizing:border-box !important;
+}
+body.admin-page [data-admin-view][hidden],
+body.admin-page [data-admin-view].admin-view-hidden{
+    display:none !important;
+}
+body.admin-page #admin-dashboard-view:not([hidden]):not(.admin-view-hidden){
+    display:block !important;
+}
+body.admin-page .admin-grid{
+    display:block !important;
+    width:100% !important;
+}
+body.admin-page .admin-grid > [data-admin-view]:not([hidden]):not(.admin-view-hidden){
+    display:block !important;
+    width:100% !important;
+    margin:0 0 16px !important;
+}
+body.admin-page .admin-dashboard-stat{
+    display:flex !important;
+    text-decoration:none !important;
+}
+</style>
 
 <div class="admin-modal" id="adminViewModal">
  <div class="admin-modal-card">
