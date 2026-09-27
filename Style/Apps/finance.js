@@ -393,8 +393,13 @@ document.addEventListener("DOMContentLoaded", function () {
             '</div>';
         });
 
+        const totalIncome = teachers.reduce(function (sum, teacher) {
+            return sum + calculate(getLedger(teacher.phone)).income;
+        }, 0);
+
         summary.innerHTML =
             '<div><small>Saldo total dos professores</small><strong>' + money(totalBalance) + '</strong></div>' +
+            '<div><small>Entradas confirmadas</small><strong>' + money(totalIncome) + '</strong></div>' +
             '<div><small>Saques pendentes</small><strong>' + money(totalPending) + '</strong></div>' +
             '<div><small>Professores</small><strong>' + teachers.length + '</strong></div>';
 
