@@ -101,8 +101,6 @@
 
         if (current.language === "en") {
             translateTree(document.body, "en");
-        } else {
-            location.reload();
         }
     }
 
