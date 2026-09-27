@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>APSAN Academy - Aluno</title>
-<link rel="stylesheet" href="../style.css?v=20260927-student-materials-final">
+<link rel="stylesheet" href="../style.css?v=20260927-enrollments-final">
 </head>
 <body class="app-page student-page">
 
@@ -135,12 +135,27 @@
     </section>
 
     <section class="student-enrollments professor-view-section" id="studentEnrollmentsView" data-view-section="enrollments" data-view-target="enrollments">
-        <div class="section-heading">
-            <h2>Minhas matrículas</h2>
-            <span id="enrollmentCount">0</span>
+        <div class="student-enrollment-header">
+            <div>
+                <span class="section-label">ACOMPANHAMENTO</span>
+                <h2>Minhas matrículas</h2>
+                <p>Acompanhe o estado das suas inscrições e cursos.</p>
+            </div>
+            <span class="student-enrollment-count" id="enrollmentCount">0</span>
         </div>
         <div id="myEnrollments">
             <p class="empty-state">Ainda não tem matrículas.</p>
+        </div>
+        <div class="student-quick-access" id="studentQuickAccess" hidden>
+            <div>
+                <span class="section-label">ACESSO RÁPIDO</span>
+                <h3>Continue a aprender</h3>
+            </div>
+            <div class="student-quick-grid">
+                <a href="#classroom"><span>📚</span><strong>Meus Cursos</strong><small>Ver cursos</small></a>
+                <a href="#classroom"><span>▶</span><strong>Aulas</strong><small>Ver aulas</small></a>
+                <a href="#studentMaterialsView"><span>📖</span><strong>Materiais</strong><small>Ver materiais</small></a>
+            </div>
         </div>
     </section>
 
