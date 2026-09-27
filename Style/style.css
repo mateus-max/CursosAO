@@ -3671,12 +3671,17 @@ main.single-panel-mode{padding-bottom:110px}
 .professor-tech-scene{
     min-height:0 !important;
     aspect-ratio:479 / 348;
+    margin:10px 0 24px !important;
+    padding:0 !important;
+    overflow:visible !important;
+    border:0 !important;
+    border-radius:0 !important;
+    box-shadow:none !important;
+    background-color:transparent !important;
     background-image:url("assets/apsan-cena-referencia.webp") !important;
     background-size:100% 100% !important;
     background-position:center !important;
     background-repeat:no-repeat !important;
-    border:none;
-    box-shadow:0 16px 38px rgba(18,54,91,.10);
 }
 .professor-tech-scene .tech-scene-glow,
 .professor-tech-scene .tech-scene-copy,
