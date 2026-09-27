@@ -6305,3 +6305,182 @@ body.admin-page .admin-metrics{
 }
 @media(max-width:1050px){body.admin-page .admin-metrics{grid-template-columns:repeat(4,minmax(0,1fr)) !important}}
 @media(max-width:720px){body.admin-page .admin-metrics{grid-template-columns:repeat(2,minmax(0,1fr)) !important}}
+
+/* =========================================================
+   NOTIFICAÇÕES GLOBAIS NO CABEÇALHO
+   Mensagens e atualizações ficam visíveis ao lado do avatar
+   até o utilizador abrir o painel de notificações.
+   ========================================================= */
+.app-header .header-notification-area{
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap:9px;
+    margin-left:auto;
+}
+.header-notification-button{
+    position:relative;
+    width:42px;
+    height:42px;
+    flex:0 0 42px;
+    display:grid;
+    place-items:center;
+    border:0;
+    border-radius:50%;
+    background:#eaf3ff;
+    color:#1769e0;
+    font-size:20px;
+    cursor:pointer;
+}
+.header-notification-button:hover{
+    background:#dcecff;
+}
+.header-notification-button.has-unread{
+    animation:apsanNotificationPulse 1.8s ease-in-out infinite;
+}
+.header-notification-badge{
+    position:absolute;
+    top:-4px;
+    right:-4px;
+    min-width:19px;
+    height:19px;
+    padding:0 5px;
+    box-sizing:border-box;
+    display:grid;
+    place-items:center;
+    border:2px solid #fff;
+    border-radius:999px;
+    background:#e53935;
+    color:#fff;
+    font-size:9px;
+    line-height:1;
+    font-weight:900;
+}
+@keyframes apsanNotificationPulse{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-2px)}
+}
+.apsan-header-notification-overlay{
+    position:fixed;
+    inset:0;
+    z-index:1200;
+    display:none;
+    align-items:flex-start;
+    justify-content:flex-end;
+    padding:76px 18px 18px;
+    background:rgba(4,18,38,.18);
+}
+.apsan-header-notification-overlay.open{
+    display:flex;
+}
+.apsan-header-notification-card{
+    width:min(390px,calc(100vw - 28px));
+    max-height:min(620px,calc(100dvh - 96px));
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    background:#fff;
+    border:1px solid #e3eaf2;
+    border-radius:18px;
+    box-shadow:0 22px 65px rgba(8,30,65,.22);
+}
+.apsan-header-notification-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:15px 16px;
+    border-bottom:1px solid #edf1f6;
+}
+.apsan-header-notification-head h2{
+    margin:0;
+    color:#172033;
+    font-size:17px;
+}
+.apsan-header-notification-head small{
+    display:block;
+    margin-top:3px;
+    color:#8190a3;
+    font-size:10px;
+}
+.apsan-header-notification-close{
+    width:34px;
+    height:34px;
+    border:0;
+    border-radius:10px;
+    background:#edf3fa;
+    color:#344054;
+    font-size:20px;
+    cursor:pointer;
+}
+.apsan-header-notification-list{
+    overflow:auto;
+    padding:4px 12px 10px;
+}
+.apsan-header-notification-item{
+    width:100%;
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    padding:12px 5px;
+    border:0;
+    border-bottom:1px solid #edf1f6;
+    background:#fff;
+    color:#172033;
+    text-align:left;
+    cursor:pointer;
+}
+.apsan-header-notification-item:last-child{border-bottom:0}
+.apsan-header-notification-item:hover{background:#f7faff}
+.apsan-header-notification-dot{
+    width:9px;
+    height:9px;
+    flex:0 0 9px;
+    margin-top:5px;
+    border-radius:50%;
+    background:#1769e0;
+}
+.apsan-header-notification-copy{
+    min-width:0;
+    display:grid;
+    gap:3px;
+}
+.apsan-header-notification-copy strong{
+    font-size:12px;
+    line-height:1.25;
+}
+.apsan-header-notification-copy small{
+    color:#52627a;
+    font-size:11px;
+    line-height:1.4;
+    overflow-wrap:anywhere;
+}
+.apsan-header-notification-copy time{
+    color:#9aa7b8;
+    font-size:9px;
+}
+.apsan-header-notification-empty{
+    padding:30px 14px;
+    text-align:center;
+    color:#8794a7;
+    font-size:12px;
+}
+@media(max-width:560px){
+    .app-header .header-notification-area{gap:7px}
+    .header-notification-button,
+    .app-header .profile-avatar-button{
+        width:40px;
+        height:40px;
+        flex-basis:40px;
+    }
+    .apsan-header-notification-overlay{
+        align-items:flex-start;
+        justify-content:center;
+        padding:70px 10px 10px;
+    }
+    .apsan-header-notification-card{
+        width:100%;
+        max-height:calc(100dvh - 82px);
+        border-radius:16px;
+    }
+}
