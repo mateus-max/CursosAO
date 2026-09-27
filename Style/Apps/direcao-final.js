@@ -331,7 +331,36 @@ document.addEventListener("DOMContentLoaded", function () {
         const payments = document.getElementById("adminPaymentsList");
         if (payments) payments.innerHTML = enrollments.length ? enrollments.map(e => {
             const status = e.paymentStatus === "confirmed" ? "Pagamento confirmado" : e.status === "rejected" ? "Pagamento rejeitado" : "Aguardando confirmação";
-            return `<div class="admin-row">${(() => { const s = findAccountByPhone(e.studentPhone, "aluno"); return s ? userAvatarMarkup(s, e.studentName || "Aluno") : '<div class="admin-row-icon">💳</div>'; })()}<div><strong>${formatKz(e.price)}</strong><small>${esc(e.studentName || "Aluno")} · ${esc(e.teacherName || "Professor")} · ${e.receipt ? "Comprovativo disponível" : "Sem comprovativo"} · Ref.: ${esc(e.paymentReference || "—")}</small></div><button type="button" class="admin-action view" data-view-enrollment="${esc(e.id)}">${e.receipt ? "Ver comprovativo" : "Observar"}</button><span class="admin-status ${e.status === "rejected" ? "rejected" : ""}">${esc(status)}</span></div>`;
+            const student = findAccountByPhone(e.studentPhone, "aluno");
+            const photo = student ? getUserPhoto(student) : "";
+            const avatar = photo
+                ? '<img class="admin-payment-avatar" src="' + esc(photo) + '" alt="Foto de ' + esc(e.studentName || "Aluno") + '">'
+                : '<div class="admin-payment-avatar admin-payment-avatar-letter">👤</div>';
+            const paymentDate = e.confirmedAt || e.updatedAt || e.createdAt || e.paymentDate || "";
+            let dateText = "Data não informada";
+            if (paymentDate) {
+                try {
+                    dateText = new Date(paymentDate).toLocaleDateString("pt-PT", { day: "2-digit", month: "2-digit", year: "numeric" });
+                } catch (error) {
+                    dateText = String(paymentDate);
+                }
+            }
+            const course = e.course || "Curso";
+            const receiptText = e.receipt ? "Comprovativo disponível" : "Sem comprovativo";
+            return '<article class="admin-payment-card">' +
+                '<div class="admin-payment-main">' +
+                    avatar +
+                    '<div class="admin-payment-info">' +
+                        '<div class="admin-payment-topline"><strong>' + formatKz(e.price) + '</strong><span class="admin-payment-status ' + (e.paymentStatus === "confirmed" ? "confirmed" : e.status === "rejected" ? "rejected" : "pending") + '">' + esc(status) + '</span></div>' +
+                        '<strong class="admin-payment-student">' + esc(e.studentName || "Aluno") + '</strong>' +
+                        '<small>' + esc(course) + ' · ' + esc(e.teacherName || "Professor") + '</small>' +
+                        '<small>' + esc(dateText) + ' · ' + receiptText + '</small>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="admin-payment-actions">' +
+                    '<button type="button" class="admin-action view" data-view-enrollment="' + esc(e.id) + '">' + (e.receipt ? "Ver comprovativo" : "Observar") + '</button>' +
+                '</div>' +
+            '</article>';
         }).join("") : '<p class="admin-empty">Nenhum pagamento registado.</p>';
 
         const moderation = document.getElementById("adminModerationList");
