@@ -30,6 +30,7 @@
         <a href="#classroom" data-student-menu-link>📚 <span>Meus cursos</span></a>
         <a href="#studentEnrollmentsView" data-student-menu-link>▣ <span>Minhas matrículas</span></a>
         <a href="#classroom" data-student-menu-link>▶ <span>Aulas</span></a>
+        <a href="#studentMaterialsView" data-student-menu-link>📚 <span>Materiais</span></a>
         <a href="mensagens.html" data-student-menu-link class="messages-menu-link">💬 <span>Mensagens</span> <span id="studentMessageMenuBadge" class="menu-notification-badge" hidden>0</span></a>
     </nav>
     <button type="button" class="student-side-menu-logout" id="studentMenuLogout">↪ Sair da conta</button>
@@ -117,6 +118,19 @@
         </div>
         <div id="classroomContent">
             <div class="empty-state">Depois da confirmação da matrícula pela direção, os conteúdos dos seus cursos aparecerão aqui.</div>
+        </div>
+    </section>
+
+    <section class="student-materials-view professor-view-section" id="studentMaterialsView" data-view-section="materials" data-view-target="materials">
+        <div class="section-heading">
+            <div>
+                <h2>Materiais</h2>
+                <p class="section-subtitle">Materiais disponibilizados pelos seus professores.</p>
+            </div>
+            <span id="studentMaterialsCount">0</span>
+        </div>
+        <div id="studentMaterialsContent">
+            <div class="empty-state">Os materiais disponibilizados pelos seus professores aparecerão aqui.</div>
         </div>
     </section>
 
