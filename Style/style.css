@@ -5124,3 +5124,158 @@ main.single-panel-mode{padding-bottom:110px}
         padding:11px;
     }
 }
+
+/* =========================================================
+   PREFERÊNCIAS GLOBAIS DO APLICATIVO
+   ========================================================= */
+body.apsan-wallpaper-default{
+    --apsan-app-bg:#f4f7fb;
+    background:var(--apsan-app-bg);
+}
+body.apsan-wallpaper-soft-blue{
+    --apsan-app-bg:#eaf4ff;
+    background:linear-gradient(145deg,#edf7ff,#dfefff);
+}
+body.apsan-wallpaper-deep-blue{
+    --apsan-app-bg:#e9f1fb;
+    background:linear-gradient(145deg,#dce9f8,#eef5fc);
+}
+body.apsan-wallpaper-minimal{
+    --apsan-app-bg:#f7f7f5;
+    background:#f7f7f5;
+}
+body.apsan-wallpaper-default .app-content,
+body.apsan-wallpaper-soft-blue .app-content,
+body.apsan-wallpaper-deep-blue .app-content,
+body.apsan-wallpaper-minimal .app-content{
+    background:transparent;
+}
+.student-side-menu{
+    overflow:hidden;
+}
+.student-side-menu nav{
+    flex:1;
+    min-height:0;
+    overflow-y:auto;
+    overscroll-behavior:contain;
+}
+.student-side-menu-logout{
+    flex:0 0 auto;
+}
+.apsan-settings-overlay{
+    position:fixed;
+    inset:0;
+    z-index:900;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+    box-sizing:border-box;
+    background:rgba(8,25,48,.52);
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transition:opacity .2s ease,visibility .2s ease;
+}
+.apsan-settings-overlay.open{
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+}
+.apsan-settings-modal{
+    width:min(520px,100%);
+    max-height:min(720px,92vh);
+    overflow:auto;
+    box-sizing:border-box;
+    padding:22px;
+    border-radius:22px;
+    background:#fff;
+    box-shadow:0 20px 60px rgba(8,35,70,.24);
+}
+.apsan-settings-header{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:14px;
+    margin-bottom:18px;
+}
+.apsan-settings-header h2{
+    margin:5px 0;
+    color:#172033;
+    font-size:22px;
+}
+.apsan-settings-header p{
+    margin:0;
+    color:#7c8999;
+    font-size:11px;
+    line-height:1.45;
+}
+.apsan-settings-group{
+    margin-top:16px;
+    padding:15px;
+    border:1px solid #e2eaf4;
+    border-radius:15px;
+    background:#f9fbfe;
+}
+.apsan-settings-group>label,
+.apsan-settings-label{
+    display:block;
+    margin-bottom:8px;
+    color:#26364b;
+    font-size:12px;
+    font-weight:800;
+}
+.apsan-settings-group select{
+    width:100%;
+    min-height:44px;
+    padding:8px 11px;
+    border:1px solid #dce5ef;
+    border-radius:10px;
+    background:#fff;
+    color:#26364b;
+    font:inherit;
+}
+.apsan-settings-group small{
+    display:block;
+    margin-top:6px;
+    color:#8a96a5;
+    font-size:9px;
+}
+.apsan-wallpaper-options{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+}
+.apsan-wallpaper-options button{
+    min-height:48px;
+    border:1px solid #dce5ef;
+    border-radius:10px;
+    background:#fff;
+    color:#33445b;
+    font:inherit;
+    font-size:10px;
+    font-weight:700;
+    cursor:pointer;
+}
+.apsan-wallpaper-options button.active{
+    border-color:#1769e0;
+    background:#eaf3ff;
+    color:#1769e0;
+    box-shadow:0 0 0 2px rgba(23,105,224,.08);
+}
+.apsan-settings-status{
+    margin-top:13px;
+    color:#27823d;
+    font-size:10px;
+    font-weight:800;
+    text-align:center;
+}
+@media(max-width:560px){
+    .apsan-settings-overlay{align-items:flex-end;padding:0}
+    .apsan-settings-modal{
+        width:100%;
+        max-height:88vh;
+        border-radius:22px 22px 0 0;
+        padding:19px;
+    }
+}
