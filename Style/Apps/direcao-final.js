@@ -118,6 +118,84 @@ document.addEventListener("DOMContentLoaded", function () {
         return '<div class="admin-row-icon">' + icon + '</div>';
     }
 
+    function getUserProfileData(account) {
+        const data = {
+            name: account?.name || account?.fullName || "Utilizador",
+            username: account?.username || "",
+            phone: account?.phone || "",
+            type: account?.type === "professor" ? "Professor" : account?.type === "aluno" ? "Aluno" : account?.type === "direcao" ? "Direção" : "Utilizador",
+            status: account?.status || "active",
+            bio: account?.bio || "",
+            province: account?.province || "",
+            country: account?.country || "",
+            photo: getUserPhoto(account),
+            createdAt: account?.createdAt || account?.registeredAt || ""
+        };
+
+        // O professor pode ter informações complementares guardadas no perfil legado.
+        if (account?.type === "professor") {
+            const phone = String(account.phone || "").trim();
+            const username = String(account.username || "").trim();
+            const keys = [];
+            if (phone) keys.push("apsan_professor_profile_" + phone);
+            if (phone) keys.push("apsan_professor_profile_" + phone.replace(/\\D/g, ""));
+            if (username) keys.push("apsan_professor_profile_" + username);
+
+            for (const key of keys) {
+                try {
+                    const profile = JSON.parse(localStorage.getItem(key) || "null");
+                    if (!profile) continue;
+                    data.name = profile.teacherName || profile.name || data.name;
+                    data.bio = data.bio || profile.bio || "";
+                    data.province = data.province || profile.province || "";
+                    data.country = data.country || profile.country || "";
+                    break;
+                } catch (_) {}
+            }
+        }
+
+        return data;
+    }
+
+    function openUserProfile(account) {
+        const data = getUserProfileData(account);
+        const modal = document.getElementById("adminUserProfileModal");
+        const content = document.getElementById("adminUserProfileContent");
+        if (!modal || !content) return;
+
+        const photoMarkup = data.photo
+            ? '<img class="admin-user-profile-photo" src="' + esc(data.photo) + '" alt="Foto de ' + esc(data.name) + '">'
+            : '<div class="admin-user-profile-letter">' + esc((data.name.charAt(0) || "U").toUpperCase()) + '</div>';
+
+        const statusLabel = ["blocked","suspended","rejected"].includes(data.status) ? "Bloqueada" : "Ativa";
+        const location = [data.province, data.country].filter(Boolean).join(" · ") || "Localização não definida";
+        const registered = data.createdAt ? new Date(data.createdAt).toLocaleDateString("pt-AO") : "Não disponível";
+
+        content.innerHTML = `
+            <div class="admin-user-profile-head">
+                <div class="admin-user-profile-avatar">${photoMarkup}</div>
+                <div class="admin-user-profile-title">
+                    <span class="admin-user-profile-type">${esc(data.type)}</span>
+                    <h3>${esc(data.name)}</h3>
+                    <span class="admin-status ${statusLabel === "Bloqueada" ? "rejected" : ""}">${statusLabel}</span>
+                </div>
+            </div>
+            <div class="admin-user-profile-grid">
+                <div class="admin-detail-box"><small>Utilizador</small><strong>${esc(data.username || "Não definido")}</strong></div>
+                <div class="admin-detail-box"><small>Contacto</small><strong>${esc(data.phone || "Contacto protegido")}</strong></div>
+                <div class="admin-detail-box"><small>Localização</small><strong>${esc(location)}</strong></div>
+                <div class="admin-detail-box"><small>Registado em</small><strong>${esc(registered)}</strong></div>
+            </div>
+            <div class="admin-user-profile-bio">
+                <small>Sobre o utilizador</small>
+                <p>${esc(data.bio || "Este utilizador ainda não adicionou uma biografia.")}</p>
+            </div>
+            <div class="admin-modal-buttons">
+                <button class="admin-cancel" type="button" data-close-admin-modal="adminUserProfileModal">Fechar</button>
+            </div>`;
+        modal.classList.add("open");
+    }
+
     function render() {
         const accounts = read("apsan_accounts", []);
         const profiles = read("apsan_professors", []);
@@ -138,7 +216,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const label = a.type === "professor" ? "Professor" : a.type === "aluno" ? "Aluno" : a.type === "direcao" ? "Direção" : "Utilizador";
             const icon = a.type === "professor" ? "👨‍🏫" : a.type === "aluno" ? "👤" : a.type === "direcao" ? "⚙️" : "👥";
             const blocked = ["blocked", "suspended", "rejected"].includes(a.status);
-            return `<div class="admin-row">${userAvatarMarkup(a, a.name || label)}<div><strong>${esc(a.name || label)}</strong><small>${esc(label)} · ${esc(a.phone || "Contacto protegido")}</small></div><span class="admin-status ${blocked ? "rejected" : ""}">${blocked ? "Bloqueada" : "Ativa"}</span></div>`;
+            return `<div class="admin-row">${userAvatarMarkup(a, a.name || label)}<div><strong>${esc(a.name || label)}</strong><small>${esc(label)} · ${esc(a.phone || "Contacto protegido")}</small></div><button type="button" class="admin-action view" data-view-user="${esc(a.id || a.phone || a.username || a.name || "")}">Ver perfil</button><span class="admin-status ${blocked ? "rejected" : ""}">${blocked ? "Bloqueada" : "Ativa"}</span></div>`;
         }).join("") : '<p class="admin-empty">Nenhum utilizador registado.</p>';
 
         const teacherList = document.getElementById("adminTeachersList");
@@ -248,6 +326,14 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     document.addEventListener("click", event => {
+        const userView = event.target.closest("[data-view-user]");
+        if (userView) {
+            const key = userView.dataset.viewUser;
+            const account = read("apsan_accounts", []).find(a =>
+                String(a.id || a.phone || a.username || a.name || "") === String(key)
+            );
+            if (account) return openUserProfile(account);
+        }
         const view = event.target.closest("[data-view-enrollment]");
         if (view) return openView(view.dataset.viewEnrollment);
         const approveButton = event.target.closest("[data-approve-enrollment], [data-modal-approve]");
