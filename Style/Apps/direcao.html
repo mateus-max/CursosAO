@@ -14,13 +14,19 @@
         <button class="menu-button" id="adminMenuButton" type="button" aria-label="Abrir menu">☰</button>
         <strong>APSAN Academy</strong>
     </div>
-    <button class="profile-avatar-button admin-settings" id="adminLogout" type="button" aria-label="Sair">⚙</button>
+    <button class="profile-avatar-button admin-settings" id="adminLogout" type="button" aria-label="Sair">
+        <img id="adminTopAvatar" class="profile-avatar" src="" alt="Perfil">
+        <span id="adminTopAvatarLetter" class="avatar-letter">D</span>
+    </button>
 </header>
 
 <aside class="admin-sidebar" id="adminSidebar">
-    <div class="admin-sidebar-brand">PAINEL DE ADMINISTRAÇÃO</div>
+    <div class="admin-sidebar-brand">
+        <strong>APSAN ACADEMY</strong>
+        <span>Área da Direção</span>
+    </div>
     <nav>
-        <a class="active" href="#admin-dashboard">🏠 <span>Painel</span></a>
+        <a class="active" href="#admin-dashboard-view">🏠 <span>Painel</span></a>
         <a href="#admin-users">👤 <span>Utilizadores</span></a>
         <a href="#admin-teachers">👨‍🏫 <span>Professores</span></a>
         <a href="#admin-students">👥 <span>Alunos</span></a>
@@ -38,75 +44,80 @@
 
 <main class="app-content admin-content" id="admin-dashboard">
 
-    <section class="admin-hero">
-        <div>
-            <span>PAINEL DE ADMINISTRAÇÃO</span>
-            <h1>Visão geral da plataforma</h1>
-            <p>Controlar, observar, aprovar, rejeitar e acompanhar toda a operação da plataforma.</p>
-        </div>
-        <div class="admin-hero-icon">⚙</div>
-    </section>
+    <section class="admin-dashboard-view" id="admin-dashboard-view" data-admin-view="dashboard">
+        <section class="admin-hero professor-hero">
+            <div class="professor-hero-copy">
+                <span class="hero-kicker">PAINEL DA DIREÇÃO</span>
+                <h1>Olá, Direção! 👋</h1>
+                <p>Supervisione utilizadores, cursos, matrículas, pagamentos e toda a operação da APSAN Academy.</p>
+            </div>
+            <div class="hero-brand">
+                <div class="hero-logo">A</div>
+                <strong>APSAN Academy</strong>
+            </div>
+        </section>
 
-    <section class="admin-metrics" id="admin-users" data-view-section="admin-users">
-        <article class="admin-metric"><span>👥</span><div><strong id="adminUserCount">0</strong><small>Utilizadores</small></div></article>
-        <article class="admin-metric"><span>🎓</span><div><strong id="adminTeacherCount">0</strong><small>Professores</small></div></article>
-        <article class="admin-metric"><span>👤</span><div><strong id="adminStudentCount">0</strong><small>Alunos</small></div></article>
-        <article class="admin-metric"><span>📚</span><div><strong id="adminCourseCount">0</strong><small>Cursos publicados</small></div></article>
-    </section>
+        <section class="admin-metrics professor-stats professor-compact-stats" id="admin-users">
+            <article class="admin-metric"><span>👥</span><div><strong id="adminUserCount">0</strong><small>Utilizadores</small></div></article>
+            <article class="admin-metric"><span>🎓</span><div><strong id="adminTeacherCount">0</strong><small>Professores</small></div></article>
+            <article class="admin-metric"><span>👤</span><div><strong id="adminStudentCount">0</strong><small>Alunos</small></div></article>
+            <article class="admin-metric"><span>📚</span><div><strong id="adminCourseCount">0</strong><small>Cursos publicados</small></div></article>
+        </section>
 
-    <section class="admin-panel admin-wide admin-attention-panel" id="admin-attention" data-view-section="admin-attention">
-        <div class="admin-panel-title"><h2>🔔 Requer atenção</h2><span>Decisões pendentes da Direção</span></div>
-        <div id="adminAttentionList" class="admin-attention-grid"></div>
+        <section class="admin-panel admin-wide admin-attention-panel" id="admin-attention">
+            <div class="admin-panel-title"><h2>🔔 Requer atenção</h2><span>Decisões pendentes da Direção</span></div>
+            <div id="adminAttentionList" class="admin-attention-grid"></div>
+        </section>
     </section>
 
     <section class="admin-grid">
-        <article class="admin-panel" id="admin-teachers" data-view-section="admin-teachers">
+        <article class="admin-panel" id="admin-teachers" data-view-section="admin-teachers" data-admin-view="admin-teachers">
             <div class="admin-panel-title"><h2>Professores</h2><span id="adminTeacherStatus">0 publicados</span></div>
             <div id="adminTeachersList" class="admin-list"></div>
         </article>
 
-        <article class="admin-panel" id="admin-students" data-view-section="admin-students">
+        <article class="admin-panel" id="admin-students" data-view-section="admin-students" data-admin-view="admin-students">
             <div class="admin-panel-title"><h2>Alunos</h2><span id="adminEnrollmentCount">0 matrículas</span></div>
             <div id="adminStudentsList" class="admin-list"></div>
         </article>
 
-        <article class="admin-panel" id="admin-courses" data-view-section="admin-courses">
+        <article class="admin-panel" id="admin-courses" data-view-section="admin-courses" data-admin-view="admin-courses">
             <div class="admin-panel-title"><h2>Cursos</h2><span>Publicados pelos professores</span></div>
             <div id="adminCoursesList" class="admin-list"></div>
         </article>
 
-        <article class="admin-panel" id="admin-enrollments" data-view-section="admin-enrollments">
+        <article class="admin-panel" id="admin-enrollments" data-view-section="admin-enrollments" data-admin-view="admin-enrollments">
             <div class="admin-panel-title"><h2>Matrículas</h2><span>Estado atual</span></div>
             <div id="adminEnrollmentsList" class="admin-list"></div>
         </article>
 
-        <article class="admin-panel admin-wide" id="admin-payments" data-view-section="admin-payments">
+        <article class="admin-panel admin-wide" id="admin-payments" data-view-section="admin-payments" data-admin-view="admin-payments">
             <div class="admin-panel-title"><h2>Pagamentos</h2><span>Registos de matrícula</span></div>
             <div id="adminPaymentsList" class="admin-list"></div>
         </article>
 
-        <article class="admin-panel admin-wide admin-finance-panel" id="admin-finance" data-view-section="admin-finance">
+        <article class="admin-panel admin-wide admin-finance-panel" id="admin-finance" data-view-section="admin-finance" data-admin-view="admin-finance">
             <div class="admin-panel-title"><h2>Financeiro dos Professores</h2><span>Entradas confirmadas e pedidos de saque</span></div>
             <div class="admin-finance-summary" id="adminFinanceSummary"></div>
             <div id="adminTeacherFinanceList" class="admin-list"></div>
         </article>
 
-        <article class="admin-panel admin-wide" id="admin-moderation" data-view-section="admin-moderation">
+        <article class="admin-panel admin-wide" id="admin-moderation" data-view-section="admin-moderation" data-admin-view="admin-moderation">
             <div class="admin-panel-title"><h2>🛡️ Moderação</h2><span>Controlo de perfis e contas</span></div>
             <div id="adminModerationList" class="admin-list"></div>
         </article>
 
-        <article class="admin-panel admin-wide" id="admin-occurrences" data-view-section="admin-occurrences">
+        <article class="admin-panel admin-wide" id="admin-occurrences" data-view-section="admin-occurrences" data-admin-view="admin-occurrences">
             <div class="admin-panel-title"><h2>🚨 Ocorrências</h2><span>Eventos que exigem acompanhamento</span></div>
             <div id="adminOccurrencesList" class="admin-list"></div>
         </article>
 
-        <article class="admin-panel admin-wide" id="admin-reports" data-view-section="admin-reports">
+        <article class="admin-panel admin-wide" id="admin-reports" data-view-section="admin-reports" data-admin-view="admin-reports">
             <div class="admin-panel-title"><h2>Atividades recentes</h2><span>Dados reais guardados no navegador</span></div>
             <div id="adminActivityList" class="admin-list"></div>
         </article>
 
-        <article class="admin-panel admin-wide" id="admin-settings" data-view-section="admin-settings">
+        <article class="admin-panel admin-wide" id="admin-settings" data-view-section="admin-settings" data-admin-view="admin-settings">
             <div class="admin-panel-title"><h2>⚙️ Configurações</h2><span>Controlo geral da plataforma</span></div>
             <div class="admin-settings-grid">
                 <label><span>Aprovação de perfis</span><select id="adminProfileApproval"><option value="manual">Manual pela Direção</option><option value="automatic">Automática</option></select></label>
@@ -168,6 +179,14 @@
  .admin-receipt iframe{height:420px}
 }
 .admin-virtual-card{margin-bottom:12px;padding:15px;border-radius:16px;background:linear-gradient(135deg,#0b4d91,#123c69);color:#fff;box-shadow:0 12px 28px rgba(11,77,145,.2);overflow:hidden;position:relative}.admin-virtual-card-top,.admin-virtual-card-bottom{display:flex;justify-content:space-between;gap:10px;align-items:center}.admin-virtual-card-top{font-size:10px;font-weight:900;letter-spacing:.08em}.admin-virtual-card-chip{width:38px;height:27px;border-radius:7px;background:#d8b45a;margin:18px 0 10px}.admin-virtual-card-number{font-size:17px;letter-spacing:.12em;font-weight:800}.admin-virtual-card-bottom{margin-top:16px;font-size:11px}.admin-virtual-card-bottom span{font-size:13px;font-weight:900}</style>
+
+    <nav class="professor-bottom-nav admin-bottom-nav" aria-label="Atalhos da Direção">
+        <a class="active" href="#admin-dashboard-view">⌂<small>Painel</small></a>
+        <a href="#admin-teachers">👨‍🏫<small>Professores</small></a>
+        <a href="#admin-students">👥<small>Alunos</small></a>
+        <a href="#admin-finance">💰<small>Financeiro</small></a>
+        <a href="#admin-reports">📊<small>Relatórios</small></a>
+    </nav>
 
 <div class="admin-modal" id="adminViewModal">
  <div class="admin-modal-card">
@@ -393,10 +412,28 @@ document.addEventListener("DOMContentLoaded", function(){
         document.getElementById("adminEditModal").classList.add("open");
     }
 
+    function showAdminView(viewId){
+        const targetId = viewId || "admin-dashboard-view";
+        document.querySelectorAll("[data-admin-view]").forEach(function(section){
+            section.classList.toggle("admin-view-hidden", section.getAttribute("data-admin-view") !== targetId);
+        });
+        document.querySelectorAll("#adminSidebar nav a").forEach(function(link){
+            const href=link.getAttribute("href")||"";
+            link.classList.toggle("active", href === "#"+targetId || (targetId === "admin-dashboard-view" && href === "#admin-dashboard"));
+        });
+        document.querySelectorAll(".admin-bottom-nav a").forEach(function(link){
+            const href=link.getAttribute("href")||"";
+            link.classList.toggle("active", href === "#"+targetId);
+        });
+        const target=document.getElementById(targetId);
+        if(target) target.scrollIntoView({behavior:"smooth",block:"start"});
+        if(history.replaceState) history.replaceState(null,"","#"+targetId);
+    }
+
     document.querySelectorAll("[data-admin-jump]").forEach(function(button){
         button.addEventListener("click",function(){
-            const target=document.getElementById((button.getAttribute("data-admin-jump")||"").replace("#",""));
-            if(target) target.scrollIntoView({behavior:"smooth",block:"start"});
+            const targetId=(button.getAttribute("data-admin-jump")||"").replace("#","");
+            showAdminView(targetId);
         });
     });
 
@@ -421,6 +458,22 @@ document.addEventListener("DOMContentLoaded", function(){
         if(message){message.style.color="#16803c";message.textContent="Configurações guardadas.";}
     });
     loadAdminSettings();
+
+    const adminTopAvatar=document.getElementById("adminTopAvatar");
+    const adminTopAvatarLetter=document.getElementById("adminTopAvatarLetter");
+    if(adminTopAvatar && currentAccount){
+        const photo=currentAccount.photo||currentAccount.profilePhoto||currentAccount.avatar||"";
+        const name=currentAccount.name||"Direção";
+        if(photo){
+            adminTopAvatar.src=photo;
+            adminTopAvatar.style.display="block";
+            if(adminTopAvatarLetter) adminTopAvatarLetter.style.display="none";
+        }else if(adminTopAvatarLetter){
+            adminTopAvatarLetter.textContent=String(name).trim().charAt(0).toUpperCase()||"D";
+        }
+    }
+
+    showAdminView("admin-dashboard-view");
 
     document.addEventListener("click",function(event){
         const view=event.target.closest("[data-view-enrollment]");
@@ -467,18 +520,18 @@ document.addEventListener("DOMContentLoaded", function(){
             const href=link.getAttribute("href")||"";
             if(href.charAt(0)!=="#") return;
             event.preventDefault();
-            const target=document.getElementById(href.slice(1));
             const sidebar=document.getElementById("adminSidebar");
             if(sidebar) sidebar.classList.remove("admin-sidebar-open");
-            document.querySelectorAll("#adminSidebar nav a").forEach(function(item){item.classList.remove("active");});
-            link.classList.add("active");
-            document.querySelectorAll("[data-admin-menu-focus]").forEach(function(item){item.classList.remove("admin-menu-focus-active");});
-            if(target){
-                target.setAttribute("data-admin-menu-focus","true");
-                target.classList.add("admin-menu-focus-active");
-                target.scrollIntoView({behavior:"smooth",block:"start"});
-                window.history.replaceState(null,"",href);
-            }
+            showAdminView(href.slice(1) === "admin-dashboard" ? "admin-dashboard-view" : href.slice(1));
+        });
+    });
+
+    document.querySelectorAll(".admin-bottom-nav a").forEach(function(link){
+        link.addEventListener("click",function(event){
+            const href=link.getAttribute("href")||"";
+            if(href.charAt(0)!=="#") return;
+            event.preventDefault();
+            showAdminView(href.slice(1));
         });
     });
 
