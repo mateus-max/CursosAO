@@ -6597,3 +6597,12 @@ body.admin-page .student-side-menu-logout{
         margin-bottom:4px !important;
     }
 }
+
+
+/* Barras inferiores removidas: a navegação fica exclusivamente no menu lateral. */
+.professor-bottom-nav,
+.student-bottom-nav{
+    display:none !important;
+    visibility:hidden !important;
+    pointer-events:none !important;
+}
