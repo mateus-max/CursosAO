@@ -211,7 +211,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const enrollments = read("apsan_enrollments", []);
         const teachers = accounts.filter(a => a?.type === "professor");
         const students = accounts.filter(a => a?.type === "aluno");
-        const courses = profiles.filter(p => p?.published);
+        const courses = profiles.filter(p => p?.published && p?.adminStatus !== "rejected");
+        const allCourses = profiles.filter(p => p?.course);
 
         document.getElementById("adminUserCount").textContent = accounts.length;
         document.getElementById("adminTeacherCount").textContent = teachers.length;
@@ -240,9 +241,16 @@ document.addEventListener("DOMContentLoaded", function () {
         ).join("") : '<p class="admin-empty">Nenhum aluno registado.</p>';
 
         const courseList = document.getElementById("adminCoursesList");
-        if (courseList) courseList.innerHTML = courses.length ? courses.map(p =>
-            `<div class="admin-row">${(() => { const t = findAccountByPhone(p.teacherPhone, "professor"); return t ? userAvatarMarkup(t, p.teacherName || t.name || "Professor") : '<div class="admin-row-icon">📚</div>'; })()}<div><strong>${esc(p.course || "Curso")}</strong><small>${esc(p.teacherName || "Professor")} · ${esc(p.modality || "")}</small></div><span class="admin-status">${formatKz(p.price)}</span></div>`
-        ).join("") : '<p class="admin-empty">Nenhum curso publicado.</p>';
+        if (courseList) courseList.innerHTML = allCourses.length ? allCourses.map(p => {
+            const teacher = findAccountByPhone(p.teacherPhone, "professor");
+            const status = p.adminStatus === "rejected"
+                ? '<span class="admin-status rejected">Rejeitado</span>'
+                : p.adminStatus === "approved"
+                    ? '<span class="admin-status">Aprovado</span>'
+                    : '<span class="admin-status pending">Para analisar</span>';
+            const key = p.id || (p.teacherPhone + "|" + p.course);
+            return `<div class="admin-row">${teacher ? userAvatarMarkup(teacher, p.teacherName || teacher.name || "Professor") : '<div class="admin-row-icon">📚</div>'}<div><strong>${esc(p.course || "Curso")}</strong><small>${esc(p.teacherName || "Professor")} · ${esc(p.modality || "")}</small></div><div class="admin-actions"><button type="button" class="admin-action view" data-view-course="${esc(key)}">Observar</button><button type="button" class="admin-action edit" data-edit-course="${esc(key)}">Editar</button><button type="button" class="admin-action approve" data-approve-course="${esc(key)}">Aprovar</button><button type="button" class="admin-action reject" data-reject-course="${esc(key)}">Rejeitar</button></div>${status}</div>`;
+        }).join("") : '<p class="admin-empty">Nenhum curso publicado.</p>';
 
         const enrollmentList = document.getElementById("adminEnrollmentsList");
         if (enrollmentList) enrollmentList.innerHTML = enrollments.length ? enrollments.map(e => {
@@ -276,6 +284,82 @@ document.addEventListener("DOMContentLoaded", function () {
             const rows = courses.map(p => `<div class="admin-row">${(() => { const t = findAccountByPhone(p.teacherPhone, "professor"); return t ? userAvatarMarkup(t, p.teacherName || "Professor") : '<div class="admin-row-icon">•</div>'; })()}<div><strong>Perfil publicado: ${esc(p.teacherName || "Professor")}</strong></div></div>`);
             activity.innerHTML = rows.length ? rows.slice(-12).reverse().join("") : '<p class="admin-empty">Ainda não existem atividades.</p>';
         }
+    }
+
+    function getCourseKey(profile) {
+        return String(profile?.id || (profile?.teacherPhone + "|" + profile?.course) || "");
+    }
+
+    function getCourse(key) {
+        return read("apsan_professors", []).find(p => getCourseKey(p) === String(key)) || null;
+    }
+
+    function updateCourse(key, changes) {
+        const list = read("apsan_professors", []);
+        const index = list.findIndex(p => getCourseKey(p) === String(key));
+        if (index < 0) return null;
+        Object.assign(list[index], changes, { updatedAt: new Date().toISOString() });
+        write("apsan_professors", list);
+        return list[index];
+    }
+
+    function openCourseView(key) {
+        const p = getCourse(key);
+        if (!p) return;
+        const teacher = findAccountByPhone(p.teacherPhone, "professor");
+        const content = document.getElementById("adminCourseViewContent");
+        if (!content) return;
+        const photo = teacher ? getUserPhoto(teacher) : (p.teacherPhoto || "");
+        const cover = p.cover || "";
+        content.innerHTML = `
+            <div class="admin-course-view-head">
+                <div class="admin-course-cover">${cover ? '<img src="' + esc(cover) + '" alt="Capa do curso">' : '<div>📚</div>'}</div>
+                <div><span class="admin-user-profile-type">Curso / disciplina</span><h3>${esc(p.course || "Curso")}</h3><p>${esc(p.teacherName || "Professor")}</p></div>
+            </div>
+            <div class="admin-course-teacher"><div class="admin-user-profile-avatar">${photo ? '<img class="admin-user-profile-photo" src="' + esc(photo) + '" alt="Foto do professor">' : '<div class="admin-user-profile-letter">P</div>'}</div><div><small>Professor responsável</small><strong>${esc(p.teacherName || "Professor")}</strong></div></div>
+            <div class="admin-user-profile-grid">
+                <div class="admin-detail-box"><small>Modalidade</small><strong>${esc(p.modality || "—")}</strong></div>
+                <div class="admin-detail-box"><small>Preço</small><strong>${formatKz(p.price)}</strong></div>
+                <div class="admin-detail-box"><small>Horários</small><strong>${esc(p.schedules || "—")}</strong></div>
+                <div class="admin-detail-box"><small>Experiência</small><strong>${esc(p.experience || "—")}</strong></div>
+            </div>
+            <div class="admin-user-profile-bio"><small>Descrição da matéria / curso</small><p>${esc(p.description || "Sem descrição.")}</p></div>
+            <div class="admin-user-profile-bio"><small>Vantagens / diferenciais</small><p>${esc(p.advantages || "Não informado.")}</p></div>
+            <div class="admin-modal-buttons">
+                <button class="admin-save" type="button" data-approve-course="${esc(key)}">Aprovar</button>
+                <button class="admin-action reject" type="button" data-reject-course="${esc(key)}">Rejeitar</button>
+                <button class="admin-action edit" type="button" data-edit-course="${esc(key)}">Editar</button>
+                <button class="admin-cancel" type="button" data-close-admin-modal="adminCourseViewModal">Fechar</button>
+            </div>`;
+        document.getElementById("adminCourseViewModal")?.classList.add("open");
+    }
+
+    function openCourseEdit(key) {
+        const p = getCourse(key);
+        if (!p) return;
+        document.getElementById("editCourseKey").value = key;
+        document.getElementById("editCourseName").value = p.course || "";
+        document.getElementById("editCourseDescription").value = p.description || "";
+        document.getElementById("editCourseModality").value = p.modality || "Online";
+        document.getElementById("editCoursePrice").value = p.price || "";
+        document.getElementById("editCourseSchedules").value = p.schedules || "";
+        document.getElementById("editCourseExperience").value = p.experience || "";
+        document.getElementById("editCourseAdvantages").value = p.advantages || "";
+        document.getElementById("adminCourseEditModal")?.classList.add("open");
+    }
+
+    function setCourseDecision(key, decision) {
+        const p = getCourse(key);
+        if (!p) return;
+        if (decision === "rejected") {
+            const reason = prompt("Motivo da rejeição (opcional):", "Conteúdo do curso necessita de revisão.");
+            updateCourse(key, { adminStatus: "rejected", adminDecision: "rejected", rejectionReason: reason || "", published: false });
+        } else {
+            updateCourse(key, { adminStatus: "approved", adminDecision: "approved", approvedAt: new Date().toISOString(), published: true, rejectionReason: "" });
+        }
+        document.getElementById("adminCourseViewModal")?.classList.remove("open");
+        document.getElementById("adminCourseEditModal")?.classList.remove("open");
+        render();
     }
 
     function openView(id) {
@@ -343,6 +427,14 @@ document.addEventListener("DOMContentLoaded", function () {
             );
             if (account) return openUserProfile(account);
         }
+        const courseView = event.target.closest("[data-view-course]");
+        if (courseView) return openCourseView(courseView.dataset.viewCourse);
+        const courseEdit = event.target.closest("[data-edit-course]");
+        if (courseEdit) return openCourseEdit(courseEdit.dataset.editCourse);
+        const courseApprove = event.target.closest("[data-approve-course]");
+        if (courseApprove) return setCourseDecision(courseApprove.dataset.approveCourse, "approved");
+        const courseReject = event.target.closest("[data-reject-course]");
+        if (courseReject) return setCourseDecision(courseReject.dataset.rejectCourse, "rejected");
         const view = event.target.closest("[data-view-enrollment]");
         if (view) return openView(view.dataset.viewEnrollment);
         const approveButton = event.target.closest("[data-approve-enrollment], [data-modal-approve]");
@@ -354,6 +446,22 @@ document.addEventListener("DOMContentLoaded", function () {
         const close = event.target.closest("[data-close-admin-modal]");
         if (close) document.getElementById(close.dataset.closeAdminModal)?.classList.remove("open");
         if (event.target.classList.contains("admin-modal")) event.target.classList.remove("open");
+    });
+
+    document.getElementById("adminCourseEditForm")?.addEventListener("submit", event => {
+        event.preventDefault();
+        const key = document.getElementById("editCourseKey").value;
+        updateCourse(key, {
+            course: document.getElementById("editCourseName").value.trim(),
+            description: document.getElementById("editCourseDescription").value.trim(),
+            modality: document.getElementById("editCourseModality").value,
+            price: document.getElementById("editCoursePrice").value.trim(),
+            schedules: document.getElementById("editCourseSchedules").value.trim(),
+            experience: document.getElementById("editCourseExperience").value.trim(),
+            advantages: document.getElementById("editCourseAdvantages").value.trim()
+        });
+        document.getElementById("adminCourseEditModal")?.classList.remove("open");
+        render();
     });
 
     document.getElementById("adminEditForm")?.addEventListener("submit", event => {
