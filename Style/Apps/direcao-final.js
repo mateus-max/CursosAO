@@ -231,7 +231,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const teacherList = document.getElementById("adminTeachersList");
         if (teacherList) teacherList.innerHTML = teachers.length ? teachers.map(a => {
             const profile = courses.find(p => p.teacherPhone === a.phone);
-            return `<div class="admin-row"><div class="admin-row-avatar">${esc((a.name || "P").charAt(0))}</div><div><strong>${esc(a.name || "Professor")}</strong><small>${esc(a.phone || "")}</small></div><span class="admin-status">${profile ? "Publicado" : "Sem perfil"}</span></div>`;
+            return `<div class="admin-row">${userAvatarMarkup(a, a.name || "Professor")}<div><strong>${esc(a.name || "Professor")}</strong><small>${esc(a.phone || "")}</small></div><button type="button" class="admin-action view" data-view-user="${esc(a.id || a.phone || a.username || a.name || "")}">Ver perfil</button><span class="admin-status">${profile ? "Publicado" : "Sem perfil"}</span></div>`;
         }).join("") : '<p class="admin-empty">Nenhum professor registado.</p>';
 
         const studentList = document.getElementById("adminStudentsList");
