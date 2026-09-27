@@ -6096,3 +6096,197 @@ body.admin-page .admin-bottom-nav{
         width:calc(100% - 16px) !important;
     }
 }
+
+
+/* =========================================================
+   DIREÇÃO — DASHBOARD COMPLETO NO MESMO PADRÃO DOS PAINÉIS
+   ========================================================= */
+body.admin-page .admin-dashboard-columns{
+    display:grid !important;
+    grid-template-columns:minmax(0,1.35fr) minmax(320px,.85fr) !important;
+    gap:14px !important;
+    margin-top:14px !important;
+}
+body.admin-page .admin-dashboard-columns .admin-panel{
+    min-width:0 !important;
+    margin:0 !important;
+}
+body.admin-page .admin-period{
+    display:inline-flex !important;
+    align-items:center !important;
+    padding:7px 10px !important;
+    border:1px solid #e1e8f1 !important;
+    border-radius:9px !important;
+    background:#f8fbff !important;
+    color:#66758a !important;
+    font-size:9px !important;
+    font-weight:800 !important;
+}
+body.admin-page .admin-chart-legend{
+    display:flex !important;
+    flex-wrap:wrap !important;
+    gap:12px !important;
+    margin:5px 0 14px !important;
+    color:#718096 !important;
+    font-size:9px !important;
+    font-weight:700 !important;
+}
+body.admin-page .admin-chart-legend span{
+    display:inline-flex !important;
+    align-items:center !important;
+    gap:5px !important;
+}
+body.admin-page .legend-dot{
+    width:7px !important;
+    height:7px !important;
+    border-radius:50% !important;
+    display:inline-block !important;
+}
+body.admin-page .legend-dot.users{background:#1769e0 !important}
+body.admin-page .legend-dot.teachers{background:#18a873 !important}
+body.admin-page .legend-dot.students{background:#f59e0b !important}
+body.admin-page .legend-dot.courses{background:#8b5cf6 !important}
+body.admin-page .admin-chart{
+    display:grid !important;
+    gap:13px !important;
+    padding:12px 0 4px !important;
+}
+body.admin-page .admin-chart-row{
+    display:grid !important;
+    grid-template-columns:78px minmax(0,1fr) 38px !important;
+    align-items:center !important;
+    gap:9px !important;
+    font-size:10px !important;
+    color:#52627a !important;
+}
+body.admin-page .admin-chart-row>strong{
+    text-align:right !important;
+    color:#172033 !important;
+    font-size:11px !important;
+}
+body.admin-page .admin-chart-track{
+    height:10px !important;
+    overflow:hidden !important;
+    border-radius:999px !important;
+    background:#edf2f7 !important;
+}
+body.admin-page .admin-chart-track i{
+    display:block !important;
+    height:100% !important;
+    border-radius:999px !important;
+}
+body.admin-page .admin-chart-track i.users{background:#1769e0 !important}
+body.admin-page .admin-chart-track i.teachers{background:#18a873 !important}
+body.admin-page .admin-chart-track i.students{background:#f59e0b !important}
+body.admin-page .admin-chart-track i.courses{background:#8b5cf6 !important}
+body.admin-page .admin-text-button{
+    border:0 !important;
+    padding:5px 7px !important;
+    background:transparent !important;
+    color:#1769e0 !important;
+    font:inherit !important;
+    font-size:9px !important;
+    font-weight:800 !important;
+    cursor:pointer !important;
+}
+body.admin-page .admin-activity-list{
+    display:grid !important;
+    gap:0 !important;
+}
+body.admin-page .admin-dashboard-activity-row{
+    display:flex !important;
+    align-items:center !important;
+    gap:10px !important;
+    min-width:0 !important;
+    padding:10px 0 !important;
+    border-bottom:1px solid #edf1f6 !important;
+}
+body.admin-page .admin-dashboard-activity-row:last-child{border-bottom:0 !important}
+body.admin-page .admin-dashboard-activity-icon{
+    width:30px !important;
+    height:30px !important;
+    flex:0 0 30px !important;
+    display:grid !important;
+    place-items:center !important;
+    border-radius:9px !important;
+    background:#edf5ff !important;
+    font-size:14px !important;
+}
+body.admin-page .admin-dashboard-activity-row>div:last-child{
+    min-width:0 !important;
+}
+body.admin-page .admin-dashboard-activity-row strong,
+body.admin-page .admin-dashboard-activity-row small{
+    display:block !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    white-space:nowrap !important;
+}
+body.admin-page .admin-dashboard-activity-row strong{
+    color:#26364b !important;
+    font-size:10px !important;
+}
+body.admin-page .admin-dashboard-activity-row small{
+    margin-top:3px !important;
+    color:#8a96a5 !important;
+    font-size:8px !important;
+}
+body.admin-page .admin-dashboard-shortcuts{
+    display:grid !important;
+    grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+    gap:12px !important;
+    margin-top:14px !important;
+}
+body.admin-page .admin-dashboard-shortcut{
+    min-width:0 !important;
+    min-height:118px !important;
+    padding:15px !important;
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:flex-start !important;
+    justify-content:flex-start !important;
+    gap:5px !important;
+    border:1px solid #e3eaf2 !important;
+    border-radius:15px !important;
+    background:#fff !important;
+    color:#172033 !important;
+    box-shadow:0 7px 22px rgba(20,55,100,.06) !important;
+    text-align:left !important;
+    cursor:pointer !important;
+    transition:.18s ease !important;
+}
+body.admin-page .admin-dashboard-shortcut:hover{
+    transform:translateY(-2px) !important;
+    border-color:#b9d3f5 !important;
+    box-shadow:0 12px 26px rgba(20,55,100,.10) !important;
+}
+body.admin-page .admin-dashboard-shortcut>span{
+    width:34px !important;
+    height:34px !important;
+    display:grid !important;
+    place-items:center !important;
+    border-radius:10px !important;
+    background:#eaf3ff !important;
+    font-size:17px !important;
+}
+body.admin-page .admin-dashboard-shortcut strong{
+    margin-top:4px !important;
+    color:#172033 !important;
+    font-size:11px !important;
+}
+body.admin-page .admin-dashboard-shortcut small{
+    color:#8794a7 !important;
+    font-size:8px !important;
+    line-height:1.35 !important;
+}
+body.admin-page .admin-panel-title>div:first-child h2{margin-bottom:2px !important}
+@media(max-width:900px){
+    body.admin-page .admin-dashboard-shortcuts{grid-template-columns:repeat(3,minmax(0,1fr)) !important}
+    body.admin-page .admin-dashboard-columns{grid-template-columns:1fr !important}
+}
+@media(max-width:620px){
+    body.admin-page .admin-dashboard-shortcuts{grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:9px !important}
+    body.admin-page .admin-dashboard-shortcut{min-height:104px !important;padding:12px !important}
+    body.admin-page .admin-dashboard-columns{gap:10px !important}
+    body.admin-page .admin-chart-row{grid-template-columns:68px minmax(0,1fr) 32px !important}
+}
