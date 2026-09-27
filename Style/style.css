@@ -6556,3 +6556,44 @@ body.admin-page .student-side-menu-logout{
         margin-bottom:12px !important;
     }
 }
+
+
+/* Terminar sessão como último item do scroll dos menus — professor, aluno e direção. */
+.side-menu nav .side-menu-logout,
+.student-side-menu nav .student-side-menu-logout{
+    position:relative !important;
+    flex:0 0 auto !important;
+    width:100% !important;
+    box-sizing:border-box !important;
+    margin:10px 0 6px !important;
+    min-height:52px !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:8px !important;
+    border:1px solid #f0c9c9 !important;
+    border-radius:13px !important;
+    background:#fff1f1 !important;
+    color:#b42318 !important;
+    font-size:14px !important;
+    font-weight:900 !important;
+    box-shadow:0 5px 16px rgba(198,40,40,.10) !important;
+    z-index:5 !important;
+}
+.side-menu nav .side-menu-logout:hover,
+.side-menu nav .side-menu-logout:focus,
+.student-side-menu nav .student-side-menu-logout:hover,
+.student-side-menu nav .student-side-menu-logout:focus{
+    background:#ffe4e4 !important;
+    color:#a61b11 !important;
+    outline:3px solid rgba(198,40,40,.10) !important;
+    outline-offset:1px !important;
+}
+@media(max-width:560px){
+    .side-menu nav .side-menu-logout,
+    .student-side-menu nav .student-side-menu-logout{
+        min-height:50px !important;
+        margin-top:10px !important;
+        margin-bottom:4px !important;
+    }
+}
