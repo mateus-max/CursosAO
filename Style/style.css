@@ -6290,3 +6290,11 @@ body.admin-page .admin-panel-title>div:first-child h2{margin-bottom:2px !importa
     body.admin-page .admin-dashboard-columns{gap:10px !important}
     body.admin-page .admin-chart-row{grid-template-columns:68px minmax(0,1fr) 32px !important}
 }
+
+
+/* Indicadores da Direção em linha única no desktop, como no painel de referência. */
+body.admin-page .admin-metrics{
+    grid-template-columns:repeat(7,minmax(0,1fr)) !important;
+}
+@media(max-width:1050px){body.admin-page .admin-metrics{grid-template-columns:repeat(4,minmax(0,1fr)) !important}}
+@media(max-width:720px){body.admin-page .admin-metrics{grid-template-columns:repeat(2,minmax(0,1fr)) !important}}
