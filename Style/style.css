@@ -3670,18 +3670,16 @@ main.single-panel-mode{padding-bottom:110px}
    ========================================================= */
 .professor-tech-scene{
     min-height:0 !important;
-    aspect-ratio:479 / 348;
-    margin:10px 0 24px !important;
+    aspect-ratio:823 / 865 !important;
+    margin:30px 0 24px !important;
     padding:0 !important;
-    overflow:hidden !important; 
+    overflow:hidden !important;
     border:0 !important;
     border-radius:0 !important;
     box-shadow:none !important;
     background-color:transparent !important;
     background-image:url("assets/apsan-cena-referencia.webp") !important;
-    /* A imagem tem cantos de cartão incorporados; este recorte esconde-os
-       e deixa PC/livros/globo integrado como assinatura visual. */
-    background-size:118% 118% !important;
+    background-size:100% 100% !important;
     background-position:center !important;
     background-repeat:no-repeat !important;
 }
@@ -3691,25 +3689,21 @@ main.single-panel-mode{padding-bottom:110px}
     display:none !important;
 }
 .student-tech-scene{
-    /* Referência aprovada: cena mais alta e descida, integrada à página. */
-    aspect-ratio:1 / 1 !important;
-    margin-top:48px !important;
+    /* Ambos os perfis usam exatamente a mesma composição vertical. */
+    aspect-ratio:823 / 865 !important;
+    margin-top:30px !important;
     margin-bottom:24px !important;
-    background-size:100% 100% !important;
-    background-position:center !important;
 }
 
 @media(max-width:560px){
     .student-tech-scene{
-        aspect-ratio:1 / 1 !important;
-        margin-top:48px !important;
+        aspect-ratio:823 / 865 !important;
+        margin-top:30px !important;
         margin-bottom:24px !important;
-        background-size:100% 100% !important;
-        background-position:center !important;
     }
     .professor-tech-scene{
         min-height:0 !important;
-        aspect-ratio:479 / 348;
-        background-size:118% 118% !important;
+        aspect-ratio:823 / 865 !important;
+        background-size:100% 100% !important;
     }
 }
