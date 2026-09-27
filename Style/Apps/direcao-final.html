@@ -401,6 +401,60 @@ body.admin-page .admin-payment-actions .admin-action{
     }
 }
 </style>
+<style>
+/* Preferências exclusivas da Direção */
+body.admin-page .admin-preferences-block{
+    grid-column:1 / -1;
+    padding:13px;
+    border:1px solid #e1e9f2;
+    border-radius:14px;
+    background:#fbfdff;
+}
+body.admin-page .admin-preferences-heading strong,
+body.admin-page .admin-preferences-heading small{
+    display:block;
+}
+body.admin-page .admin-preferences-heading strong{
+    color:#172033;
+    font-size:14px;
+}
+body.admin-page .admin-preferences-heading small{
+    margin-top:3px;
+    color:#718096;
+    font-size:9px;
+    line-height:1.4;
+}
+body.admin-page .admin-preferences-select{
+    width:100%;
+    margin-top:9px;
+    min-height:42px;
+    box-sizing:border-box;
+    border:1px solid #dbe5ef;
+    border-radius:10px;
+    padding:0 11px;
+    background:#fff;
+    color:#172033;
+    font:inherit;
+}
+body.admin-page .admin-direction-wallpapers{
+    margin-top:11px;
+    display:grid !important;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:8px;
+}
+body.admin-page .admin-direction-wallpapers button{
+    min-height:76px !important;
+}
+body.admin-page .admin-direction-wallpapers button.active{
+    outline:3px solid #1769e0;
+    outline-offset:1px;
+}
+@media(max-width:560px){
+    body.admin-page .admin-direction-wallpapers{
+        grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    }
+}
+</style>
 </head>
 <body class="app-page admin-page">
 
@@ -529,6 +583,35 @@ body.admin-page .admin-payment-actions .admin-action{
                 <label><span>Aprovação de perfis</span><select id="adminProfileApproval"><option value="manual">Manual pela Direção</option><option value="automatic">Automática</option></select></label>
                 <label><span>Aprovação de cursos</span><select id="adminCourseApproval"><option value="manual">Manual pela Direção</option><option value="automatic">Automática</option></select></label>
                 <label><span>Estado da plataforma</span><select id="adminPlatformStatus"><option value="active">Ativa</option><option value="maintenance">Manutenção</option></select></label>
+
+                <div class="admin-preferences-block">
+                    <div class="admin-preferences-heading">
+                        <strong>🌐 Idioma</strong>
+                        <small>Escolha o idioma deste painel da Direção.</small>
+                    </div>
+                    <select id="adminLanguageSelect" class="admin-preferences-select">
+                        <option value="pt">Português</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+
+                <div class="admin-preferences-block">
+                    <div class="admin-preferences-heading">
+                        <strong>🎨 Papel de parede</strong>
+                        <small>A preferência é exclusiva da Direção e não altera o fundo dos alunos ou professores.</small>
+                    </div>
+                    <div class="apsan-wallpaper-options admin-direction-wallpapers">
+                        <button type="button" data-wallpaper-choice="default"><span class="wallpaper-preview wp-default"></span><strong>Padrão APSAN</strong></button>
+                        <button type="button" data-wallpaper-choice="blue-wave"><span class="wallpaper-preview wp-blue-wave"></span><strong>Onda Azul</strong></button>
+                        <button type="button" data-wallpaper-choice="study-space"><span class="wallpaper-preview wp-study-space"></span><strong>Estudo Moderno</strong></button>
+                        <button type="button" data-wallpaper-choice="global-network"><span class="wallpaper-preview wp-global-network"></span><strong>Tecnologia &amp; Conexão</strong></button>
+                        <button type="button" data-wallpaper-choice="library"><span class="wallpaper-preview wp-library"></span><strong>Biblioteca</strong></button>
+                        <button type="button" data-wallpaper-choice="clean-minimal"><span class="wallpaper-preview wp-clean-minimal"></span><strong>Minimalista Claro</strong></button>
+                        <button type="button" data-wallpaper-choice="serene-nature"><span class="wallpaper-preview wp-serene-nature"></span><strong>Natureza Serena</strong></button>
+                        <button type="button" data-wallpaper-choice="academic-night"><span class="wallpaper-preview wp-academic-night"></span><strong>Noite Académica</strong></button>
+                    </div>
+                </div>
+
                 <button type="button" class="admin-save" id="adminSaveSettings">Guardar configurações</button>
                 <p id="adminSettingsMessage" class="admin-settings-message"></p>
             </div>
@@ -757,6 +840,7 @@ body.admin-page .admin-dashboard-stat{
   </form>
  </div>
 </div>
+<script src="settings.js?v=20260927-profile-wallpaper-1"></script>
 <script src="direcao-final.js?v=20260927-payments-mobile-2"></script>
 <script src="finance.js?v=finance-20260927-payment-ui-2"></script>
 
