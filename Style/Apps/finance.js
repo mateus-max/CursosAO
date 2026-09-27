@@ -37,8 +37,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function money(value) {
         const n = Number(value) || 0;
-        return new Intl.NumberFormat("pt-AO", {
-            maximumFractionDigits: 0
+        return new Intl.NumberFormat("de-DE", {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
         }).format(n) + " Kz";
     }
 
