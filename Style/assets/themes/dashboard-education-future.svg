@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 700" preserveAspectRatio="xMidYMid slice">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a1f48"/><stop offset=".52" stop-color="#1c63b5"/><stop offset="1" stop-color="#f0a45b"/></linearGradient><filter id="soft"><feGaussianBlur stdDeviation="14"/></filter></defs>
+<rect width="1600" height="700" fill="url(#bg)"/><rect width="1600" height="700" fill="#fff" opacity=".035"/>
+<g><path d="M0 470L120 390L250 470L380 350L520 470L650 320L790 470L930 360L1070 470L1200 300L1360 470L1490 350L1600 430V700H0Z" fill="#142f58"/><g transform="translate(1050 330)"><circle r="130" fill="#123c79" stroke="#7cecff" stroke-width="6"/><path d="M-130 0H130M0-130V130M-90-85Q0 0 90 85M-90 85Q0 0 90-85" fill="none" stroke="#69e7ff" stroke-width="3"/></g><g transform="translate(500 440)"><circle cy="-130" r="45" fill="#e4a071"/><path d="M-75 20Q0-50 75 20L105 190H-105Z" fill="#173e70"/><path d="M-55 190L-115 330M55 190L115 330" stroke="#d9e6f4" stroke-width="26"/></g><circle cx="1380" cy="110" r="70" fill="#ffd68b" opacity=".8"/></g>
+<rect y="0" width="1600" height="700" fill="url(#shade)" opacity="0"/>
+</svg>
