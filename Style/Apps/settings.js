@@ -64,22 +64,84 @@
         "Biblioteca": "Library",
         "Criatividade": "Creativity",
         "Global Education": "Global Education",
-        "Educação & Futuro": "Education & Future"
+        "Educação & Futuro": "Education & Future",
+        "Aula Virtual": "Virtual Class",
+        "Estudo em Grupo": "Group Study",
+        "Sala Digital": "Digital Classroom",
+        "Leitura & Aprendizagem": "Reading & Learning",
+        "Informática Educativa": "Educational Computing",
+        "Biblioteca & Conhecimento": "Library & Knowledge",
+        "Tecnologia na Educação": "Technology in Education",
+        "Cursos Online": "Online Courses",
+        "Estudo Virtual": "Virtual Study",
+        "Aula ao Vivo": "Live Class"
     };
 
-    function read() {
+    /*
+     * As preferências visuais pertencem à conta/perfil autenticado.
+     * Não usamos uma única chave global, porque isso faria a escolha de
+     * um aluno/professor aparecer nos outros perfis no mesmo navegador.
+     */
+    function getProfileScope() {
+        let account = null;
         try {
-            const saved = JSON.parse(localStorage.getItem("apsan_app_settings") || "{}");
-            return Object.assign({}, DEFAULTS, saved);
+            account = JSON.parse(localStorage.getItem("apsan_account") || "null");
         } catch (e) {
-            return Object.assign({}, DEFAULTS);
+            account = null;
         }
+
+        const type =
+            localStorage.getItem("apsan_user_type") ||
+            (document.body.classList.contains("professor-page") ? "professor" :
+             document.body.classList.contains("student-page") ? "aluno" :
+             document.body.classList.contains("admin-page") ? "direcao" : "guest");
+
+        const identity =
+            localStorage.getItem("apsan_phone") ||
+            (account && (account.phone || account.email || account.username || account.id)) ||
+            type;
+
+        const safeIdentity = String(identity || type)
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-z0-9._@+-]+/g, "_");
+
+        return "apsan_app_settings_v2_" + type + "_" + safeIdentity;
+    }
+
+    function read() {
+        const profileKey = getProfileScope();
+
+        try {
+            const saved = JSON.parse(localStorage.getItem(profileKey) || "null");
+
+            if (saved && typeof saved === "object") {
+                return Object.assign({}, DEFAULTS, saved);
+            }
+
+            /*
+             * Migração única e segura: a antiga preferência global é atribuída
+             * somente ao perfil que está atualmente autenticado. Depois disso,
+             * cada perfil passa a ter a sua própria preferência.
+             */
+            const legacy = JSON.parse(localStorage.getItem("apsan_app_settings") || "null");
+            if (legacy && typeof legacy === "object") {
+                localStorage.setItem(profileKey, JSON.stringify(Object.assign({}, DEFAULTS, legacy)));
+                localStorage.removeItem("apsan_app_settings");
+                return Object.assign({}, DEFAULTS, legacy);
+            }
+        } catch (e) {
+            /* Se houver dados inválidos, começa com as preferências padrão. */
+        }
+
+        return Object.assign({}, DEFAULTS);
     }
 
     function save(settings) {
-        localStorage.setItem("apsan_app_settings", JSON.stringify(settings));
-        apply(settings);
-        window.dispatchEvent(new CustomEvent("apsan:settings-changed", { detail: settings }));
+        const profileSettings = Object.assign({}, DEFAULTS, settings || {});
+        localStorage.setItem(getProfileScope(), JSON.stringify(profileSettings));
+        apply(profileSettings);
+        window.dispatchEvent(new CustomEvent("apsan:settings-changed", { detail: profileSettings }));
     }
 
     function applyWallpaper(name) {
@@ -127,7 +189,8 @@
         get: read,
         save: save,
         apply: apply,
-        reset: function () { save(DEFAULTS); }
+        reset: function () { save(DEFAULTS); },
+        getScopeKey: getProfileScope
     };
 
     document.addEventListener("DOMContentLoaded", function () {
