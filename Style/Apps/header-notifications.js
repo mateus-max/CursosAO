@@ -173,8 +173,9 @@
         renderPanel();
         target.classList.add("open");
         target.setAttribute("aria-hidden", "false");
+        // O contador desaparece ao abrir, mas a lista permanece visível
+        // para o utilizador poder consultar o que chegou.
         markAllRead();
-        renderPanel();
     }
 
     function closePanel() {
