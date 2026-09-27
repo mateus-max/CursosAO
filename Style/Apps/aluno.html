@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>APSAN Academy - Aluno</title>
-<link rel="stylesheet" href="../style.css?v=20260927-student-menu-complete-2">
+<link rel="stylesheet" href="../style.css?v=20260927-settings-final"><script src="settings.js?v=20260927-settings-final"></script>
 </head>
 <body class="app-page student-page">
 
@@ -38,7 +38,7 @@
         <a href="#studentPaymentsView" data-student-menu-link>💳 <span>Pagamentos</span></a>
         <div class="student-menu-divider" aria-hidden="true"></div>
         <a href="#studentProfileOverlay" data-student-profile-link>👤 <span>Meu perfil</span></a>
-        <a href="#studentSettingsView" data-student-menu-link>⚙️ <span>Configurações</span></a>
+        <a href="#" data-student-settings-link>⚙️ <span>Configurações</span></a>
     </nav>
     <button type="button" class="student-side-menu-logout" id="studentMenuLogout">↪ Sair da conta</button>
 </aside>
@@ -260,6 +260,37 @@
 </div>
 
 
+
+<div class="apsan-settings-overlay" id="apsanSettingsOverlay" aria-hidden="true">
+    <div class="apsan-settings-modal" role="dialog" aria-modal="true" aria-labelledby="apsanSettingsTitle">
+        <div class="apsan-settings-header">
+            <div>
+                <span class="section-label">APSAN ACADEMY</span>
+                <h2 id="apsanSettingsTitle">Configurações do aplicativo</h2>
+                <p>As alterações são guardadas e aplicadas automaticamente em todo o aplicativo.</p>
+            </div>
+            <button type="button" class="close-profile" id="apsanSettingsClose" aria-label="Fechar">×</button>
+        </div>
+        <div class="apsan-settings-group">
+            <label for="apsanLanguageSelect">🌐 Idioma</label>
+            <select id="apsanLanguageSelect">
+                <option value="pt">Português</option>
+                <option value="en">English</option>
+            </select>
+            <small>Português e inglês.</small>
+        </div>
+        <div class="apsan-settings-group">
+            <span class="apsan-settings-label">🎨 Papel de parede</span>
+            <div class="apsan-wallpaper-options">
+                <button type="button" data-wallpaper-choice="default">Fundo padrão</button>
+                <button type="button" data-wallpaper-choice="soft-blue">Azul suave</button>
+                <button type="button" data-wallpaper-choice="deep-blue">Azul profundo</button>
+                <button type="button" data-wallpaper-choice="minimal">Minimalista</button>
+            </div>
+        </div>
+        <div class="apsan-settings-status" id="apsanSettingsStatus">Aplicado automaticamente</div>
+    </div>
+</div>
 
 <div class="profile-overlay" id="studentProfileOverlay">
     <div class="profile-modal">
@@ -803,6 +834,63 @@ document.addEventListener("DOMContentLoaded", function () {
             closeStudentMenu();
             renderStudentExtraAreas();
             setStudentPanelView(href.slice(1));
+        });
+    });
+
+    const apsanSettingsOverlay = document.getElementById("apsanSettingsOverlay");
+    const apsanSettingsClose = document.getElementById("apsanSettingsClose");
+    const apsanLanguageSelect = document.getElementById("apsanLanguageSelect");
+    const apsanSettingsStatus = document.getElementById("apsanSettingsStatus");
+
+    function openApsanSettings() {
+        if (!apsanSettingsOverlay) return;
+        const settings = window.APSANSettings ? window.APSANSettings.get() : {language:"pt", wallpaper:"default"};
+        if (apsanLanguageSelect) apsanLanguageSelect.value = settings.language;
+        document.querySelectorAll("[data-wallpaper-choice]").forEach(function (button) {
+            button.classList.toggle("active", button.getAttribute("data-wallpaper-choice") === settings.wallpaper);
+        });
+        apsanSettingsOverlay.classList.add("open");
+        apsanSettingsOverlay.setAttribute("aria-hidden", "false");
+    }
+
+    function closeApsanSettings() {
+        if (!apsanSettingsOverlay) return;
+        apsanSettingsOverlay.classList.remove("open");
+        apsanSettingsOverlay.setAttribute("aria-hidden", "true");
+    }
+
+    document.querySelectorAll("[data-student-settings-link]").forEach(function (link) {
+        link.addEventListener("click", function (event) {
+            event.preventDefault();
+            closeStudentMenu();
+            openApsanSettings();
+        });
+    });
+
+    if (apsanSettingsClose) apsanSettingsClose.addEventListener("click", closeApsanSettings);
+    if (apsanSettingsOverlay) apsanSettingsOverlay.addEventListener("click", function (event) {
+        if (event.target === apsanSettingsOverlay) closeApsanSettings();
+    });
+
+    if (apsanLanguageSelect) apsanLanguageSelect.addEventListener("change", function () {
+        const value = this.value === "en" ? "en" : "pt";
+        const settings = window.APSANSettings ? window.APSANSettings.get() : {};
+        if (window.APSANSettings) window.APSANSettings.save(Object.assign({}, settings, {language:value}));
+        if (apsanSettingsStatus) apsanSettingsStatus.textContent = value === "en" ? "Applied automatically" : "Aplicado automaticamente";
+        if (value === "pt") {
+            setTimeout(function () { window.location.reload(); }, 120);
+        }
+    });
+
+    document.querySelectorAll("[data-wallpaper-choice]").forEach(function (button) {
+        button.addEventListener("click", function () {
+            const value = this.getAttribute("data-wallpaper-choice") || "default";
+            const settings = window.APSANSettings ? window.APSANSettings.get() : {};
+            if (window.APSANSettings) window.APSANSettings.save(Object.assign({}, settings, {wallpaper:value}));
+            document.querySelectorAll("[data-wallpaper-choice]").forEach(function (item) {
+                item.classList.toggle("active", item === button);
+            });
+            if (apsanSettingsStatus) apsanSettingsStatus.textContent = settings.language === "en" ? "Applied automatically" : "Aplicado automaticamente";
         });
     });
 
@@ -1451,7 +1539,8 @@ document.addEventListener("DOMContentLoaded", function () {
         window.location.href = "../../index.html";
     }
 
-    document.getElementById("studentMenuLogout").addEventListener("click", logoutStudent);
+    const logoutButton = document.getElementById("studentMenuLogout");
+    if (logoutButton) logoutButton.addEventListener("click", logoutStudent);
 
     renderTeachers();
     renderEnrollments();
