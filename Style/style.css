@@ -4976,3 +4976,151 @@ main.single-panel-mode{padding-bottom:110px}
     .student-quick-grid{gap:6px}
     .student-quick-grid a{padding:8px}
 }
+
+/* =========================================================
+   MENU COMPLETO + ÁREAS DO ALUNO
+   ========================================================= */
+.student-menu-divider{
+    height:1px;
+    margin:7px 18px;
+    background:#edf1f6;
+}
+.student-extra-view{
+    margin-top:18px;
+}
+.student-agenda-card,
+.student-progress-card,
+.student-payment-card,
+.student-notification-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin:9px 0;
+    padding:13px;
+    background:#fff;
+    border:1px solid #e2eaf4;
+    border-radius:14px;
+}
+.student-agenda-icon{
+    width:42px;
+    height:42px;
+    flex:0 0 42px;
+    display:grid;
+    place-items:center;
+    border-radius:11px;
+    background:#eaf3ff;
+    font-size:18px;
+}
+.student-agenda-card>div:last-child,
+.student-progress-card>div:first-child,
+.student-payment-card>div:first-child,
+.student-notification-item>div{
+    min-width:0;
+    flex:1;
+}
+.student-agenda-card span,
+.student-progress-card small,
+.student-payment-card small,
+.student-notification-item small{
+    display:block;
+    color:#8a96a5;
+    font-size:9px;
+}
+.student-agenda-card h3{
+    margin:3px 0;
+    color:#1b2940;
+    font-size:14px;
+}
+.student-agenda-card small{
+    color:#7e8a9b;
+    font-size:9px;
+}
+.student-progress-card{
+    justify-content:space-between;
+}
+.student-progress-card strong,
+.student-payment-card strong,
+.student-notification-item strong{
+    display:block;
+    color:#24334a;
+    font-size:12px;
+}
+.student-progress-value{
+    flex:0 0 auto !important;
+    text-align:right;
+}
+.student-progress-value span{
+    display:block;
+    margin-top:3px;
+    color:#8a96a5;
+    font-size:9px;
+}
+.student-payment-card{
+    justify-content:space-between;
+}
+.student-payment-card>div:last-child{
+    flex:0 0 auto;
+    text-align:right;
+}
+.student-payment-card>div:last-child>strong{
+    display:block;
+    margin-bottom:4px;
+}
+.student-payment-card .confirmed,
+.student-payment-card .pending{
+    display:inline-block;
+    padding:5px 7px;
+    border-radius:7px;
+    font-size:8px;
+    font-weight:800;
+}
+.student-payment-card .confirmed{
+    background:#eaf8ef;
+    color:#27823d;
+}
+.student-payment-card .pending{
+    background:#fff5df;
+    color:#9a690d;
+}
+.student-notification-item{
+    align-items:flex-start;
+}
+.student-notification-item:first-letter{
+    font-size:17px;
+}
+.student-settings-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:9px;
+}
+.student-settings-grid button{
+    min-height:70px;
+    padding:10px;
+    border:1px solid #e1e9f3;
+    border-radius:13px;
+    background:#fff;
+    color:#26364b;
+    font-family:inherit;
+    font-size:10px;
+    font-weight:800;
+    cursor:pointer;
+}
+.student-settings-grid button:hover{
+    background:#f5f9fe;
+}
+.settings-note{
+    margin:12px 0 0;
+    color:#8a96a5;
+    font-size:9px;
+    line-height:1.5;
+}
+@media(max-width:560px){
+    .student-settings-grid{
+        grid-template-columns:1fr;
+    }
+    .student-agenda-card,
+    .student-progress-card,
+    .student-payment-card{
+        padding:11px;
+    }
+}
