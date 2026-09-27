@@ -62,6 +62,9 @@
             <article class="admin-metric"><span>🎓</span><div><strong id="adminTeacherCount">0</strong><small>Professores</small></div></article>
             <article class="admin-metric"><span>👤</span><div><strong id="adminStudentCount">0</strong><small>Alunos</small></div></article>
             <article class="admin-metric"><span>📚</span><div><strong id="adminCourseCount">0</strong><small>Cursos publicados</small></div></article>
+            <article class="admin-metric"><span>▣</span><div><strong id="adminEnrollmentMetric">0</strong><small>Matrículas</small></div></article>
+            <article class="admin-metric"><span>💳</span><div><strong id="adminPaymentMetric">0</strong><small>Pagamentos</small></div></article>
+            <article class="admin-metric"><span>💰</span><div><strong id="adminFinanceMetric">0 Kz</strong><small>Financeiro</small></div></article>
         </section>
 
         <section class="admin-panel admin-wide admin-attention-panel" id="admin-attention">
@@ -289,6 +292,22 @@ document.addEventListener("DOMContentLoaded", function(){
         document.getElementById("adminTeacherCount").textContent=teachers.length;
         document.getElementById("adminStudentCount").textContent=students.length;
         document.getElementById("adminCourseCount").textContent=courses.length;
+        document.getElementById("adminEnrollmentMetric").textContent=enrollments.length;
+        const pendingPaymentMetric = enrollments.filter(function(e){
+            return e && e.status !== "rejected" && e.paymentStatus !== "confirmed";
+        }).length;
+        document.getElementById("adminPaymentMetric").textContent=pendingPaymentMetric;
+        let dashboardFinanceTotal=0;
+        teachers.forEach(function(teacher){
+            try{
+                const ledger=read("apsan_teacher_finance_"+String(teacher.phone||"").replace(/\D/g,""),[]);
+                dashboardFinanceTotal += ledger.reduce(function(sum,item){
+                    const amount=parseFloat(String(item&&item.amount||0).replace(/[^0-9,.-]/g,"").replace(/\./g,"").replace(",","."));
+                    return sum + (item&&item.type==="saida" ? -Math.abs(amount||0) : Math.abs(amount||0));
+                },0);
+            }catch(e){}
+        });
+        document.getElementById("adminFinanceMetric").textContent=formatKz(dashboardFinanceTotal);
         document.getElementById("adminTeacherStatus").textContent=courses.length+" publicados";
         document.getElementById("adminEnrollmentCount").textContent=enrollments.length+" matrículas";
 
