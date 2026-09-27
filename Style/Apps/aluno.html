@@ -497,10 +497,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const nameInput = document.getElementById("studentProfileName");
         const passwordInput = document.getElementById("studentProfilePassword");
+        const bioInput = document.getElementById("studentProfileBio");
+        const provinceInput = document.getElementById("studentProfileProvince");
+        const countryInput = document.getElementById("studentProfileCountry");
 
         pendingStudentProfilePhoto = currentAccount.photo || null;
 
         if (nameInput) nameInput.value = currentAccount.name || currentAccount.fullName || "";
+        if (bioInput) bioInput.value = currentAccount.bio || "";
+        if (provinceInput) provinceInput.value = currentAccount.province || "";
+        if (countryInput) countryInput.value = currentAccount.country || "";
         if (passwordInput) passwordInput.value = "";
 
         updateStudentProfileDisplay();
@@ -594,6 +600,9 @@ document.addEventListener("DOMContentLoaded", function () {
             const passwordInput = document.getElementById("studentProfilePassword");
             const name = nameInput ? nameInput.value.trim() : "";
             const password = passwordInput ? passwordInput.value.trim() : "";
+            const bio = document.getElementById("studentProfileBio") ? document.getElementById("studentProfileBio").value.trim() : "";
+            const province = document.getElementById("studentProfileProvince") ? document.getElementById("studentProfileProvince").value.trim() : "";
+            const country = document.getElementById("studentProfileCountry") ? document.getElementById("studentProfileCountry").value.trim() : "";
 
             if (!name) {
                 message.style.color = "#d93025";
@@ -609,6 +618,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const updatedAccount = Object.assign({}, currentAccount);
             updatedAccount.name = name;
+            updatedAccount.bio = bio;
+            updatedAccount.province = province;
+            updatedAccount.country = country;
 
             if (pendingStudentProfilePhoto) {
                 updatedAccount.photo = pendingStudentProfilePhoto;
@@ -1143,6 +1155,8 @@ document.addEventListener("DOMContentLoaded", function () {
                             : esc((profile.teacherName || "P").charAt(0))) +
                     '</div>' +
                     '<h3>' + esc(profile.teacherName) + '</h3>' +
+                    '<p class="teacher-public-location">' + esc([profile.province, profile.country].filter(Boolean).join(" · ")) + '</p>' +
+                    '<p class="teacher-public-bio">' + esc(profile.bio || "") + '</p>' +
                     '<strong>' + esc(profile.course) + '</strong>' +
                     '<p>' + esc(profile.description) + '</p>' +
                     '<div class="teacher-tags">' +
@@ -1184,6 +1198,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     ? '<img src="' + profile.teacherPhoto + '" alt="Professor">'
                     : esc((profile.teacherName || "P").charAt(0))) +
             '</div>' +
+            '<div class="teacher-detail-section"><h3>Sobre o professor</h3><p>' + esc(profile.bio || "Bio não definida.") + '</p></div>' +
+            '<div class="teacher-detail-section"><h3>Localização</h3><p>' + esc([profile.province, profile.country].filter(Boolean).join(" · ") || "Não definida.") + '</p></div>' +
             '<div class="teacher-detail-grid">' +
                 '<div><small>Modalidade</small><strong>' + esc(profile.modality) + '</strong></div>' +
                 '<div><small>Matrícula / inscrição</small><strong>' + formatKz(profile.price) + '</strong></div>' +
