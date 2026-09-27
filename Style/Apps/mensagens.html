@@ -65,6 +65,309 @@
     font-size:9px;
   }
 }
+
+/* =========================================================
+   MENSAGENS — VISUAL COMPACTO / CHAT MOBILE
+   Mantém a lógica existente; altera apenas a apresentação.
+   ========================================================= */
+#chatEmpty[hidden],
+#chatView[hidden]{
+  display:none !important;
+}
+
+.messages-page{
+  background:#f4f7fb;
+}
+
+.messages-content{
+  padding:10px 10px 18px;
+}
+
+.messages-shell{
+  min-height:0;
+  border-radius:16px;
+  box-shadow:0 6px 18px rgba(20,55,100,.07);
+}
+
+/* Caixa inicial: somente lista de conversas, sem área vazia. */
+.messages-shell:not(.conversation-open){
+  display:block;
+}
+
+.messages-shell:not(.conversation-open) .messages-chat{
+  display:none;
+}
+
+.messages-section-head{
+  padding:13px 15px;
+}
+
+.messages-section-head h1{
+  font-size:18px;
+}
+
+.messages-contact-list{
+  padding:4px 8px 8px;
+}
+
+.messages-contact{
+  min-height:62px;
+  padding:9px 8px;
+  margin:0 0 2px;
+  border-radius:11px;
+}
+
+.messages-contact-avatar{
+  width:42px;
+  height:42px;
+  flex-basis:42px;
+}
+
+.messages-contact-copy strong{
+  font-size:13px;
+}
+
+.messages-contact-copy small{
+  margin-top:2px;
+}
+
+.messages-contact-copy em{
+  margin-top:3px;
+}
+
+/* Chat: ocupa o espaço disponível, como uma conversa de WhatsApp. */
+.messages-shell.conversation-open{
+  display:block;
+  min-height:calc(100vh - 105px);
+}
+
+.messages-shell.conversation-open .messages-contacts{
+  display:none;
+}
+
+.messages-shell.conversation-open .messages-chat{
+  display:flex;
+  width:100%;
+  min-height:calc(100vh - 105px);
+}
+
+.messages-chat-view{
+  min-height:calc(100vh - 105px);
+  height:calc(100vh - 105px);
+}
+
+.messages-chat-header{
+  position:sticky;
+  top:0;
+  z-index:3;
+  min-height:58px;
+  padding:7px 9px;
+  gap:7px;
+  background:#fff;
+}
+
+.messages-chat-person{
+  flex:1;
+  gap:8px;
+  min-width:0;
+}
+
+.messages-chat-avatar{
+  width:38px;
+  height:38px;
+  flex-basis:38px;
+}
+
+.messages-chat-header h2{
+  margin:0;
+  font-size:15px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.messages-chat-header .section-label{
+  display:none;
+}
+
+.messages-chat-header small{
+  display:block;
+  margin-top:1px;
+  font-size:9px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.messages-inbox-back{
+  display:grid;
+  place-items:center;
+  width:32px;
+  height:38px;
+  padding:0;
+  flex:0 0 32px;
+  border-radius:9px;
+  font-size:0;
+}
+
+.messages-inbox-back::before{
+  content:"←";
+  font-size:22px;
+  line-height:1;
+}
+
+.messages-delete-conversation{
+  width:34px;
+  height:34px;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:#718096;
+  font-size:0;
+  flex:0 0 34px;
+}
+
+.messages-delete-conversation::before{
+  content:"⋮";
+  font-size:24px;
+  line-height:1;
+}
+
+.messages-list{
+  flex:1;
+  min-height:0;
+  max-height:none;
+  padding:12px 10px 10px;
+  background:#f5f8fc;
+  overflow:auto;
+}
+
+.message-bubble-wrap{
+  margin:4px 0;
+}
+
+.message-bubble{
+  max-width:82%;
+  padding:8px 10px;
+  border-radius:12px;
+  font-size:13px;
+  line-height:1.35;
+}
+
+.message-bubble small{
+  margin-top:3px;
+  font-size:8px;
+}
+
+.message-delete{
+  font-size:8px;
+  margin:2px 5px 0;
+}
+
+.messages-chat-notice{
+  padding:4px 10px;
+  text-align:center;
+  font-size:8px;
+  color:#8a96a6;
+  background:#f5f8fc;
+}
+
+.messages-composer{
+  position:sticky;
+  bottom:0;
+  z-index:3;
+  display:flex;
+  align-items:flex-end;
+  gap:7px;
+  padding:7px 8px;
+  border-top:1px solid #e2e8f0;
+  background:#fff;
+}
+
+.messages-composer textarea{
+  flex:1;
+  min-height:42px;
+  height:42px;
+  max-height:110px;
+  resize:none;
+  border-radius:21px;
+  padding:10px 13px;
+  font-size:13px;
+  line-height:1.25;
+}
+
+.messages-composer-footer{
+  display:block;
+  margin:0;
+}
+
+.messages-composer-footer small{
+  display:none;
+}
+
+.messages-composer-footer .login-button{
+  width:42px;
+  min-width:42px;
+  height:42px;
+  padding:0;
+  margin:0;
+  border-radius:50%;
+  font-size:0;
+  display:grid;
+  place-items:center;
+}
+
+.messages-composer-footer .login-button::before{
+  content:"➤";
+  font-size:18px;
+  line-height:1;
+}
+
+.messageWarning,
+#messageWarning{
+  position:absolute;
+  left:8px;
+  right:8px;
+  bottom:58px;
+  margin:0;
+  padding:6px 9px;
+  border-radius:8px;
+  background:#fff4f4;
+  font-size:9px;
+  z-index:4;
+}
+
+@media(min-width:761px){
+  .messages-shell:not(.conversation-open){
+    max-width:720px;
+    margin:0 auto;
+  }
+
+  .messages-shell.conversation-open{
+    display:grid;
+    grid-template-columns:270px 1fr;
+    min-height:650px;
+  }
+
+  .messages-shell.conversation-open .messages-contacts{
+    display:block;
+    border-right:1px solid #e5ebf2;
+  }
+
+  .messages-shell.conversation-open .messages-chat{
+    min-height:650px;
+  }
+
+  .messages-chat-view{
+    min-height:650px;
+    height:650px;
+  }
+
+  .messages-composer{
+    position:relative;
+  }
+}
+
 </style>
     <script src="settings.js?v=20260927-themes-final-2"></script>
 </head>
