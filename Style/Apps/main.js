@@ -270,7 +270,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 localStorage.setItem("apsan_user_type", "direcao");
                 localStorage.setItem("apsan_logged_in", "true");
 
-                window.location.replace("Style/Apps/direcao-v2.html");
+                window.location.replace("Style/Apps/direcao-v2.html?direction=final-20260927");
                 return;
             }
 
