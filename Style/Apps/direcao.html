@@ -67,42 +67,6 @@
             <article class="admin-metric"><span>💰</span><div><strong id="adminFinanceMetric">0 Kz</strong><small>Financeiro</small></div></article>
         </section>
 
-        <section class="admin-panel admin-wide admin-attention-panel" id="admin-attention">
-            <div class="admin-panel-title"><h2>🔔 Requer atenção</h2><span>Decisões pendentes da Direção</span></div>
-            <div id="adminAttentionList" class="admin-attention-grid"></div>
-        </section>
-
-        <section class="admin-dashboard-columns">
-            <article class="admin-panel admin-dashboard-statistics">
-                <div class="admin-panel-title">
-                    <div><h2>📊 Estatísticas da plataforma</h2><span>Resumo atualizado com os dados reais</span></div>
-                    <span class="admin-period">Visão geral</span>
-                </div>
-                <div class="admin-chart-legend">
-                    <span><i class="legend-dot users"></i>Utilizadores</span>
-                    <span><i class="legend-dot teachers"></i>Professores</span>
-                    <span><i class="legend-dot students"></i>Alunos</span>
-                    <span><i class="legend-dot courses"></i>Cursos</span>
-                </div>
-                <div class="admin-chart" id="adminDashboardChart" aria-label="Estatísticas da plataforma"></div>
-            </article>
-
-            <article class="admin-panel admin-dashboard-activity">
-                <div class="admin-panel-title">
-                    <div><h2>🕘 Atividades recentes</h2><span>Últimas movimentações da plataforma</span></div>
-                    <button type="button" class="admin-text-button" data-admin-jump="#admin-reports">Ver todas</button>
-                </div>
-                <div id="adminDashboardActivity" class="admin-activity-list"></div>
-            </article>
-        </section>
-
-        <section class="admin-dashboard-shortcuts">
-            <button type="button" class="admin-dashboard-shortcut" data-admin-jump="#admin-teachers"><span>👨‍🏫</span><strong>Professores</strong><small>Perfis, estado e publicação</small></button>
-            <button type="button" class="admin-dashboard-shortcut" data-admin-jump="#admin-enrollments"><span>▣</span><strong>Matrículas</strong><small>Aprovar, rejeitar e observar</small></button>
-            <button type="button" class="admin-dashboard-shortcut" data-admin-jump="#admin-payments"><span>💳</span><strong>Pagamentos</strong><small>Comprovativos e confirmações</small></button>
-            <button type="button" class="admin-dashboard-shortcut" data-admin-jump="#admin-finance"><span>💰</span><strong>Financeiro</strong><small>Carteiras e cartão virtual</small></button>
-            <button type="button" class="admin-dashboard-shortcut" data-admin-jump="#admin-moderation"><span>🛡️</span><strong>Moderação</strong><small>Controlo de contas e perfis</small></button>
-        </section>
     </section>
 
     <section class="admin-panel admin-wide" id="admin-users" data-view-section="admin-users" data-admin-view="admin-users">
@@ -220,14 +184,6 @@
 }
 .admin-virtual-card{margin-bottom:12px;padding:15px;border-radius:16px;background:linear-gradient(135deg,#0b4d91,#123c69);color:#fff;box-shadow:0 12px 28px rgba(11,77,145,.2);overflow:hidden;position:relative}.admin-virtual-card-top,.admin-virtual-card-bottom{display:flex;justify-content:space-between;gap:10px;align-items:center}.admin-virtual-card-top{font-size:10px;font-weight:900;letter-spacing:.08em}.admin-virtual-card-chip{width:38px;height:27px;border-radius:7px;background:#d8b45a;margin:18px 0 10px}.admin-virtual-card-number{font-size:17px;letter-spacing:.12em;font-weight:800}.admin-virtual-card-bottom{margin-top:16px;font-size:11px}.admin-virtual-card-bottom span{font-size:13px;font-weight:900}</style>
 
-    <nav class="professor-bottom-nav admin-bottom-nav" aria-label="Atalhos da Direção">
-        <a class="active" href="#admin-dashboard-view">⌂<small>Painel</small></a>
-        <a href="#admin-teachers">👨‍🏫<small>Professores</small></a>
-        <a href="#admin-students">👥<small>Alunos</small></a>
-        <a href="#admin-finance">💰<small>Financeiro</small></a>
-        <a href="#admin-reports">📊<small>Relatórios</small></a>
-    </nav>
-
 <div class="admin-modal" id="adminViewModal">
  <div class="admin-modal-card">
   <div class="admin-modal-head"><h2>Detalhes da matrícula</h2><button class="admin-close" type="button" data-close-admin-modal="adminViewModal">×</button></div>
@@ -323,26 +279,6 @@ document.addEventListener("DOMContentLoaded", function(){
             }).join("") : '<p class="admin-empty">Nenhum utilizador registado.</p>';
         }
 
-        const pendingEnrollments = enrollments.filter(function(e){
-            return e && e.status !== "official" && e.status !== "rejected" && e.status !== "cancelled";
-        }).length;
-        const pendingPayments = enrollments.filter(function(e){
-            return e && e.status !== "rejected" && e.paymentStatus !== "confirmed";
-        }).length;
-        const unpublishedTeachers = teachers.filter(function(a){
-            return !profiles.some(function(p){ return p && p.published && String(p.teacherPhone) === String(a.phone); });
-        }).length;
-        const attention = document.getElementById("adminAttentionList");
-        if(attention){
-            attention.innerHTML = [
-                {count: pendingEnrollments, label:"Matrículas pendentes", target:"#admin-enrollments"},
-                {count: pendingPayments, label:"Pagamentos por confirmar", target:"#admin-payments"},
-                {count: unpublishedTeachers, label:"Professores sem perfil publicado", target:"#admin-teachers"}
-            ].map(function(item){
-                return '<div class="admin-attention-card"><strong>'+item.count+'</strong><small>'+item.label+'</small><button type="button" class="admin-action view" data-admin-jump="'+item.target+'">Observar</button></div>';
-            }).join("");
-        }
-
         document.getElementById("adminTeachersList").innerHTML=teachers.length?teachers.map(a=>{
             const profile=courses.find(p=>p.teacherPhone===a.phone);
             return '<div class="admin-row"><div class="admin-row-avatar">'+esc((a.name||"P").charAt(0))+'</div><div><strong>'+esc(a.name||"Professor")+'</strong><small>'+esc(a.phone||"")+'</small></div><span class="admin-status">'+(profile?"Publicado":"Sem perfil")+'</span></div>';
@@ -407,28 +343,6 @@ document.addEventListener("DOMContentLoaded", function(){
         const activityRows = activities.slice(-12).reverse();
         document.getElementById("adminActivityList").innerHTML=activityRows.length?activityRows.map(a=>'<div class="admin-row"><div class="admin-row-icon">•</div><div><strong>'+esc(a.text)+'</strong><small>'+esc(a.date?new Date(a.date).toLocaleString("pt-PT"):"")+'</small></div></div>').join(""):'<p class="admin-empty">Ainda não existem atividades.</p>';
 
-        const dashboardActivity=document.getElementById("adminDashboardActivity");
-        if(dashboardActivity){
-            dashboardActivity.innerHTML=activityRows.slice(0,5).map(function(a){
-                const icon=a.text.indexOf("matrícula")>=0?"▣":a.text.indexOf("Pagamento")>=0?"💳":a.text.indexOf("Perfil")>=0?"👨‍🏫":a.text.indexOf("Aula")>=0?"📚":"•";
-                return '<div class="admin-dashboard-activity-row"><div class="admin-dashboard-activity-icon">'+icon+'</div><div><strong>'+esc(a.text)+'</strong><small>'+esc(a.date?new Date(a.date).toLocaleString("pt-PT"):"Agora")+'</small></div></div>';
-            }).join("") || '<p class="admin-empty">Ainda não existem atividades.</p>';
-        }
-
-        const dashboardChart=document.getElementById("adminDashboardChart");
-        if(dashboardChart){
-            const values=[
-                {label:"Utilizadores",value:accounts.length,cls:"users"},
-                {label:"Professores",value:teachers.length,cls:"teachers"},
-                {label:"Alunos",value:students.length,cls:"students"},
-                {label:"Cursos",value:courses.length,cls:"courses"}
-            ];
-            const maxValue=Math.max.apply(null,values.map(function(item){return item.value;} ).concat([1]));
-            dashboardChart.innerHTML=values.map(function(item){
-                const width=Math.max(8,Math.round((item.value/maxValue)*100));
-                return '<div class="admin-chart-row"><span>'+esc(item.label)+'</span><div class="admin-chart-track"><i class="'+item.cls+'" style="width:'+width+'%"></i></div><strong>'+item.value+'</strong></div>';
-            }).join("");
-        }
     }
 
     function getEnrollment(id){
