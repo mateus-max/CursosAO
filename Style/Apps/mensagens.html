@@ -764,6 +764,14 @@ document.addEventListener("DOMContentLoaded", function () {
       return true;
     }
 
+    /*
+     * Bloqueia também números de conta/referência escritos em blocos,
+     * com espaços, pontos ou hífens.
+     */
+    if (/(?:^|\D)(?:\d[\s.-]*){6,}(?:$|\D)/.test(value)) {
+      return true;
+    }
+
     /* Número de contacto/telefone acompanhado de qualquer formatação. */
     if (/(?:telefone|telemóvel|telemovel|contacto|contato|whatsapp|whats)\s*[:=.-]?\s*(?:\+?\d[\d\s().-]{7,})/i.test(value)) {
       return true;
