@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>APSAN Academy - Aluno</title>
-<link rel="stylesheet" href="../style.css?v=20260927-student-menu-complete">
+<link rel="stylesheet" href="../style.css?v=20260927-student-menu-complete-2">
 </head>
 <body class="app-page student-page">
 
@@ -669,6 +669,99 @@ document.addEventListener("DOMContentLoaded", function () {
     updateStudentMessageNotifications();
     setInterval(updateStudentMessageNotifications, 2000);
 
+    function getStudentOfficialEnrollments() {
+        return getEnrollments().filter(function (item) {
+            return currentAccount && item.studentPhone === currentAccount.phone && item.status === "official";
+        });
+    }
+
+    function renderStudentExtraAreas() {
+        const mine = getEnrollments().filter(function (item) {
+            return currentAccount && item.studentPhone === currentAccount.phone;
+        });
+        const official = mine.filter(function (item) { return item.status === "official"; });
+
+        const agenda = document.getElementById("studentAgendaContent");
+        const agendaCount = document.getElementById("studentAgendaCount");
+        const upcoming = [];
+
+        official.forEach(function (enrollment) {
+            let lessons = [];
+            try {
+                lessons = JSON.parse(localStorage.getItem("apsan_professor_lessons_" + enrollment.teacherPhone) || "[]");
+            } catch (error) { lessons = []; }
+            (Array.isArray(lessons) ? lessons : []).filter(function (lesson) {
+                return lesson && lesson.published !== false;
+            }).forEach(function (lesson) {
+                upcoming.push({
+                    lesson: lesson,
+                    course: enrollment.course || "Curso",
+                    teacher: enrollment.teacherName || "Professor"
+                });
+            });
+        });
+
+        if (agendaCount) agendaCount.textContent = upcoming.length;
+        if (agenda) {
+            agenda.innerHTML = upcoming.length
+                ? upcoming.map(function (entry) {
+                    return '<article class="student-agenda-card">' +
+                        '<div class="student-agenda-icon">📅</div><div><span>' + esc(entry.course) + '</span>' +
+                        '<h3>' + esc(entry.lesson.title || "Aula") + '</h3>' +
+                        '<small>👨‍🏫 ' + esc(entry.teacher) + ' · ' + esc(entry.lesson.date || "Data a definir") +
+                        (entry.lesson.time ? " · " + esc(entry.lesson.time) : "") + '</small></div></article>';
+                }).join("")
+                : '<div class="empty-state">Nenhuma aula agendada no momento.</div>';
+        }
+
+        const progress = document.getElementById("studentProgressContent");
+        if (progress) {
+            progress.innerHTML = official.length
+                ? official.map(function (item) {
+                    let lessons = [];
+                    try { lessons = JSON.parse(localStorage.getItem("apsan_professor_lessons_" + item.teacherPhone) || "[]"); } catch (error) {}
+                    lessons = Array.isArray(lessons) ? lessons.filter(function (x) { return x && x.published !== false; }) : [];
+                    return '<article class="student-progress-card"><div><strong>' + esc(item.course || "Curso") +
+                        '</strong><small>👨‍🏫 ' + esc(item.teacherName || "Professor") + '</small></div>' +
+                        '<div class="student-progress-value"><strong>' + (lessons.length ? "Em andamento" : "Disponível") + '</strong>' +
+                        '<span>' + lessons.length + ' aula' + (lessons.length === 1 ? "" : "s") + ' publicada' + (lessons.length === 1 ? "" : "s") + '</span></div></article>';
+                }).join("")
+                : '<div class="empty-state">Ainda não existem cursos oficiais para acompanhar.</div>';
+        }
+
+        const payments = document.getElementById("studentPaymentsContent");
+        if (payments) {
+            payments.innerHTML = mine.length
+                ? mine.map(function (item) {
+                    const status = item.paymentStatus === "confirmed" || item.status === "official"
+                        ? "Confirmado"
+                        : item.paymentStatus === "pending_confirmation" ? "Em confirmação" : "Pendente";
+                    const cls = status === "Confirmado" ? "confirmed" : "pending";
+                    return '<article class="student-payment-card"><div><strong>' + esc(item.course || "Curso") +
+                        '</strong><small>' + esc(item.teacherName || "Professor") + '</small></div>' +
+                        '<div><strong>' + formatKz(item.price || "0") + '</strong><span class="' + cls + '">' + status + '</span></div></article>';
+                }).join("")
+                : '<div class="empty-state">Ainda não existem pagamentos registados.</div>';
+        }
+
+        const notifications = document.getElementById("studentNotificationsContent");
+        const notificationBadge = document.getElementById("studentNotificationBadge");
+        const hasPending = mine.some(function (item) {
+            return item.status !== "official";
+        });
+        const hasMessages = !!(document.getElementById("studentMessageMenuBadge") && !document.getElementById("studentMessageMenuBadge").hidden);
+        if (notifications) {
+            const notes = [];
+            if (hasMessages) notes.push('<article class="student-notification-item">💬 <div><strong>Novas mensagens</strong><small>Tem mensagens novas do seu professor.</small></div></article>');
+            if (hasPending) notes.push('<article class="student-notification-item">💳 <div><strong>Matrícula em confirmação</strong><small>Existe uma matrícula que ainda aguarda confirmação.</small></div></article>');
+            notifications.innerHTML = notes.length ? notes.join("") : '<div class="empty-state">Não há novas notificações.</div>';
+            if (notificationBadge) {
+                notificationBadge.textContent = notes.length;
+                notificationBadge.hidden = !notes.length;
+            }
+        }
+    }
+
     const menuButton = document.getElementById("studentMenuButton");
     const sideMenu = document.getElementById("studentSideMenu");
     const menuBackdrop = document.getElementById("studentMenuBackdrop");
@@ -708,8 +801,37 @@ document.addEventListener("DOMContentLoaded", function () {
             if (href.charAt(0) !== "#") return;
             event.preventDefault();
             closeStudentMenu();
+            renderStudentExtraAreas();
             setStudentPanelView(href.slice(1));
         });
+    });
+
+    document.querySelectorAll("[data-student-profile-link]").forEach(function(link) {
+        link.addEventListener("click", function(event) {
+            event.preventDefault();
+            closeStudentMenu();
+            if (typeof openStudentProfile === "function") openStudentProfile();
+        });
+    });
+
+    const settingsProfile = document.getElementById("studentSettingsProfile");
+    if (settingsProfile) settingsProfile.addEventListener("click", function () {
+        if (typeof openStudentProfile === "function") openStudentProfile();
+    });
+
+    const settingsSecurity = document.getElementById("studentSettingsSecurity");
+    if (settingsSecurity) settingsSecurity.addEventListener("click", function () {
+        if (typeof openStudentProfile === "function") openStudentProfile();
+        const password = document.getElementById("studentProfilePassword");
+        if (password) setTimeout(function () { password.focus(); }, 100);
+    });
+
+    const settingsNotifications = document.getElementById("studentSettingsNotifications");
+    if (settingsNotifications) settingsNotifications.addEventListener("click", function () {
+        const content = document.getElementById("studentNotificationsContent");
+        if (content) {
+            content.innerHTML = '<div class="empty-state"><strong>Notificações automáticas ativas.</strong><p>A plataforma mostra aqui mensagens novas e atualizações de matrícula.</p></div>';
+        }
     });
     document.addEventListener("keydown", function(event) {
         if (event.key === "Escape") closeStudentMenu();
@@ -1335,6 +1457,7 @@ document.addEventListener("DOMContentLoaded", function () {
     renderEnrollments();
     renderClassroom();
     renderStudentMaterials();
+    renderStudentExtraAreas();
     restoreStudentPanelView();
 });
 </script>
