@@ -1809,7 +1809,9 @@ document.addEventListener("DOMContentLoaded", function () {
                         : null;
                     const lessonInfo = lesson ? ' · ' + (lesson.title || "Aula") : "";
                     return '<div class="module-row">' +
-                        '<span class="module-row-icon">📄</span>' +
+                        (material.coverData
+                            ? '<span class="module-row-cover"><img src="' + escapeModuleAttribute(material.coverData) + '" alt="Capa de ' + escapeModuleAttribute(material.title) + '"></span>'
+                            : '<span class="module-row-icon">📄</span>') +
                         '<div><strong>' + escapeModuleText(material.title) + '</strong>' +
                         '<small>' + escapeModuleText(material.type || "Material") + ' · ' +
                         escapeModuleText(material.course || "Curso") + escapeModuleText(lessonInfo) + '</small>' +
