@@ -6,6 +6,187 @@
 <title>APSAN Academy - Direção</title>
 <link rel="stylesheet" href="../style.css?v=admin-direction-final-20260927-01">
     <script src="settings.js?v=20260927-themes-final-2"></script>
+<style>
+/* Financeiro da Direção — visual compacto e legível no telemóvel */
+body.admin-page .admin-finance-panel{
+    overflow:visible;
+}
+body.admin-page .admin-finance-panel .admin-panel-title{
+    align-items:flex-start;
+    gap:12px;
+}
+body.admin-page .admin-finance-panel .admin-panel-title h2{
+    margin:0;
+}
+body.admin-page .admin-finance-summary{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:10px;
+}
+body.admin-page .admin-finance-summary>div{
+    min-width:0;
+}
+body.admin-page .admin-finance-teachers{
+    padding:14px;
+}
+body.admin-page .admin-finance-teachers>.admin-panel-title{
+    margin-bottom:8px;
+}
+body.admin-page .admin-finance-teacher-card{
+    display:flex !important;
+    flex-direction:column !important;
+    gap:12px;
+    padding:14px 0 !important;
+}
+body.admin-page .admin-finance-card-header{
+    order:0 !important;
+    width:100% !important;
+    margin:0 !important;
+}
+body.admin-page .admin-finance-card-header .admin-virtual-card{
+    width:100%;
+    min-height:168px;
+    box-sizing:border-box;
+    margin:0 !important;
+    padding:18px;
+    border-radius:18px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+}
+body.admin-page .admin-finance-card-header .admin-virtual-card-chip{
+    width:42px;
+    height:29px;
+    margin:14px 0 8px;
+}
+body.admin-page .admin-finance-card-header .admin-virtual-card-number{
+    font-size:18px;
+}
+body.admin-page .admin-finance-card-header .admin-virtual-card-bottom{
+    margin-top:12px;
+    font-size:10px;
+}
+body.admin-page .admin-finance-card-header .admin-virtual-card-bottom span{
+    font-size:16px;
+}
+body.admin-page .admin-finance-teacher-head{
+    order:1 !important;
+    display:grid !important;
+    grid-template-columns:52px minmax(0,1fr) auto !important;
+    gap:11px;
+    align-items:center;
+    min-width:0;
+}
+body.admin-page .admin-finance-teacher-avatar{
+    width:52px;
+    height:52px;
+    border-radius:50%;
+    object-fit:cover;
+    display:block;
+    background:#eaf3ff;
+}
+body.admin-page .admin-finance-teacher-avatar-letter{
+    display:grid;
+    place-items:center;
+    color:#1769e0;
+    font-weight:900;
+    font-size:20px;
+}
+body.admin-page .admin-finance-teacher-info{
+    min-width:0;
+}
+body.admin-page .admin-finance-teacher-info strong,
+body.admin-page .admin-finance-teacher-info small{
+    display:block;
+    overflow-wrap:anywhere;
+}
+body.admin-page .admin-finance-teacher-info strong{
+    font-size:14px;
+}
+body.admin-page .admin-finance-teacher-info small{
+    margin-top:3px;
+    color:#718096;
+    font-size:10px;
+}
+body.admin-page .admin-finance-balance{
+    white-space:nowrap;
+    font-size:14px;
+}
+body.admin-page .admin-finance-mini-grid{
+    order:2 !important;
+}
+body.admin-page .admin-finance-recent{
+    order:3 !important;
+    border-top:1px solid #e8eef5;
+    padding-top:9px;
+}
+body.admin-page .admin-finance-recent-title{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:8px;
+    margin-bottom:5px;
+}
+body.admin-page .admin-finance-recent-title strong{
+    color:#172033;
+    font-size:11px;
+}
+body.admin-page .admin-finance-recent-title span{
+    color:#1769e0;
+    font-size:10px;
+    font-weight:800;
+}
+body.admin-page .admin-finance-recent>div span{
+    min-width:0;
+    overflow-wrap:anywhere;
+}
+body.admin-page .admin-finance-recent>div span small{
+    display:block;
+    margin-top:2px;
+    color:#8190a3;
+    font-size:8px;
+}
+@media(max-width:760px){
+    body.admin-page .admin-finance-summary{
+        grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    }
+    body.admin-page .admin-finance-withdrawal{
+        grid-template-columns:1fr !important;
+        gap:8px;
+    }
+    body.admin-page .admin-finance-withdrawal .admin-actions{
+        justify-content:flex-start;
+    }
+}
+@media(max-width:430px){
+    body.admin-page .admin-finance-summary{
+        grid-template-columns:1fr 1fr !important;
+        gap:8px;
+    }
+    body.admin-page .admin-finance-summary>div{
+        padding:11px !important;
+    }
+    body.admin-page .admin-finance-summary strong{
+        font-size:15px !important;
+    }
+    body.admin-page .admin-finance-teachers{
+        padding:11px;
+    }
+    body.admin-page .admin-finance-teacher-head{
+        grid-template-columns:46px minmax(0,1fr) auto !important;
+        gap:8px;
+    }
+    body.admin-page .admin-finance-teacher-avatar{
+        width:46px;
+        height:46px;
+    }
+    body.admin-page .admin-finance-balance{
+        font-size:12px;
+    }
+    body.admin-page .admin-finance-mini-grid{
+        grid-template-columns:1fr !important;
+    }
+}
+</style>
 </head>
 <body class="app-page admin-page">
 
