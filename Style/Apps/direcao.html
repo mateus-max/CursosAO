@@ -300,7 +300,9 @@ document.addEventListener("DOMContentLoaded", function(){
         let dashboardFinanceTotal=0;
         teachers.forEach(function(teacher){
             try{
-                const ledger=read("apsan_teacher_finance_"+String(teacher.phone||"").replace(/\D/g,""),[]);
+                const financeDigits=String(teacher.phone||"").replace(/\D/g,"");
+                const financePhoneKey=financeDigits.length>9?financeDigits.slice(-9):(financeDigits||"default");
+                const ledger=read("apsan_teacher_finance_"+financePhoneKey,[]);
                 dashboardFinanceTotal += ledger.reduce(function(sum,item){
                     const amount=parseFloat(String(item&&item.amount||0).replace(/[^0-9,.-]/g,"").replace(/\./g,"").replace(",","."));
                     return sum + (item&&item.type==="saida" ? -Math.abs(amount||0) : Math.abs(amount||0));
