@@ -83,6 +83,41 @@ document.addEventListener("DOMContentLoaded", function () {
         return true;
     }
 
+    function getUserPhoto(account) {
+        if (!account) return "";
+        let photo = account.photo || account.profilePhoto || account.avatar || account.teacherPhoto || account.photoURL || "";
+        if (photo) return String(photo);
+
+        // Recupera também fotografias antigas do perfil do professor,
+        // para não perder fotos guardadas antes da sincronização de contas.
+        if (account.type === "professor") {
+            const phone = String(account.phone || "").trim();
+            const username = String(account.username || "").trim();
+            const keys = [];
+            if (phone) keys.push("apsan_professor_profile_" + phone);
+            if (phone) keys.push("apsan_professor_profile_" + phone.replace(/\\D/g, ""));
+            if (username) keys.push("apsan_professor_profile_" + username);
+            for (const key of keys) {
+                try {
+                    const profile = JSON.parse(localStorage.getItem(key) || "null");
+                    if (!profile) continue;
+                    photo = profile.teacherPhoto || profile.photo || profile.profilePhoto || profile.avatar || profile.photoURL || "";
+                    if (photo) return String(photo);
+                } catch (_) {}
+            }
+        }
+        return "";
+    }
+
+    function userAvatarMarkup(account, label) {
+        const photo = getUserPhoto(account);
+        if (photo) {
+            return '<div class="admin-row-avatar admin-user-avatar"><img src="' + esc(photo) + '" alt="Foto de ' + esc(label) + '"></div>';
+        }
+        const icon = account?.type === "professor" ? "👨‍🏫" : account?.type === "aluno" ? "👤" : account?.type === "direcao" ? "⚙️" : "👥";
+        return '<div class="admin-row-icon">' + icon + '</div>';
+    }
+
     function render() {
         const accounts = read("apsan_accounts", []);
         const profiles = read("apsan_professors", []);
@@ -103,7 +138,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const label = a.type === "professor" ? "Professor" : a.type === "aluno" ? "Aluno" : a.type === "direcao" ? "Direção" : "Utilizador";
             const icon = a.type === "professor" ? "👨‍🏫" : a.type === "aluno" ? "👤" : a.type === "direcao" ? "⚙️" : "👥";
             const blocked = ["blocked", "suspended", "rejected"].includes(a.status);
-            return `<div class="admin-row"><div class="admin-row-icon">${icon}</div><div><strong>${esc(a.name || label)}</strong><small>${esc(label)} · ${esc(a.phone || "Contacto protegido")}</small></div><span class="admin-status ${blocked ? "rejected" : ""}">${blocked ? "Bloqueada" : "Ativa"}</span></div>`;
+            return `<div class="admin-row">${userAvatarMarkup(a, a.name || label)}<div><strong>${esc(a.name || label)}</strong><small>${esc(label)} · ${esc(a.phone || "Contacto protegido")}</small></div><span class="admin-status ${blocked ? "rejected" : ""}">${blocked ? "Bloqueada" : "Ativa"}</span></div>`;
         }).join("") : '<p class="admin-empty">Nenhum utilizador registado.</p>';
 
         const teacherList = document.getElementById("adminTeachersList");
