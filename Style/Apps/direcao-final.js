@@ -668,18 +668,58 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const settingsKey = "apsan_admin_settings";
     const savedSettings = Object.assign({ profileApproval: "manual", courseApproval: "manual", platformStatus: "active" }, read(settingsKey, {}));
+
     ["adminProfileApproval", "adminCourseApproval", "adminPlatformStatus"].forEach((id, i) => {
         const el = document.getElementById(id);
         if (el) el.value = [savedSettings.profileApproval, savedSettings.courseApproval, savedSettings.platformStatus][i];
     });
+
+    const appSettings = window.APSANSettings
+        ? window.APSANSettings.get()
+        : { language: "pt", wallpaper: "default" };
+
+    const languageSelect = document.getElementById("adminLanguageSelect");
+    if (languageSelect) languageSelect.value = appSettings.language === "en" ? "en" : "pt";
+
+    const wallpaperButtons = document.querySelectorAll(".admin-direction-wallpapers [data-wallpaper-choice]");
+    wallpaperButtons.forEach(button => {
+        button.classList.toggle(
+            "active",
+            button.getAttribute("data-wallpaper-choice") === (appSettings.wallpaper || "default")
+        );
+        button.addEventListener("click", () => {
+            wallpaperButtons.forEach(item => item.classList.remove("active"));
+            button.classList.add("active");
+        });
+    });
+
     document.getElementById("adminSaveSettings")?.addEventListener("click", () => {
+        const nextAppSettings = Object.assign({}, appSettings, {
+            language: languageSelect?.value === "en" ? "en" : "pt",
+            wallpaper: document.querySelector(".admin-direction-wallpapers [data-wallpaper-choice].active")?.getAttribute("data-wallpaper-choice") || "default"
+        });
+
         write(settingsKey, {
             profileApproval: document.getElementById("adminProfileApproval").value,
             courseApproval: document.getElementById("adminCourseApproval").value,
             platformStatus: document.getElementById("adminPlatformStatus").value
         });
+
+        if (window.APSANSettings) {
+            window.APSANSettings.save(nextAppSettings);
+        }
+
         const msg = document.getElementById("adminSettingsMessage");
-        if (msg) { msg.textContent = "Configurações guardadas."; msg.style.color = "#16803c"; }
+        if (msg) {
+            msg.textContent = nextAppSettings.language === "en"
+                ? "Settings saved successfully."
+                : "Configurações guardadas.";
+            msg.style.color = "#16803c";
+        }
+
+        if (nextAppSettings.language !== (appSettings.language || "pt")) {
+            setTimeout(() => window.location.reload(), 300);
+        }
     });
 
     const hash = location.hash.slice(1);
