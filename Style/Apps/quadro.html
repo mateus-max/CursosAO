@@ -1,115 +1,167 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>APSAN Academy - Quadro</title>
-
-    <link rel="stylesheet" href="Style/style.css">
-    <script src="settings.js?v=20260927-themes-final-2"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>APSAN Academy - Sala Virtual</title>
+<link rel="stylesheet" href="../style.css?v=20260927-virtual-classroom-1">
+<script src="settings.js?v=20260927-profile-wallpaper-1"></script>
+<style>
+body.classroom-page{background:#eef3f9!important;overflow-x:hidden}
+.classroom-shell{min-height:100dvh;display:flex;flex-direction:column;background:#0b1830;color:#fff}
+.classroom-top{height:66px;display:flex;align-items:center;gap:18px;padding:0 18px;border-bottom:1px solid rgba(255,255,255,.1);background:#0d1d38}
+.classroom-brand{display:flex;align-items:center;gap:10px;min-width:210px}.classroom-brand-mark{width:38px;height:38px;border-radius:10px;background:#fff;color:#1769e0;display:grid;place-items:center;font-weight:1000;font-size:22px}.classroom-brand strong{font-size:16px}.classroom-title{flex:1;min-width:0}.classroom-title strong{display:block;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.classroom-title small{color:#9eb0c8}.live-pill{display:inline-flex;align-items:center;gap:6px;color:#fff;background:#e53935;padding:5px 9px;border-radius:999px;font-weight:900;font-size:11px;margin-left:8px}.live-dot{width:7px;height:7px;border-radius:50%;background:#fff}
+.classroom-top-actions{display:flex;gap:8px}.classroom-top-actions button{border:1px solid rgba(255,255,255,.12);background:#132846;color:#fff;border-radius:10px;padding:10px 12px;font-weight:800;cursor:pointer}.classroom-top-actions .leave{background:#ef4444;border-color:#ef4444}
+.classroom-body{flex:1;display:grid;grid-template-columns:190px minmax(0,1fr) 300px;min-height:0}
+.classroom-side{background:#0d1d38;border-right:1px solid rgba(255,255,255,.08);padding:12px 10px}.classroom-side button{width:100%;display:flex;align-items:center;gap:10px;border:0;background:transparent;color:#dbe7f5;text-align:left;padding:12px;border-radius:10px;margin-bottom:4px;font-weight:800;cursor:pointer}.classroom-side button.active,.classroom-side button:hover{background:#1769e0;color:#fff}
+.classroom-main{min-width:0;display:flex;flex-direction:column;background:#16263d}.board-toolbar{display:flex;align-items:center;gap:5px;padding:8px;border-bottom:1px solid #d7e0eb;background:#fff;color:#172033;overflow-x:auto}.tool{min-width:48px;height:44px;border:1px solid #dce4ee;background:#fff;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;font-size:10px;font-weight:800}.tool span{font-size:17px}.tool.active{background:#eaf3ff;border-color:#1769e0;color:#0d47b5}.tool-danger{color:#c62828}
+.board-wrap{flex:1;position:relative;padding:14px;min-height:0}.board{position:relative;width:100%;height:100%;min-height:500px;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.18)}#whiteboardCanvas{width:100%;height:100%;display:block;cursor:crosshair}.board-empty{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;color:#9aa6b2;font-weight:700;font-size:15px}.board-empty.hidden{display:none}
+.classroom-bottom{height:72px;display:flex;align-items:center;justify-content:center;gap:8px;background:#0d1d38;border-top:1px solid rgba(255,255,255,.08)}.class-control{border:0;background:#172d4c;color:#fff;border-radius:12px;min-width:74px;height:54px;cursor:pointer;font-weight:800}.class-control span{display:block;font-size:19px}.class-control.danger{background:#ef4444}
+.classroom-right{background:#f7f9fc;color:#172033;display:flex;flex-direction:column;min-width:0}.right-tabs{display:flex;border-bottom:1px solid #dce4ee}.right-tabs button{flex:1;border:0;background:#fff;padding:14px 8px;font-weight:900;cursor:pointer}.right-tabs button.active{color:#1769e0;border-bottom:3px solid #1769e0}.right-panel{display:none;flex:1;min-height:0;overflow:auto;padding:14px}.right-panel.active{display:block}.participant{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid #e7edf4}.participant-avatar{width:34px;height:34px;border-radius:50%;background:#dce9fb;display:grid;place-items:center;font-weight:900;color:#1769e0;overflow:hidden}.participant-avatar img{width:100%;height:100%;object-fit:cover}.participant small{display:block;color:#718096}.chat-list{min-height:300px}.chat-msg{padding:8px 0;border-bottom:1px solid #e7edf4}.chat-msg strong{font-size:12px}.chat-msg p{margin:3px 0 0;font-size:13px;line-height:1.35}.chat-input{display:flex;gap:6px;position:sticky;bottom:0;background:#f7f9fc;padding-top:10px}.chat-input input{flex:1;min-width:0;border:1px solid #d7e0eb;border-radius:10px;padding:10px}.chat-input button{border:0;background:#1769e0;color:#fff;border-radius:10px;padding:0 14px;font-weight:900}.class-info-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:12px;margin-bottom:12px}.class-info-card strong{display:block;margin-bottom:5px}.class-info-card small{color:#718096}.status-ok{color:#16803c;font-weight:900}.status-warn{color:#b26a00;font-weight:900}
+.classroom-toast{position:fixed;right:18px;bottom:90px;background:#102542;color:#fff;padding:12px 15px;border-radius:12px;box-shadow:0 10px 28px rgba(0,0,0,.25);z-index:50;display:none}.classroom-toast.show{display:block}
+@media(max-width:900px){.classroom-body{grid-template-columns:64px minmax(0,1fr)}.classroom-side{padding:10px 6px}.classroom-side button{justify-content:center;font-size:0}.classroom-side button span{font-size:20px}.classroom-right{position:fixed;right:0;top:66px;bottom:72px;width:min(88vw,330px);z-index:30;transform:translateX(100%);transition:.2s;box-shadow:-12px 0 30px rgba(0,0,0,.2)}.classroom-right.open{transform:translateX(0)}}
+@media(max-width:600px){.classroom-top{height:58px;padding:0 10px;gap:8px}.classroom-brand{min-width:auto}.classroom-brand strong{display:none}.classroom-title strong{font-size:13px}.classroom-title small{font-size:10px}.classroom-top-actions button{padding:8px;font-size:11px}.classroom-top-actions button:not(.leave){display:none}.classroom-body{grid-template-columns:1fr}.classroom-side{display:none}.board-wrap{padding:7px}.board{min-height:390px}.classroom-bottom{height:68px;overflow-x:auto;justify-content:flex-start;padding:5px 8px}.class-control{min-width:64px;height:56px;font-size:10px}.board-toolbar{padding:6px}.tool{min-width:45px}.classroom-right{top:58px;bottom:68px}}
+</style>
 </head>
+<body class="classroom-page">
+<div class="classroom-shell">
+<header class="classroom-top">
+    <div class="classroom-brand"><div class="classroom-brand-mark">A</div><strong>APSAN Academy</strong></div>
+    <div class="classroom-title">
+        <strong id="classTitle">Sala Virtual</strong>
+        <small id="classMeta">Quadro interativo de aprendizagem</small>
+    </div>
+    <div id="liveStatus"></div>
+    <div class="classroom-top-actions">
+        <button type="button" id="shareScreen">▣ Partilhar ecrã</button>
+        <button type="button" id="toggleRight">☰ Participantes</button>
+        <button type="button" class="leave" id="leaveClass">Sair</button>
+    </div>
+</header>
 
-<body class="app-page">
+<div class="classroom-body">
+<aside class="classroom-side">
+    <button class="active" data-tab="board"><span>🖥</span> Quadro</button>
+    <button data-tab="content"><span>📚</span> Conteúdo</button>
+    <button data-tab="tasks"><span>✓</span> Tarefas</button>
+    <button data-tab="poll"><span>📊</span> Votação</button>
+    <button data-tab="timer"><span>⏱</span> Temporizador</button>
+</aside>
 
-    <!-- CABEÇALHO -->
+<main class="classroom-main">
+    <div class="board-toolbar">
+        <button class="tool active" data-tool="pen"><span>🖊</span>Caneta</button>
+        <button class="tool" data-tool="highlighter"><span>🖍</span>Destacar</button>
+        <button class="tool" data-tool="eraser"><span>⌫</span>Borracha</button>
+        <button class="tool" data-tool="line"><span>╱</span>Seta/Linha</button>
+        <button class="tool" data-tool="rect"><span>□</span>Forma</button>
+        <button class="tool" data-tool="circle"><span>○</span>Círculo</button>
+        <button class="tool" data-tool="text"><span>T</span>Texto</button>
+        <button class="tool" id="addImage"><span>▧</span>Imagem</button>
+        <button class="tool" id="undoBoard"><span>↶</span>Desfazer</button>
+        <button class="tool tool-danger" id="clearBoard"><span>⌫</span>Limpar</button>
+        <input id="boardImageInput" type="file" accept="image/*" hidden>
+    </div>
 
-    <header class="app-header">
-
-        <div>
-            <strong>APSAN Academy</strong>
+    <div class="board-wrap">
+        <div class="board">
+            <canvas id="whiteboardCanvas"></canvas>
+            <div id="boardEmpty" class="board-empty">Comece a explicar a aula aqui. Use a caneta, formas, texto, imagens e destaques.</div>
         </div>
+    </div>
 
-        <button
-            type="button"
-            data-back
-            class="login-button"
-            style="width:auto; height:40px; padding:0 16px;"
-        >
-            Voltar
-        </button>
+    <div class="classroom-bottom">
+        <button class="class-control" id="toggleMic"><span>🎙</span>Microfone</button>
+        <button class="class-control" id="toggleCamera"><span>▣</span>Câmara</button>
+        <button class="class-control" id="recordClass"><span>⏺</span>Gravar aula</button>
+        <button class="class-control" id="raiseHand"><span>✋</span>Levantar mão</button>
+        <button class="class-control" id="openChat"><span>💬</span>Chat</button>
+        <button class="class-control" id="openParticipants"><span>👥</span>Participantes</button>
+        <button class="class-control" id="endClass"><span>⏹</span>Terminar aula</button>
+    </div>
+</main>
 
-    </header>
+<aside class="classroom-right" id="rightPanel">
+    <div class="right-tabs">
+        <button class="active" data-right-tab="participants">Participantes</button>
+        <button data-right-tab="chat">Chat</button>
+    </div>
+    <section class="right-panel active" id="participantsPanel">
+        <div class="class-info-card"><strong id="participantSummary">Participantes</strong><small>Alunos oficiais desta aula.</small></div>
+        <div id="participantList"></div>
+    </section>
+    <section class="right-panel" id="chatPanel">
+        <div id="chatList" class="chat-list"></div>
+        <div class="chat-input"><input id="chatInput" maxlength="300" placeholder="Escreva uma mensagem..."><button id="sendChat">Enviar</button></div>
+    </section>
+</aside>
+</div>
+</div>
+<div id="toast" class="classroom-toast"></div>
 
+<script>
+(function(){
+"use strict";
+const params=new URLSearchParams(location.search);
+const liveId=params.get("live")||"";
+const account=(()=>{try{return JSON.parse(localStorage.getItem("apsan_account")||"{}")}catch(_){return {}}})();
+const role=account.type||localStorage.getItem("apsan_user_type")||"";
+const phone=String(account.phone||localStorage.getItem("apsan_phone")||"").replace(/\D/g,"");
+const canvas=document.getElementById("whiteboardCanvas"),ctx=canvas.getContext("2d");
+const boardEmpty=document.getElementById("boardEmpty");
+let live=null, drawing=false, startX=0,startY=0,tool="pen",undoStack=[],stream=null,recording=false,startedAt=Date.now();
 
-    <!-- QUADRO -->
-
-    <main class="app-content">
-
-        <div style="margin-bottom:20px;">
-
-            <h1>Quadro Interativo</h1>
-
-            <p style="color:#718096; margin-top:6px;">
-                Espaço para conteúdos e atividades das aulas.
-            </p>
-
-        </div>
-
-
-        <!-- ÁREA DO QUADRO -->
-
-        <section
-            class="dashboard-card"
-            style="min-height:450px;"
-        >
-
-            <div
-                id="whiteboard"
-                style="
-                    width:100%;
-                    min-height:380px;
-                    background:#ffffff;
-                    border:2px solid #dce5ef;
-                    border-radius:12px;
-                    padding:25px;
-                "
-            >
-
-                <p style="color:#9aa6b2;">
-                    Área do quadro interativo
-                </p>
-
-            </div>
-
-        </section>
-
-
-        <!-- FERRAMENTAS -->
-
-        <section
-            class="dashboard-grid"
-            style="margin-top:18px;"
-        >
-
-            <div class="dashboard-card">
-
-                <h3>Conteúdo da Aula</h3>
-
-                <p style="margin-top:10px; color:#718096;">
-                    Área para apresentar textos, explicações
-                    e conteúdos da aula.
-                </p>
-
-            </div>
-
-
-            <div class="dashboard-card">
-
-                <h3>Atividades</h3>
-
-                <p style="margin-top:10px; color:#718096;">
-                    Área destinada aos exercícios e atividades.
-                </p>
-
-            </div>
-
-        </section>
-
-    </main>
-
-
-    <script src="Apps/main.js"></script>
-
+function read(k,f){try{const v=JSON.parse(localStorage.getItem(k)||"null");return v==null?f:v}catch(_){return f}}
+function write(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function toast(t){const el=document.getElementById("toast");el.textContent=t;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2600)}
+function getLive(){return read("apsan_live_classes",[]).find(x=>x&&x.id===liveId)||null}
+function resizeCanvas(){const rect=canvas.getBoundingClientRect();const old=canvas.toDataURL();canvas.width=Math.max(1,Math.floor(rect.width*devicePixelRatio));canvas.height=Math.max(1,Math.floor(rect.height*devicePixelRatio));ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);if(old&&old!=="data:,"){const im=new Image();im.onload=()=>ctx.drawImage(im,0,0,rect.width,rect.height);im.src=old}}
+function boardKey(){return "apsan_live_board_"+liveId}
+function saveBoard(){if(!liveId)return;try{write(boardKey(),canvas.toDataURL("image/png"));boardEmpty.classList.add("hidden")}catch(_){}}
+function loadBoard(){const data=localStorage.getItem(boardKey());if(!data)return;const im=new Image();im.onload=()=>{const r=canvas.getBoundingClientRect();ctx.drawImage(im,0,0,r.width,r.height);boardEmpty.classList.add("hidden")};im.src=data}
+function snapshot(){undoStack.push(canvas.toDataURL("image/png"));if(undoStack.length>15)undoStack.shift()}
+function pointer(e){const r=canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
+function down(e){if(role==="aluno")return;drawing=true;const p=pointer(e);startX=p.x;startY=p.y;snapshot();ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineCap="round";ctx.lineJoin="round";ctx.strokeStyle=tool==="highlighter"?"rgba(255,220,0,.42)":tool==="eraser"?"#fff":"#1769e0";ctx.lineWidth=tool==="highlighter"?18:tool==="eraser"?24:3;if(tool==="text"){drawing=false;const t=prompt("Texto para o quadro:");if(t){ctx.font="700 22px Arial";ctx.fillStyle="#172033";ctx.fillText(t,p.x,p.y);saveBoard()}}}
+function move(e){if(!drawing)return;const p=pointer(e);if(tool==="pen"||tool==="highlighter"||tool==="eraser"){ctx.lineTo(p.x,p.y);ctx.stroke()}else{loadUndoPreview(p)}}
+function up(e){if(!drawing)return;drawing=false;const p=pointer(e);if(tool==="line"){ctx.strokeStyle="#1769e0";ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(startX,startY);ctx.lineTo(p.x,p.y);ctx.stroke()}else if(tool==="rect"){ctx.strokeStyle="#1769e0";ctx.lineWidth=3;ctx.strokeRect(startX,startY,p.x-startX,p.y-startY)}else if(tool==="circle"){ctx.strokeStyle="#1769e0";ctx.lineWidth=3;const rx=(p.x-startX)/2,ry=(p.y-startY)/2;ctx.beginPath();ctx.ellipse(startX+rx,startY+ry,Math.abs(rx),Math.abs(ry),0,0,Math.PI*2);ctx.stroke()}saveBoard()}
+function loadUndoPreview(){return}
+canvas.addEventListener("pointerdown",down);canvas.addEventListener("pointermove",move);canvas.addEventListener("pointerup",up);canvas.addEventListener("pointerleave",up);
+window.addEventListener("resize",()=>{resizeCanvas();loadBoard()});
+document.querySelectorAll("[data-tool]").forEach(b=>b.addEventListener("click",()=>{tool=b.dataset.tool;document.querySelectorAll("[data-tool]").forEach(x=>x.classList.toggle("active",x===b))}));
+document.getElementById("undoBoard").onclick=()=>{const data=undoStack.pop();if(!data)return;const im=new Image();im.onload=()=>{ctx.clearRect(0,0,canvas.width,canvas.height);const r=canvas.getBoundingClientRect();ctx.drawImage(im,0,0,r.width,r.height);saveBoard()};im.src=data};
+document.getElementById("clearBoard").onclick=()=>{if(role!=="professor"&&!role.includes("direcao"))return;ctx.clearRect(0,0,canvas.width,canvas.height);boardEmpty.classList.remove("hidden");saveBoard()};
+document.getElementById("addImage").onclick=()=>document.getElementById("boardImageInput").click();
+document.getElementById("boardImageInput").onchange=e=>{const file=e.target.files[0];if(!file||role==="aluno")return;const rd=new FileReader();rd.onload=ev=>{const im=new Image();im.onload=()=>{const r=canvas.getBoundingClientRect(),scale=Math.min(1,(r.width-40)/im.width,(r.height-40)/im.height);ctx.drawImage(im,20,20,im.width*scale,im.height*scale);saveBoard()};im.src=ev.target.result};rd.readAsDataURL(file)};
+function renderLive(){live=getLive();if(!live){document.getElementById("classTitle").textContent="Sala Virtual";document.getElementById("classMeta").textContent="Aula não encontrada ou encerrada.";return}
+if(role==="aluno"&&!live.students.includes(phone)){document.getElementById("classTitle").textContent="Acesso não autorizado";document.getElementById("classMeta").textContent="Esta aula está disponível apenas para os alunos oficiais.";return}
+document.getElementById("classTitle").textContent=live.title;
+document.getElementById("classMeta").textContent=(live.course||"Curso")+" · Prof. "+(live.teacherName||"Professor");
+document.getElementById("liveStatus").innerHTML=live.active?'<span class="live-pill"><i class="live-dot"></i> AO VIVO</span>':'<span class="status-warn">Aula encerrada</span>';
+const end=document.getElementById("endClass");end.style.display=role==="professor"?"inline-block":"none";
+const list=document.getElementById("participantList");const students=live.students||[];const accounts=read("apsan_accounts",[]);
+list.innerHTML=students.map(p=>{const a=accounts.find(x=>x&&String(x.phone||"").replace(/\D/g,"")===p)||{};return '<div class="participant"><div class="participant-avatar">'+(a.photo?'<img src="'+a.photo+'">':(String(a.name||"A").charAt(0)))+'</div><div><strong>'+String(a.name||"Aluno")+'</strong><small>Aluno oficial</small></div></div>'}).join("");
+document.getElementById("participantSummary").textContent="Participantes ("+students.length+")";
+}
+function chatKey(){return "apsan_live_chat_"+liveId}
+function renderChat(){const box=document.getElementById("chatList"),msgs=read(chatKey(),[]);box.innerHTML=msgs.map(m=>'<div class="chat-msg"><strong>'+String(m.name||"Utilizador")+'</strong><p>'+String(m.text||"")+'</p></div>').join("")||'<div class="empty-state">O chat da aula aparecerá aqui.</div>';box.scrollTop=box.scrollHeight}
+document.getElementById("sendChat").onclick=()=>{const input=document.getElementById("chatInput"),text=input.value.trim();if(!text)return;const msgs=read(chatKey(),[]);msgs.push({name:account.name||"Utilizador",text,at:new Date().toISOString()});write(chatKey(),msgs.slice(-100));input.value="";renderChat()};
+document.getElementById("chatInput").addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("sendChat").click()});
+document.querySelectorAll("[data-right-tab]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-right-tab]").forEach(x=>x.classList.toggle("active",x===b));document.querySelectorAll(".right-panel").forEach(x=>x.classList.toggle("active",x.id===b.dataset.rightTab+"Panel"))});
+document.getElementById("toggleRight").onclick=()=>document.getElementById("rightPanel").classList.toggle("open");
+document.getElementById("openChat").onclick=()=>{document.getElementById("rightPanel").classList.add("open");document.querySelector('[data-right-tab="chat"]').click()};
+document.getElementById("openParticipants").onclick=()=>{document.getElementById("rightPanel").classList.add("open");document.querySelector('[data-right-tab="participants"]').click()};
+document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>toast("Módulo "+b.textContent.trim()+" preparado para a aula."));
+document.getElementById("toggleMic").onclick=async()=>{try{if(!stream)stream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});toast("Microfone ativo neste dispositivo.");}catch(_){toast("Não foi possível ativar o microfone.")}};
+document.getElementById("toggleCamera").onclick=async()=>{try{if(!stream)stream=await navigator.mediaDevices.getUserMedia({audio:false,video:true});toast("Câmara ativa neste dispositivo.");}catch(_){toast("Não foi possível ativar a câmara.")}};
+document.getElementById("shareScreen").onclick=async()=>{try{const s=await navigator.mediaDevices.getDisplayMedia({video:true});s.getVideoTracks()[0].onended=()=>toast("Partilha de ecrã terminada.");toast("Partilha de ecrã iniciada neste dispositivo.");}catch(_){toast("Partilha de ecrã cancelada.")}};
+document.getElementById("recordClass").onclick=()=>{recording=!recording;document.getElementById("recordClass").innerHTML=recording?"<span>⏹</span>Parar gravação":"<span>⏺</span>Gravar aula";toast(recording?"Gravação preparada no dispositivo.":"Gravação terminada.")};
+document.getElementById("raiseHand").onclick=()=>toast("Mão levantada. O professor verá este estado nesta sessão.");
+document.getElementById("endClass").onclick=()=>{if(role!=="professor"||!live)return;if(confirm("Terminar esta aula ao vivo?")){const all=read("apsan_live_classes",[]);const item=all.find(x=>x.id===liveId);if(item){item.active=false;item.endedAt=new Date().toISOString();write("apsan_live_classes",all)}renderLive();toast("Aula terminada.");}};
+document.getElementById("leaveClass").onclick=()=>{if(role==="professor"&&live&&live.active&&!confirm("Sair sem terminar a aula?"))return;location.href=role==="professor"?"professor.html":"aluno.html#classroom"};
+window.addEventListener("storage",e=>{if(e.key==="apsan_live_classes"){renderLive()}if(e.key===boardKey()){loadBoard()}if(e.key===chatKey()){renderChat()}});
+resizeCanvas();renderLive();loadBoard();renderChat();
+setInterval(()=>{renderLive();loadBoard();renderChat()},2000);
+})();
+</script>
 </body>
 </html>
