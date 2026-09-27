@@ -109,6 +109,15 @@ document.addEventListener("DOMContentLoaded", function () {
         return "";
     }
 
+    function findAccountByPhone(phone, type) {
+        const normalized = String(phone || "").replace(/\\D/g, "");
+        if (!normalized) return null;
+        return read("apsan_accounts", []).find(a => {
+            if (type && a?.type !== type) return false;
+            return String(a?.phone || "").replace(/\\D/g, "") === normalized;
+        }) || null;
+    }
+
     function userAvatarMarkup(account, label) {
         const photo = getUserPhoto(account);
         if (photo) {
@@ -227,12 +236,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const studentList = document.getElementById("adminStudentsList");
         if (studentList) studentList.innerHTML = students.length ? students.map(a =>
-            `<div class="admin-row"><div class="admin-row-avatar">👤</div><div><strong>${esc(a.name || "Aluno")}</strong><small>${esc(a.phone || "")}</small></div></div>`
+            `<div class="admin-row">${userAvatarMarkup(a, a.name || "Aluno")}<div><strong>${esc(a.name || "Aluno")}</strong><small>${esc(a.phone || "")}</small></div><button type="button" class="admin-action view" data-view-user="${esc(a.id || a.phone || a.username || a.name || "")}">Ver perfil</button></div>`
         ).join("") : '<p class="admin-empty">Nenhum aluno registado.</p>';
 
         const courseList = document.getElementById("adminCoursesList");
         if (courseList) courseList.innerHTML = courses.length ? courses.map(p =>
-            `<div class="admin-row"><div class="admin-row-icon">📚</div><div><strong>${esc(p.course || "Curso")}</strong><small>${esc(p.teacherName || "Professor")} · ${esc(p.modality || "")}</small></div><span class="admin-status">${formatKz(p.price)}</span></div>`
+            `<div class="admin-row">${(() => { const t = findAccountByPhone(p.teacherPhone, "professor"); return t ? userAvatarMarkup(t, p.teacherName || t.name || "Professor") : '<div class="admin-row-icon">📚</div>'; })()}<div><strong>${esc(p.course || "Curso")}</strong><small>${esc(p.teacherName || "Professor")} · ${esc(p.modality || "")}</small></div><span class="admin-status">${formatKz(p.price)}</span></div>`
         ).join("") : '<p class="admin-empty">Nenhum curso publicado.</p>';
 
         const enrollmentList = document.getElementById("adminEnrollmentsList");
@@ -242,13 +251,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 '<span class="admin-status pending">Pendente</span>';
             const actions = e.status === "official" ? "" :
                 `<button type="button" class="admin-action approve" data-approve-enrollment="${esc(e.id)}">Aprovar</button><button type="button" class="admin-action reject" data-reject-enrollment="${esc(e.id)}">Rejeitar</button>`;
-            return `<div class="admin-row"><div class="admin-row-icon">▣</div><div><strong>${esc(e.course || "Curso")}</strong><small>${esc(e.studentName || "Aluno")} → ${esc(e.teacherName || "Professor")} · ${formatKz(e.price)}</small></div><div class="admin-actions"><button type="button" class="admin-action view" data-view-enrollment="${esc(e.id)}">Observar</button>${actions}<button type="button" class="admin-action edit" data-edit-enrollment="${esc(e.id)}">Editar</button></div>${status}</div>`;
+            return `<div class="admin-row">${(() => { const s = findAccountByPhone(e.studentPhone, "aluno"); const t = findAccountByPhone(e.teacherPhone, "professor"); return '<div class="admin-participants">' + (s ? userAvatarMarkup(s, e.studentName || "Aluno") : '<div class="admin-row-icon">👤</div>') + (t ? userAvatarMarkup(t, e.teacherName || "Professor") : '<div class="admin-row-icon">👨‍🏫</div>') + '</div>'; })()}<div><strong>${esc(e.course || "Curso")}</strong><small>${esc(e.studentName || "Aluno")} → ${esc(e.teacherName || "Professor")} · ${formatKz(e.price)}</small></div><div class="admin-actions"><button type="button" class="admin-action view" data-view-enrollment="${esc(e.id)}">Observar</button>${actions}<button type="button" class="admin-action edit" data-edit-enrollment="${esc(e.id)}">Editar</button></div>${status}</div>`;
         }).join("") : '<p class="admin-empty">Nenhuma matrícula registada.</p>';
 
         const payments = document.getElementById("adminPaymentsList");
         if (payments) payments.innerHTML = enrollments.length ? enrollments.map(e => {
             const status = e.paymentStatus === "confirmed" ? "Pagamento confirmado" : e.status === "rejected" ? "Pagamento rejeitado" : "Aguardando confirmação";
-            return `<div class="admin-row"><div class="admin-row-icon">💳</div><div><strong>${formatKz(e.price)}</strong><small>${esc(e.studentName || "Aluno")} · ${e.receipt ? "Comprovativo disponível" : "Sem comprovativo"} · Ref.: ${esc(e.paymentReference || "—")}</small></div><button type="button" class="admin-action view" data-view-enrollment="${esc(e.id)}">${e.receipt ? "Ver comprovativo" : "Observar"}</button><span class="admin-status ${e.status === "rejected" ? "rejected" : ""}">${esc(status)}</span></div>`;
+            return `<div class="admin-row">${(() => { const s = findAccountByPhone(e.studentPhone, "aluno"); return s ? userAvatarMarkup(s, e.studentName || "Aluno") : '<div class="admin-row-icon">💳</div>'; })()}<div><strong>${formatKz(e.price)}</strong><small>${esc(e.studentName || "Aluno")} · ${esc(e.teacherName || "Professor")} · ${e.receipt ? "Comprovativo disponível" : "Sem comprovativo"} · Ref.: ${esc(e.paymentReference || "—")}</small></div><button type="button" class="admin-action view" data-view-enrollment="${esc(e.id)}">${e.receipt ? "Ver comprovativo" : "Observar"}</button><span class="admin-status ${e.status === "rejected" ? "rejected" : ""}">${esc(status)}</span></div>`;
         }).join("") : '<p class="admin-empty">Nenhum pagamento registado.</p>';
 
         const moderation = document.getElementById("adminModerationList");
@@ -257,14 +266,14 @@ document.addEventListener("DOMContentLoaded", function () {
         const occurrences = document.getElementById("adminOccurrencesList");
         if (occurrences) {
             const rows = enrollments.filter(e => e.status === "rejected").map(e =>
-                `<div class="admin-row"><div class="admin-row-icon">❌</div><div><strong>Matrícula rejeitada</strong><small>${esc(e.studentName || "Aluno")} · ${esc(e.course || "Curso")} · ${esc(e.rejectionReason || "Sem motivo registado")}</small></div></div>`
+                `<div class="admin-row">${(() => { const s = findAccountByPhone(e.studentPhone, "aluno"); return s ? userAvatarMarkup(s, e.studentName || "Aluno") : '<div class="admin-row-icon">❌</div>'; })()}<div><strong>Matrícula rejeitada</strong><small>${esc(e.studentName || "Aluno")} · ${esc(e.course || "Curso")} · ${esc(e.rejectionReason || "Sem motivo registado")}</small></div></div>`
             );
             occurrences.innerHTML = rows.length ? rows.join("") : '<p class="admin-empty">Nenhuma ocorrência registada.</p>';
         }
 
         const activity = document.getElementById("adminActivityList");
         if (activity) {
-            const rows = courses.map(p => `<div class="admin-row"><div class="admin-row-icon">•</div><div><strong>Perfil publicado: ${esc(p.teacherName || "Professor")}</strong></div></div>`);
+            const rows = courses.map(p => `<div class="admin-row">${(() => { const t = findAccountByPhone(p.teacherPhone, "professor"); return t ? userAvatarMarkup(t, p.teacherName || "Professor") : '<div class="admin-row-icon">•</div>'; })()}<div><strong>Perfil publicado: ${esc(p.teacherName || "Professor")}</strong></div></div>`);
             activity.innerHTML = rows.length ? rows.slice(-12).reverse().join("") : '<p class="admin-empty">Ainda não existem atividades.</p>';
         }
     }
