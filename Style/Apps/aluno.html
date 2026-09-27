@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>APSAN Academy - Aluno</title>
-<link rel="stylesheet" href="../style.css?v=student-profile-20260926">
+<link rel="stylesheet" href="../style.css?v=20260927-student-materials-final">
 </head>
 <body class="app-page student-page">
 
@@ -1001,6 +1001,84 @@ document.addEventListener("DOMContentLoaded", function () {
         return "";
     }
 
+    function renderStudentMaterials() {
+        const content = document.getElementById("studentMaterialsContent");
+        const count = document.getElementById("studentMaterialsCount");
+        if (!content) return;
+
+        const official = getEnrollments().filter(function (item) {
+            return currentAccount &&
+                item.studentPhone === currentAccount.phone &&
+                item.status === "official";
+        });
+
+        const seen = {};
+        const materials = [];
+
+        official.forEach(function (enrollment) {
+            let teacherMaterials = [];
+            try {
+                teacherMaterials = JSON.parse(localStorage.getItem("apsan_professor_materials_" + enrollment.teacherPhone) || "[]");
+            } catch (error) {
+                teacherMaterials = [];
+            }
+
+            teacherMaterials.filter(function (item) {
+                return item && item.published !== false;
+            }).forEach(function (material) {
+                const key = String(material.id || "") + "|" + String(enrollment.teacherPhone || "");
+                if (seen[key]) return;
+                seen[key] = true;
+                materials.push({
+                    material: material,
+                    teacherName: enrollment.teacherName || "Professor",
+                    course: material.course || enrollment.course || "Curso"
+                });
+            });
+        });
+
+        if (count) count.textContent = materials.length;
+
+        if (!materials.length) {
+            content.innerHTML = '<div class="empty-state"><strong>Nenhum material disponível ainda.</strong><p>Quando um professor disponibilizar materiais para o seu curso, eles aparecerão aqui.</p></div>';
+            return;
+        }
+
+        content.innerHTML = materials.map(function (entry) {
+            const material = entry.material;
+            const resource = material.link || material.fileData || "";
+            const safe = safeHttpUrl(material.link || "");
+            const openUrl = safe || material.fileData || "";
+            const cover = material.coverData
+                ? '<div class="student-material-cover"><img src="' + esc(material.coverData) + '" alt="Capa de ' + esc(material.title) + '"></div>'
+                : '<div class="student-material-cover student-material-cover-empty">📚</div>';
+
+            let media = "";
+            if (material.type === "Vídeo" && youtubeEmbedUrl(material.link || "")) {
+                media = '<div class="classroom-video"><iframe src="' + esc(youtubeEmbedUrl(material.link || "")) + '" title="' + esc(material.title) + '" allowfullscreen></iframe></div>';
+            } else if (material.type === "Vídeo" && safe && /.(mp4|webm|ogg)(\?.*)?$/i.test(safe)) {
+                media = '<div class="classroom-video"><video controls preload="metadata" src="' + esc(safe) + '"></video></div>';
+            }
+
+            const action = openUrl
+                ? '<a class="classroom-material-link student-material-open" href="' + esc(openUrl) + '" target="_blank" rel="noopener">Abrir material →</a>'
+                : '<span class="student-material-unavailable">Material sem arquivo ou link</span>';
+
+            return '<article class="student-material-card">' +
+                cover +
+                '<div class="student-material-info">' +
+                    '<span class="student-material-type">' + esc(material.type || "Material") + '</span>' +
+                    '<h3>' + esc(material.title || "Material") + '</h3>' +
+                    '<p>' + esc(material.description || "Material disponibilizado pelo professor.") + '</p>' +
+                    '<small>👨‍🏫 ' + esc(entry.teacherName) + ' · 📚 ' + esc(entry.course) + '</small>' +
+                    (material.fileName ? '<small>📎 ' + esc(material.fileName) + '</small>' : '') +
+                    media +
+                    action +
+                '</div>' +
+            '</article>';
+        }).join("");
+    }
+
     function renderClassroom() {
         const classroom = document.getElementById("classroomContent");
         const classroomCount = document.getElementById("classroomCount");
@@ -1146,6 +1224,7 @@ document.addEventListener("DOMContentLoaded", function () {
     renderTeachers();
     renderEnrollments();
     renderClassroom();
+    renderStudentMaterials();
     restoreStudentPanelView();
 });
 </script>
