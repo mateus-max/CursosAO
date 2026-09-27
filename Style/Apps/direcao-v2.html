@@ -58,14 +58,19 @@
             </div>
         </section>
 
-        <section class="admin-metrics professor-stats professor-compact-stats" id="admin-metrics">
-            <article class="admin-metric"><span>👥</span><div><strong id="adminUserCount">0</strong><small>Utilizadores</small></div></article>
-            <article class="admin-metric"><span>🎓</span><div><strong id="adminTeacherCount">0</strong><small>Professores</small></div></article>
-            <article class="admin-metric"><span>👤</span><div><strong id="adminStudentCount">0</strong><small>Alunos</small></div></article>
-            <article class="admin-metric"><span>📚</span><div><strong id="adminCourseCount">0</strong><small>Cursos publicados</small></div></article>
-            <article class="admin-metric"><span>▣</span><div><strong id="adminEnrollmentMetric">0</strong><small>Matrículas</small></div></article>
-            <article class="admin-metric"><span>💳</span><div><strong id="adminPaymentMetric">0</strong><small>Pagamentos</small></div></article>
-            <article class="admin-metric"><span>💰</span><div><strong id="adminFinanceMetric">0 Kz</strong><small>Financeiro</small></div></article>
+        <section class="admin-metrics professor-stats professor-compact-stats" id="admin-metrics" aria-label="Resumo da Direção">
+            <a class="admin-metric admin-dashboard-stat" href="#admin-users" aria-label="Abrir Utilizadores">
+                <span>👥</span><div><strong id="adminUserCount">0</strong><small>Utilizadores</small></div>
+            </a>
+            <a class="admin-metric admin-dashboard-stat" href="#admin-teachers" aria-label="Abrir Professores">
+                <span>🎓</span><div><strong id="adminTeacherCount">0</strong><small>Professores</small></div>
+            </a>
+            <a class="admin-metric admin-dashboard-stat" href="#admin-students" aria-label="Abrir Alunos">
+                <span>👤</span><div><strong id="adminStudentCount">0</strong><small>Alunos</small></div>
+            </a>
+            <a class="admin-metric admin-dashboard-stat" href="#admin-courses" aria-label="Abrir Cursos">
+                <span>📚</span><div><strong id="adminCourseCount">0</strong><small>Cursos publicados</small></div>
+            </a>
         </section>
 
     </section>
@@ -185,6 +190,20 @@
 }
 .admin-virtual-card{margin-bottom:12px;padding:15px;border-radius:16px;background:linear-gradient(135deg,#0b4d91,#123c69);color:#fff;box-shadow:0 12px 28px rgba(11,77,145,.2);overflow:hidden;position:relative}.admin-virtual-card-top,.admin-virtual-card-bottom{display:flex;justify-content:space-between;gap:10px;align-items:center}.admin-virtual-card-top{font-size:10px;font-weight:900;letter-spacing:.08em}.admin-virtual-card-chip{width:38px;height:27px;border-radius:7px;background:#d8b45a;margin:18px 0 10px}.admin-virtual-card-number{font-size:17px;letter-spacing:.12em;font-weight:800}.admin-virtual-card-bottom{margin-top:16px;font-size:11px}.admin-virtual-card-bottom span{font-size:13px;font-weight:900}</style>
 <style>
+/* Direção: dashboard compacto; as funções operacionais ficam no menu. */
+.admin-dashboard-stat{
+    text-decoration:none;
+    color:inherit;
+    cursor:pointer;
+}
+.admin-dashboard-stat:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 24px rgba(17,45,80,.08);
+}
+.admin-dashboard-stat:focus-visible{
+    outline:3px solid rgba(23,105,224,.22);
+    outline-offset:2px;
+}
 /* Direção: uma área por vez, exatamente como a navegação dos painéis de aluno/professor. */
 body.admin-page .admin-grid{
     display:block !important;
