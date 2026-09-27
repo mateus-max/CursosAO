@@ -5463,3 +5463,67 @@ body.apsan-wallpaper-default .professor-tech-scene{
 .wp-digital-aurora{background-image:url("assets/themes/dashboard-digital-aurora.svg") !important;background-size:cover}
 .wp-education-future{background-image:url("assets/themes/dashboard-education-future.svg") !important;background-size:cover}
 .wp-apsan-premium{background-image:url("assets/themes/dashboard-apsan-premium.svg") !important;background-size:cover}
+
+
+/* MINIATURAS REAIS — SELETOR DE PAPEL DE PAREDE */
+.apsan-wallpaper-options .wallpaper-preview{
+    position:absolute !important;
+    inset:0 !important;
+    display:block !important;
+    width:100% !important;
+    height:100% !important;
+    opacity:1 !important;
+    background-position:center center !important;
+    background-repeat:no-repeat !important;
+    background-size:cover !important;
+    z-index:0 !important;
+}
+.apsan-wallpaper-options button{
+    position:relative !important;
+    overflow:hidden !important;
+    isolation:isolate;
+}
+.apsan-wallpaper-options button strong{
+    position:relative !important;
+    z-index:2 !important;
+}
+.apsan-wallpaper-options .wp-default{
+    background-image:url("assets/apsan-cena-aprovada.webp") !important;
+    background-size:cover !important;
+}
+.apsan-wallpaper-options .wp-blue-wave{
+    background-image:url("assets/themes/dashboard-blue-wave.svg") !important;
+}
+.apsan-wallpaper-options .wp-study-space{
+    background-image:url("assets/themes/dashboard-study-space.svg") !important;
+}
+.apsan-wallpaper-options .wp-global-network{
+    background-image:url("assets/themes/dashboard-global-network.svg") !important;
+}
+.apsan-wallpaper-options .wp-library{
+    background-image:url("assets/themes/dashboard-library.svg") !important;
+}
+.apsan-wallpaper-options .wp-clean-minimal{
+    background-image:url("assets/themes/dashboard-clean-minimal.svg") !important;
+}
+.apsan-wallpaper-options .wp-serene-nature{
+    background-image:url("assets/themes/dashboard-serene-nature.svg") !important;
+}
+.apsan-wallpaper-options .wp-academic-night{
+    background-image:url("assets/themes/dashboard-academic-night.svg") !important;
+}
+.apsan-wallpaper-options .wp-creativity{
+    background-image:url("assets/themes/dashboard-creativity.svg") !important;
+}
+.apsan-wallpaper-options .wp-global-education{
+    background-image:url("assets/themes/dashboard-global-education.svg") !important;
+}
+.apsan-wallpaper-options .wp-digital-aurora{
+    background-image:url("assets/themes/dashboard-digital-aurora.svg") !important;
+}
+.apsan-wallpaper-options .wp-education-future{
+    background-image:url("assets/themes/dashboard-education-future.svg") !important;
+}
+.apsan-wallpaper-options .wp-apsan-premium{
+    background-image:url("assets/themes/dashboard-apsan-premium.svg") !important;
+}
