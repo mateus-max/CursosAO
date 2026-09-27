@@ -713,16 +713,63 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function hasRestrictedData(text) {
-    const value = text.toLowerCase();
+    /*
+     * Bloqueio reforçado de dados de contacto e financeiros.
+     * A verificação é feita antes de guardar a mensagem, portanto o
+     * conteúdo recusado nunca entra em apsan_messages nem gera notificação.
+     */
+    const value = String(text || "")
+      .normalize("NFKC")
+      .toLowerCase()
+      .replace(/[‐‑‒–—−]/g, "-");
+
     const terms = [
-      "iban", "nib", "swift", "bfa", "multicaixa", "multicaixa express",
-      "conta bancária", "conta bancaria", "dados bancários", "dados bancarios",
-      "transferência bancária", "transferencia bancaria", "comprovativo",
-      "comprovativo de pagamento", "pagamento", "referência de pagamento",
-      "referencia de pagamento", "cartão bancário", "cartao bancario",
-      "número da conta", "numero da conta", "código bancário", "codigo bancario"
+      /* Identificadores bancários / pagamento */
+      "iban", "nib", "ibn", "swift", "bic", "bfa",
+      "multicaixa", "multicaixa express", "multicaixa-express",
+      "mcx", "mcx express", "mcx-express",
+      "conta bancária", "conta bancaria", "número da conta", "numero da conta",
+      "nº da conta", "no da conta", "n. da conta", "dados bancários", "dados bancarios",
+      "dados de pagamento", "informações bancárias", "informacoes bancarias",
+      "informação bancária", "informacao bancaria",
+      "transferência bancária", "transferencia bancaria",
+      "transferência", "transferencia", "pagamento",
+      "comprovativo", "comprovativo de pagamento",
+      "referência de pagamento", "referencia de pagamento",
+      "referência multicaixa", "referencia multicaixa",
+      "código bancário", "codigo bancario", "código de banco", "codigo de banco",
+      "cartão bancário", "cartao bancario", "cartão multicaixa", "cartao multicaixa"
     ];
-    return terms.some(function (term) { return value.includes(term); }) || /\b\d{10,}\b/.test(value);
+
+    if (terms.some(function (term) { return value.includes(term); })) {
+      return true;
+    }
+
+    /*
+     * Telefone angolano: 9 dígitos nacionais, inclusive quando escritos
+     * com espaços/hífens/pontos ou com o indicativo internacional +244.
+     * Ex.: 923456789, 923 456 789, 923-456-789, +244 923 456 789.
+     */
+    const phonePattern = /(?<!\\d)(?:\\+?244[\\s.-]*)?(?:9\\d{2}[\\s.-]*\\d{3}[\\s.-]*\\d{3})(?!\\d)/;
+    if (phonePattern.test(value)) {
+      return true;
+    }
+
+    /*
+     * Números longos escritos diretamente ou formatados como blocos:
+     * protege contra tentativas simples de contornar o bloqueio de contas
+     * e referências numéricas.
+     */
+    if (/\\b\\d{10,}\\b/.test(value)) {
+      return true;
+    }
+
+    /* Número de contacto/telefone acompanhado de qualquer formatação. */
+    if (/(?:telefone|telemóvel|telemovel|contacto|contato|whatsapp|whats)\\s*[:=.-]?\\s*(?:\\+?\\d[\\d\\s().-]{7,})/i.test(value)) {
+      return true;
+    }
+
+    return false;
   }
 
   function unreadForMe() {
