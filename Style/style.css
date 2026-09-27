@@ -4147,3 +4147,215 @@ main.single-panel-mode{padding-bottom:110px}
         width:24% !important;
     }
 }
+
+/* =========================================================
+   MEUS ALUNOS — ÁREA PROFISSIONAL
+   ========================================================= */
+.professor-students-heading{
+    align-items:flex-start;
+}
+.professor-students-heading h2{
+    margin-top:4px;
+    font-size:25px;
+}
+.professor-section-description{
+    margin:5px 0 0;
+    color:#7a8798;
+    font-size:12px;
+    line-height:1.4;
+}
+.professor-student-total{
+    min-width:34px;
+    height:34px;
+    margin-top:2px;
+    font-size:13px;
+}
+.professor-student-overview{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin:16px 0;
+}
+.professor-student-overview>div{
+    min-height:62px;
+    padding:10px 12px;
+    display:grid;
+    grid-template-columns:auto 1fr;
+    grid-template-rows:1fr 1fr;
+    column-gap:9px;
+    align-items:center;
+    background:#f7faff;
+    border:1px solid #e4edf8;
+    border-radius:14px;
+}
+.professor-student-overview span{
+    grid-row:1 / span 2;
+    font-size:17px;
+}
+.professor-student-overview strong{
+    color:#172033;
+    font-size:18px;
+    line-height:1;
+}
+.professor-student-overview small{
+    color:#8290a3;
+    font-size:10px;
+}
+.professor-student-tools{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin:0 0 8px;
+}
+.professor-student-search{
+    min-width:0;
+    flex:1;
+    height:40px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:0 12px;
+    box-sizing:border-box;
+    background:#fff;
+    border:1px solid #dfe8f3;
+    border-radius:12px;
+}
+.professor-student-search span{
+    color:#1769e0;
+    font-size:20px;
+    line-height:1;
+}
+.professor-student-search input{
+    width:100%;
+    min-width:0;
+    border:0;
+    outline:0;
+    background:transparent;
+    color:#172033;
+    font:inherit;
+    font-size:12px;
+}
+.professor-student-search input::placeholder{color:#9aa6b5}
+.professor-student-filters{
+    display:flex;
+    gap:5px;
+    padding:4px;
+    background:#f4f7fb;
+    border-radius:12px;
+}
+.student-filter{
+    border:0;
+    border-radius:9px;
+    padding:7px 9px;
+    background:transparent;
+    color:#7b8797;
+    cursor:pointer;
+    font:inherit;
+    font-size:10px;
+    font-weight:800;
+}
+.student-filter.active{
+    background:#eaf3ff;
+    color:#1769e0;
+}
+.professor-student-row{
+    min-height:78px;
+    margin:8px 0;
+    padding:12px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:#fff;
+    border:1px solid #e5edf6;
+    border-radius:14px;
+    box-shadow:0 4px 14px rgba(20,55,100,.04);
+}
+.professor-student-row .module-row-icon{
+    width:42px;
+    height:42px;
+    flex-basis:42px;
+    border-radius:12px;
+    font-size:18px;
+}
+.professor-student-row strong{
+    font-size:14px;
+}
+.professor-student-row small{
+    font-size:11px;
+}
+.professor-student-status{
+    margin-left:auto;
+    align-self:flex-start;
+    padding:5px 8px;
+    border-radius:999px;
+    background:#edf9ef;
+    color:#27823d;
+    font-size:9px;
+    font-weight:800;
+    white-space:nowrap;
+}
+.professor-student-status.inactive{
+    background:#f2f4f7;
+    color:#7c8795;
+}
+.professor-student-upcoming{
+    margin-top:18px;
+    padding:16px;
+    background:linear-gradient(135deg,#f7faff,#eef6ff);
+    border:1px solid #dce9f7;
+    border-radius:16px;
+}
+.professor-upcoming-heading{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:7px;
+}
+.professor-upcoming-heading h3{
+    margin:4px 0 0;
+    color:#172033;
+    font-size:16px;
+}
+.professor-upcoming-heading a{
+    color:#1769e0;
+    font-size:11px;
+    font-weight:800;
+    text-decoration:none;
+}
+.professor-upcoming-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 0;
+    border-top:1px solid #dfeaf6;
+}
+.professor-upcoming-date{
+    min-width:52px;
+    padding:7px 5px;
+    border-radius:10px;
+    background:#fff;
+    color:#1769e0;
+    text-align:center;
+    font-size:10px;
+    font-weight:800;
+}
+.professor-upcoming-row strong,
+.professor-upcoming-row small{
+    display:block;
+}
+.professor-upcoming-row strong{font-size:12px;color:#172033}
+.professor-upcoming-row small{margin-top:3px;font-size:10px;color:#7d8999}
+
+@media(max-width:620px){
+    .professor-students-heading h2{font-size:23px}
+    .professor-student-overview{gap:7px}
+    .professor-student-overview>div{padding:9px 8px}
+    .professor-student-overview strong{font-size:16px}
+    .professor-student-tools{display:block}
+    .professor-student-search{width:100%;margin-bottom:7px}
+    .professor-student-filters{width:max-content;max-width:100%}
+    .student-filter{padding:7px 10px}
+    .professor-student-row{align-items:flex-start}
+    .professor-student-status{font-size:8px;padding:5px 7px}
+}
