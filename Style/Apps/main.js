@@ -1671,14 +1671,34 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 const combined = students.concat(official);
                 const seen = {};
-                students = combined.filter(function (item) {
-                    const phoneKey = String(item.studentPhone || "").replace(/\D/g, "");
+                students = combined.reduce(function (result, item) {
+                    const phoneKey = String(item.studentPhone || item.phone || "").replace(/\D/g, "");
                     const nameKey = String(item.studentName || item.name || "").trim().toLowerCase().replace(/\s+/g, " ");
                     const key = phoneKey ? "phone:" + phoneKey : (nameKey ? "name:" + nameKey : "id:" + String(item.id || ""));
-                    if (seen[key]) return false;
-                    seen[key] = true;
-                    return true;
-                });
+
+                    const account = findStudentAccount(item.studentPhone || item.phone);
+                    const accountPhoto = account
+                        ? (account.photo || account.profilePhoto || account.avatar || "")
+                        : "";
+
+                    if (seen[key]) {
+                        const existing = seen[key];
+                        existing.photo = existing.photo || existing.profilePhoto || accountPhoto;
+                        existing.profilePhoto = existing.profilePhoto || existing.photo || accountPhoto;
+                        existing.name = existing.name || item.name || item.studentName;
+                        existing.course = existing.course || item.course || item.courseName;
+                        return result;
+                    }
+
+                    const mergedItem = Object.assign({}, item);
+                    if (accountPhoto) {
+                        mergedItem.photo = mergedItem.photo || mergedItem.profilePhoto || accountPhoto;
+                        mergedItem.profilePhoto = mergedItem.profilePhoto || mergedItem.photo || accountPhoto;
+                    }
+                    seen[key] = mergedItem;
+                    result.push(mergedItem);
+                    return result;
+                }, []);
             }
         } catch (error) {
             /* mantém os dados antigos se existirem */
