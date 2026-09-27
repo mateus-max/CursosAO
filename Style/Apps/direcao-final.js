@@ -288,9 +288,23 @@ document.addEventListener("DOMContentLoaded", function () {
         }).join("") : '<p class="admin-empty">Nenhum professor registado.</p>';
 
         const studentList = document.getElementById("adminStudentsList");
-        if (studentList) studentList.innerHTML = students.length ? students.map(a =>
-            (() => { const approval = getAccountApprovalState(a); const key = getAccountKey(a); const decisionButtons = approval === "pending" ? '<button type="button" class="admin-action approve" data-approve-account="' + esc(key) + '">Aprovar</button><button type="button" class="admin-action reject" data-reject-account="' + esc(key) + '">Rejeitar</button>' : approval === "rejected" ? '<button type="button" class="admin-action approve" data-approve-account="' + esc(key) + '">Aprovar</button>' : '<button type="button" class="admin-action reject" data-reject-account="' + esc(key) + '">Rejeitar</button>'; return `<div class="admin-row">${userAvatarMarkup(a, a.name || "Aluno")}<div><strong>${esc(a.name || "Aluno")}</strong><small>${esc(a.phone || "")}</small></div><div class="admin-actions"><button type="button" class="admin-action view" data-view-user="${esc(key)}">Ver perfil</button>${decisionButtons}</div><span class="admin-status ${approval === "pending" ? "pending" : approval === "rejected" ? "rejected" : ""}">${approval === "pending" ? "Pendente" : approval === "rejected" ? "Rejeitado" : "Oficial"}</span></div>`; })()`
-        ).join("") : '<p class="admin-empty">Nenhum aluno registado.</p>';
+        if (studentList) studentList.innerHTML = students.length ? students.map(a => {
+            const approval = getAccountApprovalState(a);
+            const key = getAccountKey(a);
+            const decisionButtons = approval === "pending"
+                ? '<button type="button" class="admin-action approve" data-approve-account="' + esc(key) + '">Aprovar</button><button type="button" class="admin-action reject" data-reject-account="' + esc(key) + '">Rejeitar</button>'
+                : approval === "rejected"
+                    ? '<button type="button" class="admin-action approve" data-approve-account="' + esc(key) + '">Aprovar</button>'
+                    : '<button type="button" class="admin-action reject" data-reject-account="' + esc(key) + '">Rejeitar</button>';
+            const statusText = approval === "pending" ? "Pendente" : approval === "rejected" ? "Rejeitado" : "Oficial";
+            const statusClass = approval === "pending" ? "pending" : approval === "rejected" ? "rejected" : "";
+            return '<div class="admin-row">' +
+                userAvatarMarkup(a, a.name || "Aluno") +
+                '<div><strong>' + esc(a.name || "Aluno") + '</strong><small>' + esc(a.phone || "") + '</small></div>' +
+                '<div class="admin-actions"><button type="button" class="admin-action view" data-view-user="' + esc(key) + '">Ver perfil</button>' + decisionButtons + '</div>' +
+                '<span class="admin-status ' + statusClass + '">' + statusText + '</span>' +
+                '</div>';
+        }).join("") : '<p class="admin-empty">Nenhum aluno registado.</p>';
 
         const courseList = document.getElementById("adminCoursesList");
         if (courseList) courseList.innerHTML = allCourses.length ? allCourses.map(p => {
