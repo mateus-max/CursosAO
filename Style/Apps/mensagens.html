@@ -750,7 +750,7 @@ document.addEventListener("DOMContentLoaded", function () {
      * com espaços/hífens/pontos ou com o indicativo internacional +244.
      * Ex.: 923456789, 923 456 789, 923-456-789, +244 923 456 789.
      */
-    const phonePattern = /(?<!\\d)(?:\\+?244[\\s.-]*)?(?:9\\d{2}[\\s.-]*\\d{3}[\\s.-]*\\d{3})(?!\\d)/;
+    const phonePattern = /(?<!\d)(?:\+?244[\s.-]*)?(?:9\d{2}[\s.-]*\d{3}[\s.-]*\d{3})(?!\d)/;
     if (phonePattern.test(value)) {
       return true;
     }
@@ -760,12 +760,12 @@ document.addEventListener("DOMContentLoaded", function () {
      * protege contra tentativas simples de contornar o bloqueio de contas
      * e referências numéricas.
      */
-    if (/\\b\\d{10,}\\b/.test(value)) {
+    if (/\b\d{10,}\b/.test(value)) {
       return true;
     }
 
     /* Número de contacto/telefone acompanhado de qualquer formatação. */
-    if (/(?:telefone|telemóvel|telemovel|contacto|contato|whatsapp|whats)\\s*[:=.-]?\\s*(?:\\+?\\d[\\d\\s().-]{7,})/i.test(value)) {
+    if (/(?:telefone|telemóvel|telemovel|contacto|contato|whatsapp|whats)\s*[:=.-]?\s*(?:\+?\d[\d\s().-]{7,})/i.test(value)) {
       return true;
     }
 
