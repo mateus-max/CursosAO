@@ -1062,9 +1062,50 @@ document.addEventListener("DOMContentLoaded", function () {
             const profiles = JSON.parse(
                 localStorage.getItem("apsan_professors") || "[]"
             );
-            return Array.isArray(profiles) ? profiles.filter(function (p) {
-                return p && p.published;
-            }) : [];
+            const list = Array.isArray(profiles) ? profiles : [];
+
+            let accounts = [];
+            try {
+                const storedAccounts = JSON.parse(
+                    localStorage.getItem("apsan_accounts") || "[]"
+                );
+                accounts = Array.isArray(storedAccounts) ? storedAccounts : [];
+            } catch (error) {
+                accounts = [];
+            }
+
+            function normalizeProfilePhone(value) {
+                return String(value || "").replace(/\D/g, "").slice(-9);
+            }
+
+            return list
+                .filter(function (p) {
+                    return p && p.published;
+                })
+                .map(function (profile) {
+                    const teacherPhone = normalizeProfilePhone(profile.teacherPhone);
+                    const account = accounts.find(function (item) {
+                        return item &&
+                            item.type === "professor" &&
+                            normalizeProfilePhone(item.phone) === teacherPhone;
+                    });
+
+                    if (!account) return profile;
+
+                    /*
+                     * A conta é a fonte mais recente dos dados pessoais.
+                     * Assim, uma bio/província/país alterados no perfil
+                     * continuam visíveis mesmo quando o perfil público
+                     * foi publicado anteriormente.
+                     */
+                    return Object.assign({}, profile, {
+                        teacherName: account.name || profile.teacherName || "Professor",
+                        teacherPhoto: account.photo || profile.teacherPhoto || "",
+                        bio: account.bio || profile.bio || "",
+                        province: account.province || profile.province || "",
+                        country: account.country || profile.country || ""
+                    });
+                });
         } catch (error) {
             return [];
         }
