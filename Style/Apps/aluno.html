@@ -900,6 +900,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const settings = apsanPendingSettings || (window.APSANSettings ? window.APSANSettings.get() : {});
         if (window.APSANSettings) window.APSANSettings.save(settings);
         if (apsanSettingsStatus) apsanSettingsStatus.textContent = settings.language === "en" ? "Saved and applied automatically." : "Guardado e aplicado automaticamente.";
+        // Depois de guardar, o seletor fecha sozinho e o dashboard fica visível.
+        closeApsanSettings();
         if (settings.language === "en") {
             setTimeout(function () { window.location.reload(); }, 250);
         }
