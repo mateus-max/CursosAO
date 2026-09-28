@@ -219,6 +219,20 @@ async function publishPresence(){
     if(f&&f.db)f.db.ref(presenceRoot+"/"+peerKey).onDisconnect().set(Object.assign({},data,{state:"disconnected",connection:"disconnected",updatedAt:Date.now()}));
   }catch(_){}
 }
+function renderConnectedParticipant(k,p){
+  if(role!=="professor")return null;
+  const list=document.getElementById("participantList");if(!list)return null;
+  let item=list.querySelector('[data-live-participant="'+CSS.escape(k)+'"]');
+  if(!item){
+    item=document.createElement("div");item.className="participant";item.dataset.liveParticipant=k;
+    const accounts=readJsonStorage("apsan_accounts",[]);
+    const a=Array.isArray(accounts)?accounts.find(x=>x&&normalize(x.phone)===normalize(k))||{}:{};
+    item.innerHTML='<div class="participant-avatar">'+(a.photo?'<img src="'+esc(a.photo)+'">':esc(String(a.name||p.name||"A").charAt(0)))+'</div><div><strong>'+esc(a.name||p.name||"Aluno")+'</strong><small class="live-participant-status"><span class="live-status-dot on"></span>A entrar na aula</small></div>';
+    list.appendChild(item);
+  }
+  return item;
+}
+function removeDisconnectedParticipant(k){if(role!=="professor")return;const item=document.querySelector('[data-live-participant="'+CSS.escape(k)+'"]');if(item)item.remove();}
 function listenPresence(){
   const c=cloud();if(!c)return;
   mediaListeners.push(c.listen(presenceRoot,(all)=>{
@@ -226,7 +240,7 @@ function listenPresence(){
     Object.keys(all).forEach(k=>{
       if(k===peerKey)return;
       const p=all[k]||{};
-      const item=document.querySelector('[data-live-participant="'+CSS.escape(k)+'"]');
+      const item=(role==="professor"&&p.role==="aluno"&&p.state!=="disconnected"&&p.state!=="ended")?renderConnectedParticipant(k,p):document.querySelector('[data-live-participant="'+CSS.escape(k)+'"]');
       if(item){
         const status=item.querySelector(".live-participant-status");
         const ns=p.network==="weak"?"weak":(p.state==="disconnected"||p.network==="offline"?"off":"on");
@@ -557,7 +571,7 @@ function listenTeacherPeers(){
     if(!all||typeof all!=="object")return;
     for(const p of Object.keys(all)){
       if(p===peerKey)continue;
-      const d=all[p];if(!d||!d.offer)continue;
+      const d=all[p];if(!d||!d.offer||d.targetRole==="aluno")continue;
       if(!peerConnections[p]){makeTeacherPeer(p,d);continue}
       const pc=peerConnections[p];
       const nextSdp=String(d.offer.sdp||"");
@@ -644,6 +658,8 @@ function publishBoardSnapshot(){
 function bindTeacherBoardSync(){
   if(role!=="professor")return;
   ["pointerup","pointercancel"].forEach(ev=>canvas.addEventListener(ev,publishBoardSnapshot));
+  let lastBoardPush=0;
+  canvas.addEventListener("pointermove",()=>{if(drawing&&Date.now()-lastBoardPush>180){lastBoardPush=Date.now();publishBoardSnapshot();}});
   const originalSet=localStorage.setItem.bind(localStorage);
   window.addEventListener("apsan-cloud-sync",e=>{
     if(e.detail&&e.detail.key===liveObjectsKey())window.dispatchEvent(new Event("apsan-board-remote"));
