@@ -370,7 +370,9 @@ async function setCamera(on){
     }else{stopMedia("video");cameraOn=false;await replaceAllSenders("video",null)}
     const v=document.getElementById("localCamera");if(v)v.srcObject=cameraStream||null;
     if(v&&cameraStream)v.play().catch(()=>{});
-    showLocalCamera();updateButton("toggleCamera",cameraOn?"<span>▣</span>Desligar câmara":"<span>▣</span>Ligar câmara");
+    showLocalCamera();
+    if(role==="professor")ensureTeacherSelfTile();
+    updateButton("toggleCamera",cameraOn?"<span>▣</span>Desligar câmara":"<span>▣</span>Ligar câmara");
     await publishPresence();toast(cameraOn?"Câmara ligada e partilhada na aula.":"Câmara desligada.");
   }catch(e){toast("Não foi possível ativar a câmara. Verifique a permissão do navegador.");}
 }
@@ -418,9 +420,40 @@ async function measureNetwork(){
     publishPresence();
   }catch(_){}
 }
+function clearEndedSession(){
+  try{
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    localStorage.removeItem(liveBoardKey());
+    localStorage.removeItem(liveObjectsKey());
+    localStorage.removeItem("apsan_board_documents_"+liveId);
+    document.getElementById("boardEmpty")?.classList.remove("hidden");
+    document.getElementById("participantList")?.replaceChildren();
+    document.getElementById("participantVideoGrid")?.replaceChildren();
+  }catch(_){}
+}
 function markClassEnded(){
-  classActive=false;networkState="offline";publishPresence();
+  classActive=false;networkState="offline";
+  try{stopMedia("video");stopMedia("audio")}catch(_){}
+  cleanupPeers();
+  clearEndedSession();
+  publishPresence();
   document.querySelectorAll(".classroom-bottom button").forEach(b=>{if(b.id!=="leaveClass")b.disabled=true});
+}
+function listenLiveEnd(){
+  const c=cloud();if(!c||!liveId)return;
+  mediaListeners.push(c.listen("appData/apsan_live_classes",data=>{
+    const item=Array.isArray(data)?data.find(x=>x&&x.id===liveId):(data&&data[liveId]);
+    if(item&&item.active===false&&!classActive)return;
+    if(!item||item.active!==true){
+      if(classActive){
+        markClassEnded();
+        if(role==="aluno"){
+          toast("Aula encerrada pelo professor.");
+          setTimeout(()=>{location.href="aluno.html#classroom"},900);
+        }
+      }
+    }
+  }));
 }
 async function ensureClassIsActive(){
   try{
@@ -730,6 +763,7 @@ async function boot(){
   addStyle();makeStudentTools();makeTeacherPointerTools();bindMediaButtons();bindPointerTracking();listenPointers();listenPresence();bindBoardSync();patchLocalStorageObjectSync();
   classActive=await ensureClassIsActive();
   if(!classActive){markClassEnded();return}
+  listenLiveEnd();
   bindLiveChat();
   if(role==="aluno"){bindStudentBoard();listenStudentControls();makeStudentPeer().catch(()=>{});listenStudentPeers();}
   else{listenTeacherPeers();addTeacherControls();}
