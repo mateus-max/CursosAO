@@ -129,22 +129,28 @@
     }catch(_){return false}
   }
   function formatDate(v){try{return new Date(v).toLocaleString("pt-PT")}catch(_){return v||""}}
+  async function watchRecording(id,url,title){
+    if(url){open(url,title);return}
+    const local=(await localRecordingItems()).find(x=>x&&x.id===id);
+    if(local&&local.blob){const objectUrl=URL.createObjectURL(local.blob);open(objectUrl,title);return}
+    alert("O vídeo desta aula ainda não está disponível neste dispositivo.");
+  }
   async function renderProfessor(targetId){
     const box=document.getElementById(targetId);if(!box)return;
     const account=(()=>{try{return JSON.parse(localStorage.getItem("apsan_account")||"{}")}catch(_){return {}}})();
     const items=await listOnline();
     const mine=items.filter(x=>accessible(x,account)&&String(x.teacherPhone)===cleanPhone(account.phone));
     if(!mine.length){box.innerHTML='<div class="recording-archive-empty">Nenhuma aula gravada arquivada ainda. Quando terminar uma gravação, ela ficará guardada aqui.</div>';return}
-    box.innerHTML=mine.map(item=>'<article class="recording-archive-card"><div class="recording-archive-info"><span>🎥 AULA GRAVADA</span><h3>'+esc(item.title||"Aula gravada")+'</h3><p>📚 '+esc(item.course||"Curso")+' · '+formatDate(item.createdAt)+'</p><small>Alunos da aula: '+((item.studentPhones||[]).length)+'</small></div><button type="button" class="recording-watch-button" data-recording-url="'+esc(item.videoUrl||"")+'">▶ Assistir aula</button></article>').join("");
-    box.querySelectorAll("[data-recording-url]").forEach(btn=>btn.onclick=()=>window.APSANRecordings.open(btn.getAttribute("data-recording-url"),"Aula gravada"));
+    box.innerHTML=mine.map(item=>'<article class="recording-archive-card"><div class="recording-archive-info"><span>🎥 AULA GRAVADA</span><h3>'+esc(item.title||"Aula gravada")+'</h3><p>📚 '+esc(item.course||"Curso")+' · '+formatDate(item.createdAt)+'</p><small>Alunos da aula: '+((item.studentPhones||[]).length)+'</small></div><button type="button" class="recording-watch-button" data-recording-id="'+esc(item.id||"")+'" data-recording-url="'+esc(item.videoUrl||"")+'">▶ Assistir aula</button></article>').join("");
+    box.querySelectorAll("[data-recording-url]").forEach(btn=>btn.onclick=()=>watchRecording(btn.getAttribute("data-recording-id"),btn.getAttribute("data-recording-url"),"Aula gravada"));
   }
   async function renderStudent(targetId){
     const box=document.getElementById(targetId);if(!box)return;
     const account=(()=>{try{return JSON.parse(localStorage.getItem("apsan_account")||"{}")}catch(_){return {}}})();
     const items=(await listOnline()).filter(x=>accessible(x,account));
     if(!items.length){box.innerHTML='<div class="recording-archive-empty"><strong>Nenhuma aula passada disponível.</strong><p>Quando uma aula for gravada pelos seus professores, e você fizer parte da aula, ela aparecerá aqui.</p></div>';return}
-    box.innerHTML=items.map(item=>'<article class="recording-archive-card student-recording-card"><div class="recording-archive-info"><span>🎥 AULA PASSADA</span><h3>'+esc(item.title||"Aula gravada")+'</h3><p>👨‍🏫 '+esc(item.teacherName||"Professor")+' · 📚 '+esc(item.course||"Curso")+'</p><small>'+formatDate(item.createdAt)+'</small></div><button type="button" class="recording-watch-button" data-recording-url="'+esc(item.videoUrl||"")+'">▶ Assistir aula passada</button></article>').join("");
-    box.querySelectorAll("[data-recording-url]").forEach(btn=>btn.onclick=()=>window.APSANRecordings.open(btn.getAttribute("data-recording-url"),"Aula passada"));
+    box.innerHTML=items.map(item=>'<article class="recording-archive-card student-recording-card"><div class="recording-archive-info"><span>🎥 AULA PASSADA</span><h3>'+esc(item.title||"Aula gravada")+'</h3><p>👨‍🏫 '+esc(item.teacherName||"Professor")+' · 📚 '+esc(item.course||"Curso")+'</p><small>'+formatDate(item.createdAt)+'</small></div><button type="button" class="recording-watch-button" data-recording-id="'+esc(item.id||"")+'" data-recording-url="'+esc(item.videoUrl||"")+'">▶ Assistir aula passada</button></article>').join("");
+    box.querySelectorAll("[data-recording-url]").forEach(btn=>btn.onclick=()=>watchRecording(btn.getAttribute("data-recording-id"),btn.getAttribute("data-recording-url"),"Aula passada"));
   }
   function open(url,title){
     const safe=String(url||"");
