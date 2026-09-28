@@ -318,7 +318,7 @@ function watchCandidates(pc,peer,side){
 }
 function setupPcHandlers(pc,remoteRole,remoteName){
   pc.onicecandidate=e=>{if(e.candidate)pc._apsanSendCandidate(e.candidate)};
-  pc.onconnectionstatechange=()=>{if(["failed","disconnected"].includes(pc.connectionState)){setTimeout(()=>{if(pc.connectionState==="failed"||pc.connectionState==="disconnected")pc.restartIce?.()},1500)}};
+  pc.onconnectionstatechange=()=>{if(["failed","disconnected"].includes(pc.connectionState)){setTimeout(async()=>{if(pc.connectionState==="failed"||pc.connectionState==="disconnected"){try{pc.restartIce?.();if(role==="aluno"&&pc===peerConnections.teacher)await renegotiateStudent(pc,true)}catch(_){}}},1200)}};
   pc.ontrack=e=>{
     const stream=e.streams&&e.streams[0] ? e.streams[0] : new MediaStream([e.track]);
     if(remoteRole==="aluno")attachRemoteStudentVideo(pc._apsanPeer,stream);
@@ -327,18 +327,32 @@ function setupPcHandlers(pc,remoteRole,remoteName){
 }
 async function makeStudentPeer(){
   const c=cloud();if(!c)return;
-  if(peerConnections.teacher)return;
+  if(peerConnections.teacher)return peerConnections.teacher;
   const pc=new RTCPeerConnection(RTC_CONFIG);peerConnections.teacher=pc;
   wireTransceivers(pc);
   pc._apsanPeer=peerKey;pc._apsanSendCandidate=cand=>writeCandidate("student",peerKey,cand);
   setupPcHandlers(pc,"professor","Professor");
   watchCandidates(pc,peerKey,"teacher");
-  const offer=await pc.createOffer();await pc.setLocalDescription(offer);
-  await c.set(peerRoot+"/offer",{type:offer.type,sdp:offer.sdp,at:Date.now(),name:account.name||"Aluno",phone}).catch(()=>{});
+  await renegotiateStudent(pc,false);
   mediaListeners.push(c.listen(peerRoot,async data=>{
-    if(!data||!data.answer||pc.currentRemoteDescription)return;
-    try{await pc.setRemoteDescription(new RTCSessionDescription(data.answer))}catch(_){}
+    if(!data||!data.answer)return;
+    try{
+      const nextSdp=String(data.answer.sdp||"");
+      if(!nextSdp||nextSdp===pc._apsanLastAnswer)return;
+      if(pc.signalingState!=="stable"&&pc.signalingState!=="have-local-offer")return;
+      await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
+      pc._apsanLastAnswer=nextSdp;
+    }catch(_){}
   }));
+  return pc;
+}
+async function renegotiateStudent(pc,iceRestart){
+  const c=cloud();if(!c||!pc)return;
+  try{
+    const offer=await pc.createOffer(iceRestart?{iceRestart:true}:undefined);
+    await pc.setLocalDescription(offer);
+    await c.set(peerRoot+"/offer",{type:offer.type,sdp:offer.sdp,at:Date.now(),name:account.name||"Aluno",phone});
+  }catch(_){}
 }
 async function makeTeacherPeer(student,data){
   const c=cloud();if(!c||!data||!data.offer)return;
@@ -357,9 +371,24 @@ async function makeTeacherPeer(student,data){
 }
 function listenTeacherPeers(){
   const c=cloud();if(!c)return;
-  mediaListeners.push(c.listen(mediaRoot+"/peers",all=>{
+  mediaListeners.push(c.listen(mediaRoot+"/peers",async all=>{
     if(!all||typeof all!=="object")return;
-    Object.keys(all).forEach(p=>{if(p===peerKey)return;const d=all[p];if(d&&d.offer)makeTeacherPeer(p,d)});
+    for(const p of Object.keys(all)){
+      if(p===peerKey)continue;
+      const d=all[p];if(!d||!d.offer)continue;
+      if(!peerConnections[p]){makeTeacherPeer(p,d);continue}
+      const pc=peerConnections[p];
+      const nextSdp=String(d.offer.sdp||"");
+      if(!nextSdp||nextSdp===pc._apsanLastOffer)continue;
+      try{
+        if(pc.signalingState!=="stable"&&pc.signalingState!=="have-remote-offer")continue;
+        await pc.setRemoteDescription(new RTCSessionDescription(d.offer));
+        pc._apsanLastOffer=nextSdp;
+        const answer=await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        await c.set(mediaRoot+"/peers/"+p+"/answer",{type:answer.type,sdp:answer.sdp,at:Date.now(),teacher:account.name||"Professor"});
+      }catch(_){}
+    }
   }));
 }
 function cleanupPeers(){
