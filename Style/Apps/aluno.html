@@ -1680,10 +1680,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const phoneKey = normalizeLivePhone(currentAccount.phone);
         const notifications = readLiveNotifications();
-        const current = notifications
+
+        let current = notifications
             .filter(function (item) {
                 return item &&
-                    !item.readAt &&
                     normalizeLivePhone(item.recipientPhone) === phoneKey &&
                     getActiveLiveForStudent(item);
             })
@@ -1692,42 +1692,76 @@ document.addEventListener("DOMContentLoaded", function () {
             })[0];
 
         if (!current) {
+            let activeClass = null;
+            try {
+                const classes = JSON.parse(localStorage.getItem("apsan_live_classes") || "[]");
+                activeClass = Array.isArray(classes) ? classes
+                    .filter(function (liveClass) {
+                        return liveClass &&
+                            liveClass.active === true &&
+                            Array.isArray(liveClass.students) &&
+                            liveClass.students.map(normalizeLivePhone).includes(phoneKey);
+                    })
+                    .sort(function (a, b) {
+                        return String(b.startedAt || "").localeCompare(String(a.startedAt || ""));
+                    })[0] : null;
+            } catch (_) {}
+
+            if (activeClass) {
+                current = {
+                    id: "livecall_" + activeClass.id + "_" + phoneKey,
+                    liveId: activeClass.id,
+                    recipientPhone: phoneKey,
+                    teacherPhone: normalizeLivePhone(activeClass.teacherPhone),
+                    teacherName: activeClass.teacherName || "Professor",
+                    title: activeClass.title || "Aula ao vivo",
+                    course: activeClass.course || "Curso",
+                    createdAt: activeClass.startedAt || new Date().toISOString(),
+                    active: true,
+                    joinedAt: null,
+                    readAt: null
+                };
+                const rebuilt = notifications.filter(function (item) {
+                    return !(item && item.liveId === current.liveId &&
+                        normalizeLivePhone(item.recipientPhone) === phoneKey);
+                });
+                rebuilt.push(current);
+                localStorage.setItem("apsan_live_notifications", JSON.stringify(rebuilt.slice(-200)));
+            }
+        }
+
+        if (!current) {
             notice.hidden = true;
             notice.innerHTML = "";
             return;
         }
 
+        const joined = !!current.joinedAt;
         notice.hidden = false;
         notice.innerHTML =
+            '<div class="student-live-call-icon" aria-hidden="true"><span>📞</span></div>' +
             '<div class="student-live-class-copy">' +
-                '<span>🔴 AULA AO VIVO</span>' +
+                '<span>🔴 CHAMADA DE AULA AO VIVO</span>' +
                 '<strong>' + esc(current.title || "Aula ao vivo") + '</strong>' +
                 '<small>Prof. ' + esc(current.teacherName || "Professor") + ' · ' + esc(current.course || "Curso") + '</small>' +
-                '<p>O seu professor iniciou uma aula. Entre agora para acompanhar.</p>' +
+                '<p>' + (joined ? 'A aula continua. Se saiu ou perdeu a ligação, pode voltar a entrar agora.' : 'O seu professor iniciou a aula. Atenda para entrar diretamente na turma.') + '</p>' +
             '</div>' +
-            '<button type="button" id="studentJoinLiveClass">Entrar na aula →</button>' +
-            '<button type="button" class="student-live-dismiss" id="studentDismissLiveClass" aria-label="Fechar">×</button>';
+            '<button type="button" class="student-live-answer" id="studentJoinLiveClass">' +
+                (joined ? '↩ Voltar à aula' : '☎ Atender e entrar') +
+            '</button>';
 
         document.getElementById("studentJoinLiveClass").onclick = function () {
             const updated = readLiveNotifications().map(function (item) {
-                if (item && item.liveId === current.liveId && normalizeLivePhone(item.recipientPhone) === phoneKey) {
-                    item.readAt = new Date().toISOString();
+                if (item && item.liveId === current.liveId &&
+                    normalizeLivePhone(item.recipientPhone) === phoneKey) {
+                    item.joinedAt = item.joinedAt || new Date().toISOString();
+                    item.readAt = null;
+                    item.active = true;
                 }
                 return item;
             });
             localStorage.setItem("apsan_live_notifications", JSON.stringify(updated));
             window.location.href = "quadro.html?live=" + encodeURIComponent(current.liveId);
-        };
-
-        document.getElementById("studentDismissLiveClass").onclick = function () {
-            const updated = readLiveNotifications().map(function (item) {
-                if (item && item.liveId === current.liveId && normalizeLivePhone(item.recipientPhone) === phoneKey) {
-                    item.readAt = new Date().toISOString();
-                }
-                return item;
-            });
-            localStorage.setItem("apsan_live_notifications", JSON.stringify(updated));
-            updateStudentLiveClassNotice();
         };
     }
 
