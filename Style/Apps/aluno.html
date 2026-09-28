@@ -1822,6 +1822,7 @@ document.addEventListener("DOMContentLoaded", function () {
 (function(){
   function refresh(){if(window.APSANRecordings)window.APSANRecordings.renderStudent("studentRecordedClasses");}
   refresh();
+  if(window.APSANRecordings) window.APSANRecordings.listenChanges(refresh);
   setInterval(refresh,10000);window.addEventListener("apsan-recording-changed",refresh);
 })();
 </script>
