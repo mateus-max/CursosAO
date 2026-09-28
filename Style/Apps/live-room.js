@@ -365,6 +365,7 @@ async function makeTeacherPeer(student,data){
   watchCandidates(pc,p,"student");
   try{
     await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
+    pc._apsanLastOffer=String(data.offer.sdp||"");
     const answer=await pc.createAnswer();await pc.setLocalDescription(answer);
     await c.set(mediaRoot+"/peers/"+p+"/answer",{type:answer.type,sdp:answer.sdp,at:Date.now(),teacher:account.name||"Professor"});
   }catch(e){console.warn("WebRTC professor:",e)}
