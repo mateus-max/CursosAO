@@ -196,5 +196,11 @@
     const video=document.getElementById("apsanRecordingPlayerVideo");video.src=safe;overlay.classList.add("open");video.play().catch(()=>{});
   }
   function close(){const o=document.getElementById("apsanRecordingPlayer");if(!o)return;o.classList.remove("open");const v=document.getElementById("apsanRecordingPlayerVideo");if(v){v.pause();v.removeAttribute("src");v.load()}}
-  window.APSANRecordings={save, listOnline, renderProfessor, renderStudent, open, close, deleteRecording, downloadRecording};
+  function listenChanges(renderer){
+    try{
+      if(!window.apsanCloud||!window.apsanCloud.listen)return ()=>{};
+      return window.apsanCloud.listen("appData/apsan_recorded_classes",()=>{window.dispatchEvent(new CustomEvent("apsan-recording-changed"));if(typeof renderer==="function")renderer()});
+    }catch(_){return ()=>{}}
+  }
+  window.APSANRecordings={save, listOnline, renderProfessor, renderStudent, open, close, deleteRecording, downloadRecording, listenChanges};
 })();
