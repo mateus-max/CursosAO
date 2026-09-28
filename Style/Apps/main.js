@@ -225,153 +225,180 @@ document.addEventListener("DOMContentLoaded", function () {
 
         configureLoginByRole();
 
-        loginForm.addEventListener("submit", function (event) {
-            event.preventDefault();
+        loginForm.addEventListener("submit", async function (event) {
+        event.preventDefault();
 
-            const userType = userTypeInput ? userTypeInput.value : "";
-            const password = passwordInput ? passwordInput.value.trim() : "";
-            const message = document.getElementById("loginMessage");
+        const userType = userTypeInput ? userTypeInput.value : "";
+        const password = passwordInput ? passwordInput.value.trim() : "";
+        const message = document.getElementById("loginMessage");
 
-            /*
-             * A Direção possui uma entrada própria.
-             * Não usa o cadastro de alunos/professores.
-             */
-            if (userType === "direcao") {
-                const email = emailInput
-                    ? emailInput.value.trim().toLowerCase()
-                    : "";
+        if (!message) return;
 
-                if (!email || !password) {
-                    message.textContent = "Informe o e-mail e a palavra-passe da Direção.";
-                    return;
-                }
-
-                if (
-                    email !== "suporte@apsanlda.com" ||
-                    password !== "12suporte45"
-                ) {
-                    message.textContent = "E-mail ou palavra-passe da Direção incorretos.";
-                    return;
-                }
-
-                let savedDirectionProfile = {};
-                try {
-                    savedDirectionProfile = JSON.parse(localStorage.getItem("apsan_direction_profile") || "{}") || {};
-                } catch (error) {
-                    savedDirectionProfile = {};
-                }
-
-                const directionAccount = {
-                    id: "direction_support",
-                    name: savedDirectionProfile.name || "Direção APSAN Academy",
-                    email: "suporte@apsanlda.com",
-                    phone: "suporte@apsanlda.com",
-                    type: "direcao",
-                    photo: savedDirectionProfile.logo || "",
-                    nif: savedDirectionProfile.nif || "",
-                    location: savedDirectionProfile.location || ""
-                };
-
-                localStorage.setItem(
-                    "apsan_account",
-                    JSON.stringify(directionAccount)
-                );
-                localStorage.setItem("apsan_phone", "suporte@apsanlda.com");
-                localStorage.setItem("apsan_user_type", "direcao");
-                localStorage.setItem("apsan_logged_in", "true");
-
-                window.location.replace("Style/Apps/direcao-final.html?direction=final-20260927-01");
+        if (userType === "direcao") {
+            const email = emailInput ? emailInput.value.trim().toLowerCase() : "";
+            if (!email || !password) {
+                message.textContent = "Informe o e-mail e a palavra-passe da Direção.";
                 return;
             }
 
-            const phoneInputValue = phoneInput
-                ? phoneInput.value.trim()
-                : "";
-            const phone = normalizePhone(phoneInputValue);
-
-            if (!phone || !password || !userType) {
-                message.textContent = "Preencha todos os campos.";
-                return;
-            }
-
-            let loginAccount = null;
+            const directionAccount = {
+                id: "direction_support",
+                name: "Direção APSAN Academy",
+                email: "suporte@apsanlda.com",
+                phone: "suporte@apsanlda.com",
+                type: "direcao",
+                password: password
+            };
 
             try {
-                const accounts = ensureAccountRegistry();
+                if (window.apsanCloud) {
+                    const authUser = await window.apsanCloud.signIn(directionAccount);
+                    let savedDirectionProfile = {};
+                    try {
+                        savedDirectionProfile = JSON.parse(localStorage.getItem("apsan_direction_profile") || "{}") || {};
+                    } catch (_) {}
 
-                loginAccount = accounts.find(function (item) {
-                    return (
-                        item &&
-                        normalizePhone(item.phone) === phone &&
-                        item.password === password &&
-                        item.type === userType
-                    );
-                }) || null;
-            } catch (error) {
-                loginAccount = null;
+                    const onlineDirection = Object.assign({}, directionAccount, {
+                        name: savedDirectionProfile.name || "Direção APSAN Academy",
+                        photo: savedDirectionProfile.logo || "",
+                        nif: savedDirectionProfile.nif || "",
+                        location: savedDirectionProfile.location || "",
+                        authUid: authUser && authUser.uid ? authUser.uid : "",
+                        authEmail: "suporte@apsanlda.com"
+                    });
+
+                    localStorage.setItem("apsan_account", JSON.stringify(onlineDirection));
+                    localStorage.setItem("apsan_phone", "suporte@apsanlda.com");
+                    localStorage.setItem("apsan_user_type", "direcao");
+                    localStorage.setItem("apsan_logged_in", "true");
+                    window.location.replace("Style/Apps/direcao-final.html?direction=final-20260927-01");
+                    return;
+                }
+            } catch (_) {
+                /* Compatibilidade com a entrada antiga enquanto a conta é migrada. */
             }
 
-            if (!loginAccount) {
-                try {
-                    const legacy = JSON.parse(
-                        localStorage.getItem("apsan_account") || "null"
-                    );
+            if (email !== "suporte@apsanlda.com" || password !== "12suporte45") {
+                message.textContent = "E-mail ou palavra-passe da Direção incorretos.";
+                return;
+            }
 
-                    if (
-                        legacy &&
-                        legacy.password === password &&
-                        legacy.type === userType &&
-                        normalizePhone(legacy.phone) === phone
-                    ) {
-                        loginAccount = legacy;
-                    }
-                } catch (error) {
-                    loginAccount = null;
+            let savedDirectionProfile = {};
+            try {
+                savedDirectionProfile = JSON.parse(localStorage.getItem("apsan_direction_profile") || "{}") || {};
+            } catch (_) {}
+
+            const legacyDirection = {
+                id: "direction_support",
+                name: savedDirectionProfile.name || "Direção APSAN Academy",
+                email: "suporte@apsanlda.com",
+                phone: "suporte@apsanlda.com",
+                type: "direcao",
+                photo: savedDirectionProfile.logo || "",
+                nif: savedDirectionProfile.nif || "",
+                location: savedDirectionProfile.location || ""
+            };
+
+            localStorage.setItem("apsan_account", JSON.stringify(legacyDirection));
+            localStorage.setItem("apsan_phone", "suporte@apsanlda.com");
+            localStorage.setItem("apsan_user_type", "direcao");
+            localStorage.setItem("apsan_logged_in", "true");
+            window.location.replace("Style/Apps/direcao-final.html?direction=final-20260927-01");
+            return;
+        }
+
+        const phone = normalizePhone(phoneInput ? phoneInput.value.trim() : "");
+        if (!phone || !password || !userType) {
+            message.textContent = "Preencha todos os campos.";
+            return;
+        }
+
+        message.textContent = "A ligar à plataforma...";
+
+        let localAccount = null;
+        let loginAccount = null;
+
+        try {
+            localAccount = ensureAccountRegistry().find(function(item) {
+                return item &&
+                    normalizePhone(item.phone) === phone &&
+                    item.type === userType;
+            }) || null;
+        } catch (_) {}
+
+        try {
+            if (window.apsanCloud) {
+                const onlineAccount = await window.apsanCloud.remoteAccount(phone, userType);
+                if (onlineAccount) {
+                    loginAccount = Object.assign({}, onlineAccount, { password: password });
                 }
             }
+        } catch (_) {}
 
-            if (!loginAccount) {
-                message.textContent =
-                    "Número de telefone, palavra-passe ou perfil incorreto.";
+        if (!loginAccount) loginAccount = localAccount;
+
+        if (!loginAccount) {
+            try {
+                const legacy = JSON.parse(localStorage.getItem("apsan_account") || "null");
+                if (legacy &&
+                    legacy.type === userType &&
+                    normalizePhone(legacy.phone) === phone) {
+                    loginAccount = Object.assign({}, legacy, { password: password });
+                }
+            } catch (_) {}
+        }
+
+        if (!loginAccount) {
+            message.textContent = "Número de telefone, palavra-passe ou perfil incorreto.";
+            return;
+        }
+
+        const approvalStatus = String(
+            loginAccount.approvalStatus ||
+            loginAccount.accountStatus ||
+            (loginAccount.official ? "approved" : "approved")
+        ).toLowerCase();
+
+        if (["pending", "pending_approval", "awaiting"].includes(approvalStatus)) {
+            message.textContent = "A sua conta está pendente de aprovação pela Direção. Aguarde a avaliação antes de entrar.";
+            return;
+        }
+
+        if (["rejected", "blocked", "suspended"].includes(approvalStatus)) {
+            message.textContent = loginAccount.approvalReason
+                ? "A sua conta não foi aprovada: " + loginAccount.approvalReason
+                : "A sua conta não foi aprovada pela Direção.";
+            return;
+        }
+
+        try {
+            if (window.apsanCloud) {
+                const authUser = await window.apsanCloud.signIn(loginAccount);
+                loginAccount = Object.assign({}, loginAccount, {
+                    authUid: authUser && authUser.uid ? authUser.uid : "",
+                    authEmail: window.apsanCloud.authEmail(loginAccount)
+                });
+                await window.apsanCloud.saveAccount(loginAccount);
+            }
+        } catch (firebaseError) {
+            /* A conta antiga continua válida no primeiro acesso se ainda estiver no navegador. */
+            if (!localAccount || localAccount.password !== password) {
+                message.textContent = "Não foi possível autenticar esta conta online. Verifique a palavra-passe e tente novamente.";
                 return;
             }
+        }
 
-            const approvalStatus = String(
-                loginAccount.approvalStatus ||
-                loginAccount.accountStatus ||
-                (loginAccount.official ? "approved" : "approved")
-            ).toLowerCase();
+        localStorage.setItem("apsan_account", JSON.stringify(loginAccount));
+        localStorage.setItem("apsan_phone", phone);
+        localStorage.setItem("apsan_user_type", userType);
+        localStorage.setItem("apsan_logged_in", "true");
 
-            if (["pending", "pending_approval", "awaiting"].includes(approvalStatus)) {
-                message.textContent =
-                    "A sua conta está pendente de aprovação pela Direção. Aguarde a avaliação antes de entrar.";
-                return;
-            }
-
-            if (["rejected", "blocked", "suspended"].includes(approvalStatus)) {
-                message.textContent =
-                    loginAccount.approvalReason
-                        ? "A sua conta não foi aprovada: " + loginAccount.approvalReason
-                        : "A sua conta não foi aprovada pela Direção.";
-                return;
-            }
-
-            localStorage.setItem(
-                "apsan_account",
-                JSON.stringify(loginAccount)
-            );
-            localStorage.setItem("apsan_phone", phone);
-            localStorage.setItem("apsan_user_type", userType);
-            localStorage.setItem("apsan_logged_in", "true");
-
-            if (userType === "professor") {
-                window.location.href = "Style/Apps/professor.html";
-            } else if (userType === "aluno") {
-                window.location.href = "Style/Apps/aluno.html";
-            }
-        });
-    }
-
+        if (userType === "professor") {
+            window.location.href = "Style/Apps/professor.html";
+        } else if (userType === "aluno") {
+            window.location.href = "Style/Apps/aluno.html";
+        }
+    });
     /* O login é uma página própria. Depois de registar o evento de entrada,
        não executamos o código dos painéis nesta página. */
     if (loginForm) {
