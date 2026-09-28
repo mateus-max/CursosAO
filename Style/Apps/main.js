@@ -241,6 +241,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
+            /* A Direção continua com a credencial administrativa definida.
+             * Primeiro validamos a credencial e só depois criamos/sincronizamos
+             * a sessão Firebase. Assim, uma palavra-passe errada nunca cria
+             * uma nova conta administrativa por engano.
+             */
+            if (email !== "suporte@apsanlda.com" || password !== "12suporte45") {
+                message.textContent = "E-mail ou palavra-passe da Direção incorretos.";
+                return;
+            }
+
             const directionAccount = {
                 id: "direction_support",
                 name: "Direção APSAN Academy",
