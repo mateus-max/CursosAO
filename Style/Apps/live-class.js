@@ -17,7 +17,7 @@ async function officialStudents(teacherPhone,course){
 async function publishLive(item){
  item=Object.assign({},item);const students=new Set((Array.isArray(item.students)?item.students:[]).map(s=>norm(typeof s==="object"?(s.phone||s.studentPhone||s.telefone):s)).filter(Boolean));
  (await officialStudents(item.teacherPhone,item.course)).forEach(p=>students.add(p));
- item.students=[...students];item.active=true;item.joinUrl=classroomUrl(item.id);
+ item.allowedStudents=[...students];item.students=[];item.active=true;item.joinUrl=classroomUrl(item.id);
  const list=readLocal("apsan_live_classes",[]),arr=Array.isArray(list)?list.slice():[],i=arr.findIndex(x=>x&&x.id===item.id);if(i>=0)arr[i]=item;else arr.push(item);writeLocal("apsan_live_classes",arr);
  await cloudSet("apsan_live_classes",arr);
  const now=item.startedAt||new Date().toISOString();
