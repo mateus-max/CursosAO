@@ -6,7 +6,11 @@
 <title>APSAN Academy - Aluno</title>
 <link rel="stylesheet" href="../style.css?v=student-live-class-20260927"><script src="firebase-config.js?v=20260928-online-1"></script>
 <script src="cloud-data.js?v=rtdb-cross-device-20260928"></script>
+<script src="recordings.js?v=20260928-recordings-1"></script>
 <script src="settings.js?v=20260927-profile-wallpaper-1"></script>
+<style id="apsan-recordings-ui">
+.recording-archive{margin-top:18px;background:#fff;border:1px solid #dce4ee;border-radius:16px;padding:16px}.recording-archive-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}.recording-archive-head h3{margin:0;font-size:16px}.recording-archive-head p{margin:4px 0 0;color:#718096;font-size:12px}.recording-archive-list{display:grid;gap:10px}.recording-archive-card{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px;border:1px solid #e1e8f0;border-radius:12px;background:#f9fbfe}.recording-archive-info{min-width:0}.recording-archive-info>span{font-size:10px;font-weight:900;color:#1769e0}.recording-archive-info h3{margin:4px 0;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.recording-archive-info p,.recording-archive-info small{display:block;margin:3px 0;color:#718096;font-size:11px}.recording-watch-button{border:0;border-radius:9px;background:#1769e0;color:#fff;padding:9px 12px;font-weight:900;white-space:nowrap;cursor:pointer}.recording-archive-empty{padding:16px;border:1px dashed #cbd6e3;border-radius:12px;color:#718096;font-size:12px}.recording-player-overlay{position:fixed;inset:0;z-index:2500;display:none;align-items:center;justify-content:center;padding:14px;background:rgba(4,14,28,.78)}.recording-player-overlay.open{display:flex}.recording-player-card{width:min(980px,100%);background:#101c30;border-radius:16px;overflow:hidden;box-shadow:0 25px 90px rgba(0,0,0,.45)}.recording-player-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;color:#fff}.recording-player-head button{border:0;background:#b42318;color:#fff;border-radius:7px;width:32px;height:30px;font-size:18px;cursor:pointer}.recording-player-card video{display:block;width:100%;max-height:78dvh;background:#000}@media(max-width:600px){.recording-archive-card{align-items:flex-start;flex-direction:column}.recording-watch-button{width:100%}}
+</style>
 </head>
 <body class="app-page student-page">
 
@@ -38,6 +42,7 @@
         <a href="#classroom" data-student-menu-link>📚 <span>Meus cursos</span></a>
         <a href="#studentEnrollmentsView" data-student-menu-link>▣ <span>Minhas matrículas</span></a>
         <a href="#classroom" data-student-menu-link>▶ <span>Aulas</span></a>
+        <a href="#studentRecordedClassesView" data-student-menu-link>🎥 <span>Aulas passadas</span></a>
         <a href="#studentMaterialsView" data-student-menu-link>📚 <span>Materiais</span></a>
         <a href="#studentAgendaView" data-student-menu-link>📅 <span>Minha agenda</span></a>
         <a href="#studentProgressView" data-student-menu-link>📊 <span>Meu progresso</span></a>
@@ -135,6 +140,16 @@
         </div>
         <div id="classroomContent">
             <div class="empty-state">Depois da confirmação da matrícula pela direção, os conteúdos dos seus cursos aparecerão aqui.</div>
+        </div>
+    </section>
+
+    <section class="student-extra-view professor-view-section" id="studentRecordedClassesView" data-view-section="recordings" data-view-target="recordings">
+        <div class="section-heading">
+            <div><h2>🎥 Aulas passadas</h2><p class="section-subtitle">Assista às aulas gravadas pelos seus professores.</p></div>
+            <span>Arquivo</span>
+        </div>
+        <div class="recording-archive">
+            <div id="studentRecordedClasses" class="recording-archive-list"><div class="recording-archive-empty">A carregar aulas gravadas...</div></div>
         </div>
     </section>
 
@@ -1758,5 +1773,12 @@ document.addEventListener("DOMContentLoaded", function () {
     </div>
 </div>
 <script src="header-notifications.js?v=20260927-header-notifications-2"></script>
+<script>
+(function(){
+  function refresh(){if(window.APSANRecordings)window.APSANRecordings.renderStudent("studentRecordedClasses");}
+  refresh();
+  setInterval(refresh,10000);
+})();
+</script>
 </body>
 </html>
