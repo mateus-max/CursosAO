@@ -280,7 +280,7 @@ document.getElementById("classMeta").textContent=(live.course||"Curso")+" · Pro
 document.getElementById("liveStatus").innerHTML=live.active?'<span class="live-pill"><i class="live-dot"></i> AO VIVO</span>':'<span class="status-warn">Aula encerrada</span>';
 const end=document.getElementById("endClass");end.style.display=role==="professor"?"inline-block":"none";
 const list=document.getElementById("participantList");const students=live.students||[];const accounts=read("apsan_accounts",[]);
-list.innerHTML=students.map(p=>{const a=accounts.find(x=>x&&String(x.phone||"").replace(/\D/g,"")===p)||{};return '<div class="participant"><div class="participant-avatar">'+(a.photo?'<img src="'+a.photo+'">':(String(a.name||"A").charAt(0)))+'</div><div><strong>'+String(a.name||"Aluno")+'</strong><small>Aluno oficial</small></div></div>'}).join("");
+list.innerHTML=students.map(p=>{const a=accounts.find(x=>x&&String(x.phone||"").replace(/\D/g,"")===p)||{};const pk=String(p||"").replace(/\D/g,"");return '<div class="participant" data-live-participant="'+pk+'"><div class="participant-avatar">'+(a.photo?'<img src="'+a.photo+'">':(String(a.name||"A").charAt(0)))+'</div><div><strong>'+String(a.name||"Aluno")+'</strong><small class="live-participant-status"><span class="live-status-dot"></span>Câmara desligada</small></div></div>'}).join("");
 document.getElementById("participantSummary").textContent="Participantes ("+students.length+")";
 renderParticipantVideos(students,accounts);
 setPreClassState();updateClassTimer();
