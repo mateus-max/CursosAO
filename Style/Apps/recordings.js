@@ -19,7 +19,7 @@
       const snap=await f.storage.ref(path).put(blob,{contentType:blob.type||"video/webm",customMetadata:{liveId:String(meta.liveId||""),teacherPhone:cleanPhone(meta.teacherPhone)}});
       videoUrl=await snap.ref.getDownloadURL();
       const record={id,liveId:meta.liveId||"",title:meta.title||"Aula gravada",course:meta.course||"Curso",teacherPhone:cleanPhone(meta.teacherPhone),teacherName:meta.teacherName||"Professor",studentPhones:(meta.studentPhones||[]).map(cleanPhone).filter(Boolean),createdAt,size:Number(blob.size)||0,mimeType:blob.type||"video/webm",videoUrl,storagePath:path};
-      await f.db.ref("recordedClasses/"+id).set(record);
+      const existing=await f.db.ref("appData/apsan_recorded_classes").once("value");const catalog=existing.exists()?(existing.val()||{}):{};catalog[id]=record;await f.db.ref("appData/apsan_recorded_classes").set(catalog);
       online=true;
     }catch(error){console.warn("Arquivo online de aula:",error)}
     try{
@@ -39,10 +39,10 @@
   async function listOnline(){
     try{
       const f=await cloudReady();
-      const snap=await f.db.ref("recordedClasses").once("value");
+      const snap=await f.db.ref("appData/apsan_recorded_classes").once("value");
       const raw=snap.exists()?snap.val():{};
       return Object.keys(raw||{}).map(k=>Object.assign({id:k},raw[k]||{})).sort((a,b)=>String(b.createdAt||"").localeCompare(String(a.createdAt||"")));
-    }catch(_){return []}
+    }catch(_){try{const raw=JSON.parse(localStorage.getItem("apsan_recorded_classes")||"{}");return Object.keys(raw||{}).map(k=>Object.assign({id:k},raw[k]||{})).sort((a,b)=>String(b.createdAt||"").localeCompare(String(a.createdAt||"")));}catch(__){return []}}
   }
   function accessible(record,account){
     const phone=cleanPhone(account&&account.phone);
