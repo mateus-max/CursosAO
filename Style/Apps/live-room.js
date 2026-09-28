@@ -20,6 +20,7 @@ const peerRoot=mediaRoot+"/peers/"+peerKey;
 const boardRoot="appData/apsan_live_board_"+liveId;
 const objectsRoot="appData/apsan_board_objects_"+liveId;
 const pointerRoot="appData/apsan_live_pointer_"+liveId;
+const controlRoot="appData/apsan_live_controls/"+liveId;
 
 const RTC_CONFIG={
   iceServers:[
@@ -53,6 +54,8 @@ let lastRemoteObjects="";
 let applyingRemote=false;
 let boardSyncTimer=null;
 let remoteStrokeCanvas=null;
+let networkState="connecting";
+let classActive=true;
 
 function cloud(){
   return window.apsanCloud&&typeof window.apsanCloud.set==="function" ? window.apsanCloud : null;
@@ -99,6 +102,11 @@ function addStyle(){
     .live-remote-camera small{display:block;padding:4px 2px 0;color:#b9c7d8;font-size:9px}
     .live-status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-right:5px}
     .live-status-dot.on{background:#22c55e}
+    .live-status-dot.weak{background:#f59e0b}
+    .live-status-dot.off{background:#ef4444}
+    .live-participant-actions{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap}
+    .live-participant-actions button{border:0;border-radius:7px;padding:4px 7px;background:#eef3f8;color:#17304f;font-size:10px;font-weight:900;cursor:pointer}
+    .live-participant-actions button.active{background:#fee2e2;color:#991b1b}
     .live-teacher-pointer-tools{display:flex;gap:5px;margin:8px 0 10px;flex-wrap:wrap}
     .live-student-mode #cameraDock{display:none!important}
     .live-student-mode .board-wrap{padding:8px}
@@ -194,10 +202,14 @@ function bindPointerTracking(){
 
 async function publishPresence(){
   const c=cloud();if(!c)return;
-  await c.set(presenceRoot+"/"+peerKey,{
-    phone,name:account.name||"Utilizador",role,cameraOn,micOn,handRaised,
-    indicator:indicatorMode,magnify:magnifyMode,updatedAt:Date.now()
-  }).catch(()=>{});
+  const data={phone,name:account.name||"Utilizador",role,cameraOn,micOn,handRaised,
+    indicator:indicatorMode,magnify:magnifyMode,network:networkState,connection:networkState,
+    state:classActive?"connected":"ended",updatedAt:Date.now()};
+  await c.set(presenceRoot+"/"+peerKey,data).catch(()=>{});
+  try{
+    const f=window.apsanFirebase;
+    if(f&&f.db)f.db.ref(presenceRoot+"/"+peerKey).onDisconnect().set(Object.assign({},data,{state:"disconnected",connection:"disconnected",updatedAt:Date.now()}));
+  }catch(_){}
 }
 function listenPresence(){
   const c=cloud();if(!c)return;
@@ -209,7 +221,9 @@ function listenPresence(){
       const item=document.querySelector('[data-live-participant="'+CSS.escape(k)+'"]');
       if(item){
         const status=item.querySelector(".live-participant-status");
-        if(status)status.innerHTML='<span class="live-status-dot '+(p.cameraOn?"on":"")+'></span>'+ (p.cameraOn?"Câmara ligada":"Câmara desligada")+(p.handRaised?" · ✋ mão levantada":"");
+        const ns=p.network==="weak"?"weak":(p.state==="disconnected"||p.network==="offline"?"off":"on");
+        if(status)status.innerHTML='<span class="live-status-dot '+ns+'"></span>'+ (p.state==="disconnected"?"Saiu da aula":p.network==="weak"?"Rede fraca":p.cameraOn?"Câmara ligada":"Câmara desligada")+(p.handRaised?" · ✋ mão levantada":"");
+        item.dataset.network=p.network||"";
       }
     });
   }));
@@ -289,6 +303,53 @@ async function setMic(on){
   }catch(_){toast("Não foi possível ativar o microfone.");}
 }
 function updateButton(id,html){const b=document.getElementById(id);if(b)b.innerHTML=html}
+async function sendStudentControl(student,kind,enabled){
+  if(role!=="professor")return;
+  const c=cloud();if(!c)return;
+  await c.set(controlRoot+"/"+normalize(student)+"/"+kind,{enabled:!!enabled,at:Date.now(),by:peerKey}).catch(()=>{});
+}
+function addTeacherControls(){
+  if(role!=="professor")return;
+  document.querySelectorAll("[data-live-participant]").forEach(item=>{
+    const student=item.getAttribute("data-live-participant"); if(!student||item.querySelector(".live-participant-actions"))return;
+    const actions=document.createElement("div");actions.className="live-participant-actions";
+    actions.innerHTML='<button type="button" data-control="mic">🎙 '+ "Microfone"+'</button><button type="button" data-control="camera">▣ Câmara</button>';
+    item.appendChild(actions);
+    actions.querySelector('[data-control="mic"]').onclick=async()=>{const p=(readJsonStorage("apsan_live_controls_state_"+student,{mic:true}));p.mic=!p.mic;localStorage.setItem("apsan_live_controls_state_"+student,JSON.stringify(p));await sendStudentControl(student,"mic",p.mic);};
+    actions.querySelector('[data-control="camera"]').onclick=async()=>{const p=(readJsonStorage("apsan_live_controls_state_"+student,{camera:true}));p.camera=!p.camera;localStorage.setItem("apsan_live_controls_state_"+student,JSON.stringify(p));await sendStudentControl(student,"camera",p.camera);};
+  });
+}
+function listenStudentControls(){
+  if(role!=="aluno")return;
+  const c=cloud();if(!c)return;
+  mediaListeners.push(c.listen(controlRoot+"/"+peerKey,(data)=>{
+    const d=data||{};
+    if(d.mic&&typeof d.mic.enabled==="boolean"&&d.mic.enabled!==micOn)setMic(!!d.mic.enabled);
+    if(d.camera&&typeof d.camera.enabled==="boolean"&&d.camera.enabled!==cameraOn)setCamera(!!d.camera.enabled);
+  }));
+}
+async function measureNetwork(){
+  const pc=peerConnections.teacher;if(role!=="aluno"||!pc)return;
+  try{
+    const stats=await pc.getStats();let rtt=0,lost=0,recv=0;
+    stats.forEach(x=>{if(x.type==="candidate-pair"&&x.state==="succeeded"){rtt=Number(x.currentRoundTripTime||0);};if(x.type==="inbound-rtp"&&x.kind==="video"){lost+=Number(x.packetsLost||0);recv+=Number(x.packetsReceived||0)}});
+    const loss=recv+lost?lost/(recv+lost):0;
+    networkState=(rtt>0.45||loss>0.08)?"weak":"good";
+    publishPresence();
+  }catch(_){}
+}
+function markClassEnded(){
+  classActive=false;networkState="offline";publishPresence();
+  document.querySelectorAll(".classroom-bottom button").forEach(b=>{if(b.id!=="leaveClass")b.disabled=true});
+}
+async function ensureClassIsActive(){
+  try{
+    const c=cloud();if(!c)return true;
+    const raw=await c.get("appData/apsan_live_classes");const item=raw&&raw[liveId];
+    if(item&&item.active===false){markClassEnded();return false}
+  }catch(_){}
+  return true;
+}
 function bindMediaButtons(){
   const cam=document.getElementById("toggleCamera");if(cam)cam.onclick=()=>setCamera(!cameraOn);
   const mic=document.getElementById("toggleMic");if(mic)mic.onclick=()=>setMic(!micOn);
@@ -320,7 +381,15 @@ function watchCandidates(pc,peer,side){
 }
 function setupPcHandlers(pc,remoteRole,remoteName){
   pc.onicecandidate=e=>{if(e.candidate)pc._apsanSendCandidate(e.candidate)};
-  pc.onconnectionstatechange=()=>{if(["failed","disconnected"].includes(pc.connectionState)){setTimeout(async()=>{if(pc.connectionState==="failed"||pc.connectionState==="disconnected"){try{pc.restartIce?.();if(role==="aluno"&&pc===peerConnections.teacher)await renegotiateStudent(pc,true)}catch(_){}}},1200)}};
+  pc.onconnectionstatechange=()=>{
+    if(role==="aluno"&&pc===peerConnections.teacher){
+      networkState=pc.connectionState==="connected"?"good":(pc.connectionState==="disconnected"||pc.connectionState==="failed"?"offline":"connecting");
+      publishPresence();
+    }
+    if(["failed","disconnected"].includes(pc.connectionState)){
+      setTimeout(async()=>{if(pc.connectionState==="failed"||pc.connectionState==="disconnected"){try{pc.restartIce?.();if(role==="aluno"&&pc===peerConnections.teacher)await renegotiateStudent(pc,true)}catch(_){}}},1200);
+    }
+  };
   pc.ontrack=e=>{
     const stream=e.streams&&e.streams[0] ? e.streams[0] : new MediaStream([e.track]);
     if(remoteRole==="aluno")attachRemoteStudentVideo(pc._apsanPeer,stream);
@@ -481,11 +550,15 @@ function patchLocalStorageObjectSync(){
   }
   wrapped.__apsanPatched=true;localStorage.setItem=wrapped;
 }
-function boot(){
+async function boot(){
   addStyle();makeStudentTools();makeTeacherPointerTools();bindMediaButtons();bindPointerTracking();listenPointers();listenPresence();bindBoardSync();patchLocalStorageObjectSync();
-  if(role==="aluno"){bindStudentBoard();makeStudentPeer().catch(()=>{});}
-  else{listenTeacherPeers();}
+  classActive=await ensureClassIsActive();
+  if(!classActive){markClassEnded();return}
+  if(role==="aluno"){bindStudentBoard();listenStudentControls();makeStudentPeer().catch(()=>{});}
+  else{listenTeacherPeers();addTeacherControls();}
   publishPresence();
+  setInterval(measureNetwork,3000);
+  setInterval(addTeacherControls,1500);
   window.addEventListener("beforeunload",()=>{try{publishPointer(0,0,false);cleanupPeers();}catch(_){}});
 }
 boot();
