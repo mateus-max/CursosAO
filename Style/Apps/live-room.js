@@ -103,6 +103,8 @@ function addStyle(){
     .live-student-mode #cameraDock{display:none!important}
     .live-student-mode .board-wrap{padding:8px}
     .live-student-mode .board{min-height:calc(100dvh - 150px)}
+    .live-student-mode .board-objects{pointer-events:none!important}
+    .live-student-mode .board-object{pointer-events:none!important}
     @media(max-width:700px){
       .live-local-camera{width:118px;left:8px;bottom:8px}
       .live-remote-camera{width:132px;right:8px;top:8px}
