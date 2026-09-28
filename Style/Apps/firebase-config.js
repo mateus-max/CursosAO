@@ -9,6 +9,7 @@
     "https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js",
     "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth-compat.js",
     "https://www.gstatic.com/firebasejs/12.19.0/firebase-database-compat.js",
+    "https://www.gstatic.com/firebasejs/12.19.0/firebase-storage-compat.js",
   ];
 
   function load(index){
@@ -20,7 +21,8 @@
         projectId: "curso-a0",
         messagingSenderId: "424486251732",
         appId: "1:424486251732:web:3bba92f4b3c8e255945f41",
-        measurementId: "G-B21TEJEP7Q"
+        measurementId: "G-B21TEJEP7Q",
+        storageBucket: "curso-a0.firebasestorage.app"
       };
 
       if(!window.firebase.apps.length) window.firebase.initializeApp(firebaseConfig);
@@ -28,7 +30,8 @@
       window.apsanFirebase = {
         app: window.firebase.app(),
         auth: window.firebase.auth(),
-        db: window.firebase.database()
+        db: window.firebase.database(),
+        storage: window.firebase.storage()
       };
       window.dispatchEvent(new CustomEvent("apsan-firebase-ready"));
       return;
