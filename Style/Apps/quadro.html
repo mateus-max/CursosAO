@@ -319,7 +319,7 @@ document.getElementById("endClass").onclick=async()=>{if(role!=="professor"||!li
 function clearBoardSessionOnClose(){try{ctx.clearRect(0,0,canvas.width,canvas.height);undoStack=[];boardEmpty.classList.remove("hidden");localStorage.removeItem(boardKey());localStorage.removeItem(boardObjectStoreKey());localStorage.removeItem(documentMetaKey());renderBoardDocuments();renderBoardObjects();deselectBoardObjects()}catch(_){} }document.getElementById("leaveClass").onclick=()=>{if(role==="professor"&&live&&live.active&&!confirm("Sair sem terminar a aula?"))return;clearBoardSessionOnClose();location.href=role==="professor"?"professor.html":"aluno.html#classroom"};
 window.addEventListener("storage",e=>{if(e.key==="apsan_live_classes"){renderLive()}if(e.key===boardKey()){loadBoard()}if(e.key===boardObjectStoreKey()||e.key===documentMetaKey()){renderBoardDocuments()}if(e.key===chatKey()){renderChat()}});
 resetBoardStateOnce();resizeCanvas();(async()=>{if(window.APSANLive&&liveId){const remoteLive=await window.APSANLive.hydrateLive(liveId);if(remoteLive)live=remoteLive}renderLive();loadBoard();renderBoardDocuments();renderBoardObjects();if(role==="aluno"&&window.APSANLive&&liveId)window.APSANLive.markJoined(phone,liveId).catch(()=>{})})();renderChat();setPreClassState();updateClassTimer();
-setInterval(()=>{renderLive();loadBoard();renderChat();updateClassTimer()},1000);
+setInterval(()=>{updateClassTimer()},1000);
 })();
 </script>
 <script src="live-room.js?v=20260928-live-room-2"></script>
