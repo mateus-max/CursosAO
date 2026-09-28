@@ -241,10 +241,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
-            /* A Direção continua com a credencial administrativa definida.
-             * Primeiro validamos a credencial e só depois criamos/sincronizamos
-             * a sessão Firebase. Assim, uma palavra-passe errada nunca cria
-             * uma nova conta administrativa por engano.
+            /* A Direção usa exclusivamente a credencial administrativa existente.
+             * Não existe cadastro de Direção e a autenticação administrativa
+             * nunca pode criar uma nova conta Firebase automaticamente.
              */
             if (email !== "suporte@apsanlda.com" || password !== "12suporte45") {
                 message.textContent = "E-mail ou palavra-passe da Direção incorretos.";
@@ -262,7 +261,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             try {
                 if (window.apsanCloud) {
-                    const authUser = await window.apsanCloud.signIn(directionAccount);
+                    const authUser = await window.apsanCloud.signIn(directionAccount, { allowCreate: false });
                     let savedDirectionProfile = {};
                     try {
                         savedDirectionProfile = JSON.parse(localStorage.getItem("apsan_direction_profile") || "{}") || {};
