@@ -252,7 +252,7 @@
 
         registerForm.addEventListener(
             "submit",
-            function(event) {
+            async function(event) {
 
                 event.preventDefault();
 
@@ -436,6 +436,21 @@
                  * Posteriormente poderão ser alterados
                  * na área de perfil aberta através do avatar.
                  */
+
+                /*
+                 * Nova conta: autenticação no Firebase + perfil no Realtime Database.
+                 * A palavra-passe permanece apenas no Firebase Authentication.
+                 */
+                try {
+                    if (window.apsanCloud) {
+                        await window.apsanCloud.signIn(account);
+                        await window.apsanCloud.saveAccount(account);
+                    }
+                } catch (firebaseError) {
+                    message.style.color = "#d93025";
+                    message.textContent = "Não foi possível criar a conta online. Verifique a ligação e tente novamente.";
+                    return;
+                }
 
                 localStorage.setItem(
                     "apsan_account",
