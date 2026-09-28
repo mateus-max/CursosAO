@@ -1,0 +1,460 @@
+(function(){
+"use strict";
+
+const params=new URLSearchParams(location.search);
+const liveId=params.get("live")||"";
+const account=(()=>{try{return JSON.parse(localStorage.getItem("apsan_account")||"{}")}catch(_){return {}}})();
+const role=account.type||localStorage.getItem("apsan_user_type")||"";
+const phone=String(account.phone||localStorage.getItem("apsan_phone")||"").replace(/\D/g,"");
+if(!liveId || !["professor","aluno"].includes(role)) return;
+
+const board=document.querySelector(".board");
+const canvas=document.getElementById("whiteboardCanvas");
+const ctx=canvas&&canvas.getContext("2d");
+if(!board||!canvas||!ctx) return;
+
+const peerKey=phone||("peer_"+Math.random().toString(36).slice(2));
+const mediaRoot="appData/apsan_live_media/"+liveId;
+const presenceRoot=mediaRoot+"/presence";
+const peerRoot=mediaRoot+"/peers/"+peerKey;
+const boardRoot="appData/apsan_live_board_"+liveId;
+const objectsRoot="appData/apsan_board_objects_"+liveId;
+const pointerRoot="appData/apsan_live_pointer_"+liveId;
+
+const RTC_CONFIG={
+  iceServers:[
+    {urls:["stun:stun.l.google.com:19302","stun:stun1.l.google.com:19302"]},
+    {urls:["stun:stun.cloudflare.com:3478"]}
+  ]
+};
+
+let cameraStream=null;
+let micStream=null;
+let cameraOn=false;
+let micOn=false;
+let handRaised=false;
+let indicatorMode=false;
+let magnifyMode=false;
+let localDrawing=false;
+let localDrawMode="write";
+let lastPoint=null;
+let drawSnapshot=null;
+let pointerTimer=null;
+let pointerVisible=false;
+let remotePointerEl=null;
+let remoteTeacherVideo=null;
+let studentRemoteAudio=null;
+let peerConnections={};
+let seenCandidates={};
+let mediaListeners=[];
+let boardListeners=[];
+let lastRemoteBoard="";
+let lastRemoteObjects="";
+let applyingRemote=false;
+let boardSyncTimer=null;
+let remoteStrokeCanvas=null;
+
+function cloud(){
+  return window.apsanCloud&&typeof window.apsanCloud.set==="function" ? window.apsanCloud : null;
+}
+function normalize(v){return String(v||"").replace(/\D/g,"").slice(-9);}
+function key(v){return normalize(v)||String(v||"peer").replace(/[^a-zA-Z0-9_-]/g,"_");}
+function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
+function readJsonStorage(k,f){try{const v=JSON.parse(localStorage.getItem(k)||"null");return v==null?f:v}catch(_){return f}}
+function liveBoardKey(){return "apsan_live_board_"+liveId}
+function liveObjectsKey(){return "apsan_board_objects_"+liveId}
+function toast(msg){const el=document.getElementById("toast");if(!el)return;el.textContent=msg;el.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove("show"),2400)}
+
+function addStyle(){
+  if(document.getElementById("liveRoomRuntimeStyle"))return;
+  const s=document.createElement("style");s.id="liveRoomRuntimeStyle";
+  s.textContent=`
+    body.live-student-mode .classroom-side,
+    body.live-student-mode .classroom-right,
+    body.live-student-mode .classroom-top-actions,
+    body.live-student-mode .board-toolbar{display:none!important}
+    body.live-student-mode .classroom-body{grid-template-columns:minmax(0,1fr)!important}
+    body.live-student-mode .classroom-main{width:100%}
+    body.live-student-mode .classroom-bottom{height:auto;min-height:70px;flex-wrap:wrap;padding:7px 10px}
+    body.live-student-mode .classroom-bottom #recordClass,
+    body.live-student-mode .classroom-bottom #openChat,
+    body.live-student-mode .classroom-bottom #openParticipants,
+    body.live-student-mode .classroom-bottom #endClass{display:none!important}
+    .live-student-tools{display:none;gap:7px;align-items:center;justify-content:center;flex-wrap:wrap;width:100%}
+    body.live-student-mode .live-student-tools{display:flex}
+    .live-student-tools button,.live-teacher-pointer-tools button{border:0;border-radius:11px;background:#172d4c;color:#fff;padding:9px 11px;font-weight:900;cursor:pointer}
+    .live-student-tools button.active,.live-teacher-pointer-tools button.active{background:#b91c1c}
+    .live-student-tools button.write.active{background:#1769e0}
+    .live-board-pointer{position:absolute;z-index:60;width:18px;height:18px;border-radius:50%;background:#ef233c;border:3px solid #fff;box-shadow:0 0 0 3px rgba(239,35,60,.35),0 3px 12px rgba(0,0,0,.3);pointer-events:none;transform:translate(-50%,-50%);display:none}
+    .live-board-pointer.show{display:block}
+    .live-board-pointer.magnify{width:42px;height:42px;background:rgba(239,35,60,.12);border-color:#ef233c;box-shadow:0 0 0 4px rgba(239,35,60,.2),inset 0 0 0 2px rgba(239,35,60,.55)}
+    .live-board-pointer.arrow{width:0;height:0;border:0;border-top:10px solid transparent;border-bottom:10px solid transparent;border-left:20px solid #ffd400;border-radius:0;background:transparent;box-shadow:2px 2px 7px rgba(0,0,0,.35);transform:translate(-4px,-4px) rotate(-18deg)}
+    .live-local-camera{position:absolute;left:14px;bottom:14px;z-index:42;width:150px;padding:5px;border-radius:10px;background:#0d1d38;color:#fff;box-shadow:0 8px 20px rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.16);display:none}
+    .live-local-camera.show{display:block}
+    .live-local-camera video{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:7px;background:#020b18}
+    .live-local-camera small{display:block;padding:4px 2px 0;color:#b9c7d8;font-size:9px}
+    .live-remote-camera{position:absolute;right:14px;top:14px;z-index:41;width:180px;padding:5px;border-radius:10px;background:#0d1d38;color:#fff;box-shadow:0 8px 20px rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.16);display:none}
+    .live-remote-camera.show{display:block}
+    .live-remote-camera video{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:7px;background:#020b18}
+    .live-remote-camera small{display:block;padding:4px 2px 0;color:#b9c7d8;font-size:9px}
+    .live-status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-right:5px}
+    .live-status-dot.on{background:#22c55e}
+    .live-teacher-pointer-tools{display:flex;gap:5px;margin:8px 0 10px;flex-wrap:wrap}
+    .live-student-mode #cameraDock{display:none!important}
+    .live-student-mode .board-wrap{padding:8px}
+    .live-student-mode .board{min-height:calc(100dvh - 150px)}
+    @media(max-width:700px){
+      .live-local-camera{width:118px;left:8px;bottom:8px}
+      .live-remote-camera{width:132px;right:8px;top:8px}
+      .live-student-tools button{padding:8px 9px;font-size:10px}
+    }`;
+  document.head.appendChild(s);
+}
+
+function makeStudentTools(){
+  if(role!=="aluno")return;
+  document.body.classList.add("live-student-mode");
+  const bar=document.querySelector(".classroom-bottom");
+  if(!bar)return;
+  const wrap=document.createElement("div");wrap.className="live-student-tools";wrap.id="liveStudentTools";
+  wrap.innerHTML=
+    '<button type="button" id="studentWrite" class="write active">🖊 Escrever</button>'+
+    '<button type="button" id="studentErase">⌫ Apagar</button>'+
+    '<button type="button" id="studentMagnify">🔴 Lupa</button>'+
+    '<button type="button" id="studentPointer">🖱 Indicador</button>';
+  bar.appendChild(wrap);
+  document.getElementById("studentWrite").onclick=()=>{localDrawMode="write";setToolActive("studentWrite");};
+  document.getElementById("studentErase").onclick=()=>{localDrawMode="erase";setToolActive("studentErase");};
+  document.getElementById("studentMagnify").onclick=()=>toggleMagnify();
+  document.getElementById("studentPointer").onclick=()=>toggleIndicator();
+}
+
+function setToolActive(id){
+  ["studentWrite","studentErase"].forEach(x=>document.getElementById(x)?.classList.toggle("active",x===id));
+}
+function makeTeacherPointerTools(){
+  if(role!=="professor")return;
+  const toolbar=document.querySelector(".board-toolbar");if(!toolbar)return;
+  if(document.getElementById("teacherPointerTools"))return;
+  const wrap=document.createElement("div");wrap.className="live-teacher-pointer-tools";wrap.id="teacherPointerTools";
+  wrap.innerHTML='<button type="button" id="teacherMagnify">🔴 Lupa</button><button type="button" id="teacherPointer">🖱 Indicador</button>';
+  toolbar.appendChild(wrap);
+  document.getElementById("teacherMagnify").onclick=()=>toggleMagnify();
+  document.getElementById("teacherPointer").onclick=()=>toggleIndicator();
+}
+function ensurePointerEl(){
+  if(remotePointerEl)return remotePointerEl;
+  remotePointerEl=document.createElement("div");remotePointerEl.className="live-board-pointer";remotePointerEl.id="liveBoardRemotePointer";board.appendChild(remotePointerEl);
+  return remotePointerEl;
+}
+function applyPointerStyle(mode,color){
+  const el=ensurePointerEl();el.classList.remove("magnify","arrow");if(mode==="magnify")el.classList.add("magnify");else if(mode==="indicator")el.classList.add("arrow");el.style.background=mode==="indicator"?"transparent":(mode==="magnify"?"rgba(239,35,60,.12)":(color||"#ef233c"));el.style.borderColor=color||"#ef233c";
+}
+function toggleMagnify(){magnifyMode=!magnifyMode;if(magnifyMode)indicatorMode=false;applyLocalPointerButtons();publishPresence();toast(magnifyMode?"Lupa ativa no quadro.":"Lupa desligada.");}
+function toggleIndicator(){indicatorMode=!indicatorMode;if(indicatorMode)magnifyMode=false;applyLocalPointerButtons();publishPresence();toast(indicatorMode?"Indicador ativo no quadro.":"Indicador desligado.");}
+function applyLocalPointerButtons(){
+  document.getElementById("studentMagnify")?.classList.toggle("active",magnifyMode);
+  document.getElementById("studentPointer")?.classList.toggle("active",indicatorMode);
+  document.getElementById("teacherMagnify")?.classList.toggle("active",magnifyMode);
+  document.getElementById("teacherPointer")?.classList.toggle("active",indicatorMode);
+}
+async function publishPointer(x,y,visible){
+  const c=cloud();if(!c)return;
+  if(pointerTimer)clearTimeout(pointerTimer);
+  pointerTimer=setTimeout(()=>c.set(pointerRoot+"/"+peerKey,{x,y,visible:!!visible,mode:magnifyMode?"magnify":indicatorMode?"indicator":"dot",color:magnifyMode?"#ef233c":indicatorMode?"#ffd400":"#ef233c",at:Date.now(),role,name:account.name||"Utilizador"}).catch(()=>{}),35);
+}
+function localPointer(e){
+  if(!indicatorMode&&!magnifyMode)return;
+  const r=board.getBoundingClientRect();const x=Math.max(0,Math.min(r.width,e.clientX-r.left)),y=Math.max(0,Math.min(r.height,e.clientY-r.top));
+  publishPointer(x/r.width,y/r.height,true);
+}
+function hideLocalPointer(){
+  if(!indicatorMode&&!magnifyMode)return;
+  publishPointer(0,0,false);
+}
+function listenPointers(){
+  const c=cloud();if(!c)return;
+  mediaListeners.push(c.listen(pointerRoot,(all)=>{
+    if(!all||typeof all!=="object")return;
+    Object.keys(all).forEach(k=>{
+      if(k===peerKey)return;
+      const p=all[k];if(!p)return;
+      const el=ensurePointerEl();el.classList.toggle("show",p.visible!==false);if(p.visible===false)return;
+      applyPointerStyle(p.mode,p.color);
+      const r=board.getBoundingClientRect();el.style.left=(Math.max(0,Math.min(1,Number(p.x)||0))*r.width)+"px";el.style.top=(Math.max(0,Math.min(1,Number(p.y)||0))*r.height)+"px";
+    });
+  }));
+}
+function bindPointerTracking(){
+  board.addEventListener("pointermove",localPointer,{passive:true});
+  board.addEventListener("pointerleave",hideLocalPointer,{passive:true});
+}
+
+async function publishPresence(){
+  const c=cloud();if(!c)return;
+  await c.set(presenceRoot+"/"+peerKey,{
+    phone,name:account.name||"Utilizador",role,cameraOn,micOn,handRaised,
+    indicator:indicatorMode,magnify:magnifyMode,updatedAt:Date.now()
+  }).catch(()=>{});
+}
+function listenPresence(){
+  const c=cloud();if(!c)return;
+  mediaListeners.push(c.listen(presenceRoot,(all)=>{
+    if(!all||typeof all!=="object")return;
+    Object.keys(all).forEach(k=>{
+      if(k===peerKey)return;
+      const p=all[k]||{};
+      const item=document.querySelector('[data-live-participant="'+CSS.escape(k)+'"]');
+      if(item){
+        const status=item.querySelector(".live-participant-status");
+        if(status)status.innerHTML='<span class="live-status-dot '+(p.cameraOn?"on":"")+'></span>'+ (p.cameraOn?"Câmara ligada":"Câmara desligada")+(p.handRaised?" · ✋ mão levantada":"");
+      }
+    });
+  }));
+}
+
+function createLocalCameraBox(){
+  let box=document.getElementById("liveLocalCamera");
+  if(box)return box;
+  box=document.createElement("div");box.className="live-local-camera";box.id="liveLocalCamera";
+  box.innerHTML='<video autoplay playsinline muted></video><small id="liveLocalCameraLabel">A sua câmara</small>';
+  board.appendChild(box);
+  return box;
+}
+function showLocalCamera(){
+  const box=createLocalCameraBox();const video=box.querySelector("video");
+  video.srcObject=cameraStream||null;box.classList.toggle("show",!!cameraStream&&cameraOn);
+}
+function createRemoteTeacherBox(){
+  if(role!=="aluno")return null;
+  let box=document.getElementById("liveRemoteTeacherCamera");
+  if(box)return box;
+  box=document.createElement("div");box.className="live-remote-camera";box.id="liveRemoteTeacherCamera";
+  box.innerHTML='<video autoplay playsinline></video><small id="liveRemoteTeacherLabel">Professor</small>';
+  board.appendChild(box);
+  return box;
+}
+function attachRemoteStudentVideo(student,stream){
+  if(role!=="professor")return;
+  const grid=document.getElementById("participantVideoGrid");if(!grid)return;
+  let tile=grid.querySelector('[data-live-video="'+CSS.escape(student)+'"]');
+  if(!tile){
+    tile=document.createElement("div");tile.className="participant-video-tile";tile.dataset.liveVideo=student;
+    tile.innerHTML='<video autoplay playsinline></video><span>'+esc(student)+'</span>';
+    grid.prepend(tile);
+  }
+  const video=tile.querySelector("video");video.srcObject=stream;video.play().catch(()=>{});
+}
+function attachRemoteTeacherVideo(stream,name){
+  const box=createRemoteTeacherBox();if(!box)return;
+  const video=box.querySelector("video");video.srcObject=stream;box.querySelector("small").textContent=(name||"Professor")+" · ao vivo";box.classList.add("show");video.play().catch(()=>{});
+}
+
+async function getMedia(kind){
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error("media");
+  if(kind==="video" && !cameraStream) cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:{ideal:1280},height:{ideal:720}},audio:false});
+  if(kind==="audio" && !micStream) micStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});
+}
+function stopMedia(kind){
+  const s=kind==="video"?cameraStream:micStream;if(!s)return;
+  s.getTracks().forEach(t=>t.stop());
+  if(kind==="video")cameraStream=null;else micStream=null;
+}
+function senderFor(pc,kind){const arr=pc._apsanSenders||{};return arr[kind]||null}
+async function replaceAllSenders(kind,track){
+  await Promise.all(Object.keys(peerConnections).map(async k=>{
+    const pc=peerConnections[k];const sender=senderFor(pc,kind);if(sender)try{await sender.replaceTrack(track||null)}catch(_){}
+  }));
+}
+async function setCamera(on){
+  try{
+    if(on){
+      await getMedia("video");cameraOn=true;
+      const track=cameraStream.getVideoTracks()[0];await replaceAllSenders("video",track);
+    }else{stopMedia("video");cameraOn=false;await replaceAllSenders("video",null)}
+    const v=document.getElementById("localCamera");if(v)v.srcObject=cameraStream||null;
+    if(v&&cameraStream)v.play().catch(()=>{});
+    showLocalCamera();updateButton("toggleCamera",cameraOn?"<span>▣</span>Desligar câmara":"<span>▣</span>Ligar câmara");
+    await publishPresence();toast(cameraOn?"Câmara ligada e partilhada na aula.":"Câmara desligada.");
+  }catch(e){toast("Não foi possível ativar a câmara. Verifique a permissão do navegador.");}
+}
+async function setMic(on){
+  try{
+    if(on){await getMedia("audio");micOn=true;await replaceAllSenders("audio",micStream.getAudioTracks()[0]);}
+    else{stopMedia("audio");micOn=false;await replaceAllSenders("audio",null)}
+    updateButton("toggleMic",micOn?"<span>🎙</span>Desligar microfone":"<span>🎙</span>Microfone");
+    await publishPresence();toast(micOn?"Microfone ligado e partilhado na aula.":"Microfone desligado.");
+  }catch(_){toast("Não foi possível ativar o microfone.");}
+}
+function updateButton(id,html){const b=document.getElementById(id);if(b)b.innerHTML=html}
+function bindMediaButtons(){
+  const cam=document.getElementById("toggleCamera");if(cam)cam.onclick=()=>setCamera(!cameraOn);
+  const mic=document.getElementById("toggleMic");if(mic)mic.onclick=()=>setMic(!micOn);
+  const hand=document.getElementById("raiseHand");if(hand)hand.onclick=async()=>{handRaised=!handRaised;hand.innerHTML=handRaised?"<span>✋</span>Baixar mão":"<span>✋</span>Levantar mão";await publishPresence();toast(handRaised?"Mão levantada.":"Mão baixada.")};
+}
+function wireTransceivers(pc){
+  const senders={};
+  const vt=pc.addTransceiver("video",{direction:"sendrecv"});const at=pc.addTransceiver("audio",{direction:"sendrecv"});
+  senders.video=vt.sender;senders.audio=at.sender;pc._apsanSenders=senders;
+  if(cameraStream)vt.sender.replaceTrack(cameraStream.getVideoTracks()[0]).catch(()=>{});
+  if(micStream)at.sender.replaceTrack(micStream.getAudioTracks()[0]).catch(()=>{});
+}
+function candidateSeen(peer,side,k){const id=peer+":"+side+":"+k;if(seenCandidates[id])return true;seenCandidates[id]=true;return false}
+async function writeCandidate(side,peer,cand){
+  const c=cloud();if(!c)return;
+  await c.push(mediaRoot+"/peers/"+peer+"/"+side+"Candidates",cand).catch(()=>{});
+}
+function watchCandidates(pc,peer,side){
+  const c=cloud();if(!c)return;
+  const path=mediaRoot+"/peers/"+peer+"/"+side+"Candidates";
+  const off=c.listen(path,async all=>{
+    if(!all||typeof all!=="object")return;
+    for(const id of Object.keys(all)){
+      if(candidateSeen(peer,side,id))continue;
+      try{await pc.addIceCandidate(new RTCIceCandidate(all[id]))}catch(_){}
+    }
+  });
+  mediaListeners.push(off);
+}
+function setupPcHandlers(pc,remoteRole,remoteName){
+  pc.onicecandidate=e=>{if(e.candidate)pc._apsanSendCandidate(e.candidate)};
+  pc.onconnectionstatechange=()=>{if(["failed","disconnected"].includes(pc.connectionState)){setTimeout(()=>{if(pc.connectionState==="failed"||pc.connectionState==="disconnected")pc.restartIce?.()},1500)}};
+  pc.ontrack=e=>{
+    const stream=e.streams&&e.streams[0] ? e.streams[0] : new MediaStream([e.track]);
+    if(remoteRole==="aluno")attachRemoteStudentVideo(pc._apsanPeer,stream);
+    else attachRemoteTeacherVideo(stream,remoteName||"Professor");
+  };
+}
+async function makeStudentPeer(){
+  const c=cloud();if(!c)return;
+  if(peerConnections.teacher)return;
+  const pc=new RTCPeerConnection(RTC_CONFIG);peerConnections.teacher=pc;
+  wireTransceivers(pc);
+  pc._apsanPeer=peerKey;pc._apsanSendCandidate=cand=>writeCandidate("student",peerKey,cand);
+  setupPcHandlers(pc,"professor","Professor");
+  watchCandidates(pc,peerKey,"teacher");
+  const offer=await pc.createOffer();await pc.setLocalDescription(offer);
+  await c.set(peerRoot+"/offer",{type:offer.type,sdp:offer.sdp,at:Date.now(),name:account.name||"Aluno",phone}).catch(()=>{});
+  mediaListeners.push(c.listen(peerRoot,async data=>{
+    if(!data||!data.answer||pc.currentRemoteDescription)return;
+    try{await pc.setRemoteDescription(new RTCSessionDescription(data.answer))}catch(_){}
+  }));
+}
+async function makeTeacherPeer(student,data){
+  const c=cloud();if(!c||!data||!data.offer)return;
+  const p=normalize(student);if(!p)return;
+  if(peerConnections[p])return;
+  const pc=new RTCPeerConnection(RTC_CONFIG);peerConnections[p]=pc;pc._apsanPeer=p;
+  wireTransceivers(pc);
+  pc._apsanSendCandidate=cand=>writeCandidate("teacher",p,cand);
+  setupPcHandlers(pc,"aluno",data.name||p);
+  watchCandidates(pc,p,"student");
+  try{
+    await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
+    const answer=await pc.createAnswer();await pc.setLocalDescription(answer);
+    await c.set(mediaRoot+"/peers/"+p+"/answer",{type:answer.type,sdp:answer.sdp,at:Date.now(),teacher:account.name||"Professor"});
+  }catch(e){console.warn("WebRTC professor:",e)}
+}
+function listenTeacherPeers(){
+  const c=cloud();if(!c)return;
+  mediaListeners.push(c.listen(mediaRoot+"/peers",all=>{
+    if(!all||typeof all!=="object")return;
+    Object.keys(all).forEach(p=>{if(p===peerKey)return;const d=all[p];if(d&&d.offer)makeTeacherPeer(p,d)});
+  }));
+}
+function cleanupPeers(){
+  Object.keys(peerConnections).forEach(k=>{try{peerConnections[k].close()}catch(_){}});
+  peerConnections={};
+}
+
+function drawRemoteSnapshot(data){
+  if(!data||typeof data!=="string"||!data.startsWith("data:image/"))return;
+  if(data===lastRemoteBoard)return;
+  lastRemoteBoard=data;applyingRemote=true;
+  const im=new Image();im.onload=()=>{
+    const r=canvas.getBoundingClientRect();ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(im,0,0,canvas.width,canvas.height);ctx.restore();applyingRemote=false;
+  };im.src=data;
+}
+function drawLocalStudentStroke(e){
+  if(role!=="aluno"||!liveId)return;
+  const r=canvas.getBoundingClientRect();const p={x:e.clientX-r.left,y:e.clientY-r.top};
+  if(!localDrawing)return;
+  ctx.lineTo(p.x,p.y);ctx.stroke();
+}
+function studentBoardDown(e){
+  if(role!=="aluno"||!liveId||!e.isPrimary)return;
+  if(indicatorMode||magnifyMode)return;
+  localDrawing=true;lastPoint=null;drawSnapshot=canvas.toDataURL("image/png");
+  const r=canvas.getBoundingClientRect();const p={x:e.clientX-r.left,y:e.clientY-r.top};
+  ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineCap="round";ctx.lineJoin="round";ctx.strokeStyle=localDrawMode==="erase"?"#fff":"#1769e0";ctx.lineWidth=localDrawMode==="erase"?24:3;
+  ctx.lineTo(p.x+.1,p.y+.1);ctx.stroke();
+  e.preventDefault();
+}
+function studentBoardMove(e){if(role!=="aluno"||!localDrawing)return;drawLocalStudentStroke(e)}
+async function studentBoardUp(e){
+  if(role!=="aluno"||!localDrawing)return;localDrawing=false;
+  try{localStorage.setItem(liveBoardKey(),canvas.toDataURL("image/png"));const obj=readJsonStorage(liveObjectsKey(),[]);localStorage.setItem(liveObjectsKey(),JSON.stringify(obj));}catch(_){}
+}
+function bindStudentBoard(){
+  canvas.addEventListener("pointerdown",studentBoardDown);
+  canvas.addEventListener("pointermove",studentBoardMove);
+  canvas.addEventListener("pointerup",studentBoardUp);
+  canvas.addEventListener("pointercancel",()=>{localDrawing=false});
+}
+function bindBoardSync(){
+  const c=cloud();if(!c)return;
+  const off1=c.listen(boardRoot,data=>{if(role==="aluno"||role==="professor")drawRemoteSnapshot(data)});
+  const off2=c.listen(objectsRoot,data=>{
+    if(data==null)return;
+    const encoded=typeof data==="string"?data:JSON.stringify(data);
+    if(encoded===lastRemoteObjects)return;
+    lastRemoteObjects=encoded;applyingRemote=true;
+    try{localStorage.setItem(liveObjectsKey(),encoded)}catch(_){}
+    applyingRemote=false;
+    window.dispatchEvent(new Event("apsan-board-remote"));
+  });
+  boardListeners.push(off1,off2);
+  window.addEventListener("apsan-board-remote",()=>{window.dispatchEvent(new Event("resize"))});
+}
+function publishBoardSnapshot(){
+  if(role!=="professor"&&!localDrawing)return;
+  if(applyingRemote)return;
+  clearTimeout(boardSyncTimer);
+  boardSyncTimer=setTimeout(()=>{
+    const c=cloud();if(!c)return;
+    try{
+      const data=canvas.toDataURL("image/png");
+      const objs=localStorage.getItem(liveObjectsKey())||"[]";
+      c.set(boardRoot,data).catch(()=>{});
+      c.set(objectsRoot,JSON.parse(objs)).catch(()=>{});
+    }catch(_){}
+  },80);
+}
+function bindTeacherBoardSync(){
+  if(role!=="professor")return;
+  ["pointerup","pointercancel"].forEach(ev=>canvas.addEventListener(ev,publishBoardSnapshot));
+  const originalSet=localStorage.setItem.bind(localStorage);
+  window.addEventListener("apsan-cloud-sync",e=>{
+    if(e.detail&&e.detail.key===liveObjectsKey())window.dispatchEvent(new Event("apsan-board-remote"));
+  });
+  setInterval(()=>{if(!applyingRemote)publishBoardSnapshot()},2500);
+}
+
+function patchLocalStorageObjectSync(){
+  const original=localStorage.setItem;
+  if(original.__apsanPatched)return;
+  function wrapped(key,value){
+    original.call(localStorage,key,value);
+    if(key===liveObjectsKey()&&role==="professor"&&!applyingRemote)publishBoardSnapshot();
+  }
+  wrapped.__apsanPatched=true;localStorage.setItem=wrapped;
+}
+function boot(){
+  addStyle();makeStudentTools();makeTeacherPointerTools();bindMediaButtons();bindPointerTracking();listenPointers();listenPresence();bindBoardSync();patchLocalStorageObjectSync();
+  if(role==="aluno"){bindStudentBoard();makeStudentPeer().catch(()=>{});}
+  else{listenTeacherPeers();}
+  publishPresence();
+  window.addEventListener("beforeunload",()=>{try{publishPointer(0,0,false);cleanupPeers();}catch(_){}});
+}
+boot();
+})();
