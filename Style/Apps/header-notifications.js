@@ -299,7 +299,7 @@
             if (!item) return;
             const link = item.getAttribute("data-header-notification-link") || "";
             closePanel();
-            if (link === "mensagens.html") {
+            if (link === "mensagens.html" || /^https?:\\/\\//i.test(link)) {
                 window.location.href = link;
                 return;
             }
