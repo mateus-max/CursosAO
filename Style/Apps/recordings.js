@@ -36,13 +36,87 @@
     }catch(error){console.warn("Cópia local da aula:",error)}
     return {id,videoUrl,online};
   }
-  async function listOnline(){
+  async function openLocalDB(){
+    return new Promise((resolve,reject)=>{
+      if(!window.indexedDB)return reject(new Error("indexeddb"));
+      const q=indexedDB.open("apsanAcademyRecordings",2);
+      q.onupgradeneeded=()=>{if(!q.result.objectStoreNames.contains("recordings"))q.result.createObjectStore("recordings",{keyPath:"id"})};
+      q.onsuccess=()=>resolve(q.result);q.onerror=()=>reject(q.error);
+    });
+  }
+  async function localRecordingItems(){
+    try{
+      const db=await openLocalDB();
+      const all=await new Promise((res,rej)=>{const q=db.transaction("recordings","readonly").objectStore("recordings").getAll();q.onsuccess=()=>res(q.result||[]);q.onerror=()=>rej(q.error)});
+      db.close();return all||[];
+    }catch(_){return []}
+  }
+  function getLiveMeta(liveId,account){
+    try{
+      const classes=JSON.parse(localStorage.getItem("apsan_live_classes")||"[]");
+      const found=(Array.isArray(classes)?classes:[]).find(x=>x&&x.id===liveId)||{};
+      return {
+        title:found.title||"Aula gravada",
+        course:found.course||"Curso",
+        teacherName:found.teacherName||(account&&account.name)||"Professor",
+        teacherPhone:cleanPhone(found.teacherPhone||(account&&account.phone)),
+        studentPhones:Array.isArray(found.students)?found.students.map(cleanPhone).filter(Boolean):[]
+      };
+    }catch(_){
+      return {title:"Aula gravada",course:"Curso",teacherName:(account&&account.name)||"Professor",teacherPhone:cleanPhone(account&&account.phone),studentPhones:[]};
+    }
+  }
+  async function migrateLocalRecordings(){
+    const account=(()=>{try{return JSON.parse(localStorage.getItem("apsan_account")||"{}")}catch(_){return {}}})();
+    const localItems=await localRecordingItems();
+    if(!localItems.length)return;
+    let online=[];
     try{
       const f=await cloudReady();
       const snap=await f.db.ref("appData/apsan_recorded_classes").once("value");
       const raw=snap.exists()?snap.val():{};
-      return Object.keys(raw||{}).map(k=>Object.assign({id:k},raw[k]||{})).sort((a,b)=>String(b.createdAt||"").localeCompare(String(a.createdAt||"")));
-    }catch(_){try{const raw=JSON.parse(localStorage.getItem("apsan_recorded_classes")||"{}");return Object.keys(raw||{}).map(k=>Object.assign({id:k},raw[k]||{})).sort((a,b)=>String(b.createdAt||"").localeCompare(String(a.createdAt||"")));}catch(__){return []}}
+      online=Object.keys(raw||{}).map(k=>Object.assign({id:k},raw[k]||{}));
+    }catch(_){}
+    const known={};online.forEach(x=>{known[x.id]=x});
+    for(const item of localItems){
+      if(!item||!item.id||known[item.id]||!item.blob)continue;
+      const meta=getLiveMeta(item.liveId,account);
+      try{
+        const archived=await save(item.blob,{
+          id:item.id,
+          liveId:item.liveId||"",
+          title:meta.title,
+          course:meta.course,
+          teacherPhone:meta.teacherPhone,
+          teacherName:meta.teacherName,
+          studentPhones:meta.studentPhones,
+          createdAt:item.createdAt||new Date().toISOString()
+        });
+        if(archived&&archived.online)known[item.id]=archived;
+      }catch(error){console.warn("Migração da gravação antiga:",error)}
+    }
+  }
+  async function listOnline(){
+    try{
+      await migrateLocalRecordings();
+      const f=await cloudReady();
+      const snap=await f.db.ref("appData/apsan_recorded_classes").once("value");
+      const raw=snap.exists()?snap.val():{};
+      const online=Object.keys(raw||{}).map(k=>Object.assign({id:k},raw[k]||{}));
+      const local=await localRecordingItems();
+      const account=(()=>{try{return JSON.parse(localStorage.getItem("apsan_account")||"{}")}catch(_){return {}}})();
+      const byId={};online.forEach(x=>{byId[x.id]=x});
+      local.forEach(item=>{if(item&&!byId[item.id]){const meta=getLiveMeta(item.liveId,account);byId[item.id]={
+        id:item.id,liveId:item.liveId||"",title:meta.title,course:meta.course,teacherPhone:meta.teacherPhone,teacherName:meta.teacherName,studentPhones:meta.studentPhones,createdAt:item.createdAt||"",size:item.size||item.blob?.size||0,videoUrl:item.videoUrl||""
+      }}});
+      return Object.keys(byId).map(k=>byId[k]).sort((a,b)=>String(b.createdAt||"").localeCompare(String(a.createdAt||"")));
+    }catch(_){
+      try{
+        const local=await localRecordingItems();
+        const account=(()=>{try{return JSON.parse(localStorage.getItem("apsan_account")||"{}")}catch(_){return {}}})();
+        return local.map(item=>{const meta=getLiveMeta(item.liveId,account);return Object.assign({},item,{title:item.title||meta.title,course:item.course||meta.course,teacherPhone:item.teacherPhone||meta.teacherPhone,teacherName:item.teacherName||meta.teacherName,studentPhones:item.studentPhones||meta.studentPhones,videoUrl:item.videoUrl||""})}).sort((a,b)=>String(b.createdAt||"").localeCompare(String(a.createdAt||"")));
+      }catch(__){return []}
+    }
   }
   function accessible(record,account){
     const phone=cleanPhone(account&&account.phone);
