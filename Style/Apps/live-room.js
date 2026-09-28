@@ -370,7 +370,7 @@ function cleanupPeers(){
 function drawRemoteSnapshot(data){
   if(!data||typeof data!=="string"||!data.startsWith("data:image/"))return;
   if(data===lastRemoteBoard)return;
-  lastRemoteBoard=data;applyingRemote=true;
+  lastRemoteBoard=data;applyingRemote=true;try{localStorage.setItem(liveBoardKey(),data)}catch(_){}
   const im=new Image();im.onload=()=>{
     const r=canvas.getBoundingClientRect();ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(im,0,0,canvas.width,canvas.height);ctx.restore();applyingRemote=false;
   };im.src=data;
