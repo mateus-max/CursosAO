@@ -399,6 +399,8 @@ document.addEventListener("DOMContentLoaded", function () {
             window.location.href = "Style/Apps/aluno.html";
         }
     });
+    }
+
     /* O login é uma página própria. Depois de registar o evento de entrada,
        não executamos o código dos painéis nesta página. */
     if (loginForm) {
