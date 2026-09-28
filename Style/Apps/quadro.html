@@ -275,6 +275,13 @@ document.getElementById("addDocument").onclick=()=>{if(role==="professor")docume
 document.getElementById("boardDocumentInput").onchange=e=>{const file=e.target.files[0];if(file&&role==="professor")saveBoardDocument(file,lastBoardPoint||{x:24,y:24});e.target.value=""};
 function renderLive(){live=getLive();if(!live){if(role==="professor"){live={id:liveId||"",title:"Aula pronta",course:"",teacherName:account.name||"Professor",teacherPhone:phone,students:[],active:false};document.getElementById("classTitle").textContent=live.title;document.getElementById("classMeta").textContent="Quadro preparado · a aula ainda não começou";setPreClassState();return}document.getElementById("classTitle").textContent="Sala Virtual";document.getElementById("classMeta").textContent="Aula não encontrada ou encerrada.";setPreClassState();return}
 if(role==="aluno"&&!Array.isArray(live.students).map(window.APSANLive?window.APSANLive.norm:(v=>String(v||"").replace(/\D/g,""))).includes(window.APSANLive?window.APSANLive.norm(phone):phone)){document.getElementById("classTitle").textContent="Acesso não autorizado";document.getElementById("classMeta").textContent="Esta aula está disponível apenas para os alunos oficiais.";return}
+if(role==="aluno"&&!live.active){
+  document.getElementById("classTitle").textContent="Aula encerrada";
+  document.getElementById("classMeta").textContent="O professor encerrou esta aula. Esta sala já não está disponível.";
+  document.getElementById("liveStatus").innerHTML='<span class="status-warn">AULA ENCERRADA</span>';
+  document.querySelectorAll(".classroom-bottom button").forEach(b=>{if(b.id!=="leaveClass")b.disabled=true});
+  return;
+}
 document.getElementById("classTitle").textContent=live.title;
 document.getElementById("classMeta").textContent=(live.course||"Curso")+" · Prof. "+(live.teacherName||"Professor");
 document.getElementById("liveStatus").innerHTML=live.active?'<span class="live-pill"><i class="live-dot"></i> AO VIVO</span>':'<span class="status-warn">Aula encerrada</span>';
