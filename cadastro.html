@@ -300,6 +300,16 @@
                     .getElementById("newUserType")
                     .value;
 
+                /* A Direção não possui cadastro público. Mesmo que alguém
+                   tente injetar o valor "direcao" no formulário, a criação
+                   é recusada antes de qualquer escrita local ou no Firebase. */
+                if (userType !== "professor" && userType !== "aluno") {
+                    const message = document.getElementById("registerMessage");
+                    message.style.color = "#d93025";
+                    message.textContent = "O cadastro está disponível apenas para Professor e Aluno.";
+                    return;
+                }
+
 
                 const message =
                     document
