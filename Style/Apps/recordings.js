@@ -48,7 +48,11 @@
     const phone=cleanPhone(account&&account.phone);
     if(!phone)return false;
     if(String(record.teacherPhone||"")===phone)return true;
-    return Array.isArray(record.studentPhones)&&record.studentPhones.map(cleanPhone).includes(phone);
+    if(Array.isArray(record.studentPhones)&&record.studentPhones.map(cleanPhone).includes(phone))return true;
+    try{
+      const enrollments=JSON.parse(localStorage.getItem("apsan_enrollments")||"[]");
+      return (Array.isArray(enrollments)?enrollments:[]).some(e=>e&&String(e.status||"") === "official"&&cleanPhone(e.studentPhone)===phone&&cleanPhone(e.teacherPhone)===cleanPhone(record.teacherPhone)&&(String(e.course||"")===String(record.course||"")||!record.course));
+    }catch(_){return false}
   }
   function formatDate(v){try{return new Date(v).toLocaleString("pt-PT")}catch(_){return v||""}}
   async function renderProfessor(targetId){
