@@ -445,6 +445,7 @@
                     if (window.apsanCloud) {
                         await window.apsanCloud.signIn(account);
                         await window.apsanCloud.saveAccount(account);
+                        await window.apsanCloud.signOut();
                     }
                 } catch (firebaseError) {
                     message.style.color = "#d93025";
