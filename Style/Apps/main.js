@@ -412,6 +412,36 @@ document.addEventListener("DOMContentLoaded", function () {
 
     /* O login é uma página própria. Depois de registar o evento de entrada,
        não executamos o código dos painéis nesta página. */
+    const adminAccessTrigger = document.getElementById("adminAccessTrigger");
+    const adminAccessModal = document.getElementById("adminAccessModal");
+    const adminAccessClose = document.getElementById("adminAccessClose");
+    const adminAccessForm = document.getElementById("adminAccessForm");
+    const adminAccessMessage = document.getElementById("adminAccessMessage");
+
+    if (adminAccessTrigger && adminAccessModal) {
+        adminAccessTrigger.addEventListener("click", function () { adminAccessModal.classList.add("open"); adminAccessModal.setAttribute("aria-hidden", "false"); setTimeout(function(){ document.getElementById("adminAccessEmail")?.focus(); },50); });
+        adminAccessClose?.addEventListener("click", function () { adminAccessModal.classList.remove("open"); adminAccessModal.setAttribute("aria-hidden", "true"); });
+        adminAccessModal.addEventListener("click", function (event) { if(event.target===adminAccessModal){adminAccessModal.classList.remove("open");adminAccessModal.setAttribute("aria-hidden","true");} });
+    }
+
+    adminAccessForm?.addEventListener("submit", async function(event){
+        event.preventDefault();
+        const email=document.getElementById("adminAccessEmail")?.value.trim().toLowerCase()||"";
+        const password=document.getElementById("adminAccessPassword")?.value.trim()||"";
+        if(adminAccessMessage){adminAccessMessage.style.color="#d93025";adminAccessMessage.textContent="";}
+        if(email!=="suporte@apsanlda.com" || password!=="12suporte45"){if(adminAccessMessage)adminAccessMessage.textContent="Credenciais da Administração incorretas.";return;}
+        const directionAccount={id:"direction_support",name:"Direção APSAN Academy",email:"suporte@apsanlda.com",phone:"suporte@apsanlda.com",type:"direcao",password:password};
+        if(adminAccessMessage){adminAccessMessage.style.color="#1769e0";adminAccessMessage.textContent="A verificar acesso...";}
+        try{
+            if(!window.apsanCloud) throw new Error("cloud");
+            const authUser=await window.apsanCloud.signIn(directionAccount,{allowCreate:false});
+            let profile={};try{profile=JSON.parse(localStorage.getItem("apsan_direction_profile")||"{}")||{};}catch(_){ }
+            const session=Object.assign({},directionAccount,{name:profile.name||"Direção APSAN Academy",photo:profile.logo||"",nif:profile.nif||"",location:profile.location||"",authUid:authUser&&authUser.uid?authUser.uid:"",authEmail:"suporte@apsanlda.com"});
+            localStorage.setItem("apsan_account",JSON.stringify(session));localStorage.setItem("apsan_phone","suporte@apsanlda.com");localStorage.setItem("apsan_user_type","direcao");localStorage.setItem("apsan_logged_in","true");
+            window.location.replace("Style/Apps/direcao-final.html?direction=final-20260927-01");
+        }catch(_){if(adminAccessMessage){adminAccessMessage.style.color="#d93025";adminAccessMessage.textContent="Não foi possível validar a conta administrativa existente.";}}
+    });
+
     if (loginForm) {
         return;
     }
