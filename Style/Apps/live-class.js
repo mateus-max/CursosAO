@@ -55,7 +55,8 @@ function listenStudent(phone,callback){
  return ()=>off();
 }
 async function markJoined(phone,id){
- const p=norm(phone),current=await cloudGet("apsan_live_calls/"+p+"/"+id);if(current){current.joinedAt=current.joinedAt||new Date().toISOString();current.readAt=null;current.active=true;await cloudSet("apsan_live_calls/"+p+"/"+id,current);mirrorCall(current)}
+ const p=norm(phone),live=await hydrateLive(id);if(!live||live.active!==true)return;
+ const current=await cloudGet("apsan_live_calls/"+p+"/"+id);if(current){current.joinedAt=current.joinedAt||new Date().toISOString();current.readAt=null;current.active=true;await cloudSet("apsan_live_calls/"+p+"/"+id,current);mirrorCall(current)}
 }
 window.APSANLive={norm,classroomUrl,publishLive,endLive,hydrateLive,listenStudent,markJoined};
 })();
