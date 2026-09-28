@@ -54,6 +54,8 @@ let lastRemoteObjects="";
 let applyingRemote=false;
 let boardSyncTimer=null;
 let remoteStrokeCanvas=null;
+let studentPeerListeners={};
+let liveChatListener=null;
 let networkState="connecting";
 let classActive=true;
 
@@ -113,6 +115,12 @@ function addStyle(){
     .live-student-mode .board{min-height:calc(100dvh - 150px)}
     .live-student-mode .board-objects{pointer-events:none!important}
     .live-student-mode .board-object{pointer-events:none!important}
+    .live-student-participant-grid{position:absolute;right:12px;bottom:12px;z-index:44;display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end;max-width:min(58%,420px);pointer-events:none}
+    .live-student-participant-tile{width:128px;padding:4px;border-radius:9px;background:#0d1d38;color:#fff;box-shadow:0 7px 18px rgba(0,0,0,.24);border:1px solid rgba(255,255,255,.16)}
+    .live-student-participant-tile video{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:6px;background:#020b18}
+    .live-student-participant-tile small{display:block;padding:3px 2px 0;font-size:9px;color:#d6e1ef;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .live-chat-actions{display:flex;gap:4px;margin-top:4px}
+    .live-chat-actions button{border:0;border-radius:6px;padding:3px 6px;font-size:9px;font-weight:800;cursor:pointer}
     @media(max-width:700px){
       .live-local-camera{width:118px;left:8px;bottom:8px}
       .live-remote-camera{width:132px;right:8px;top:8px}
@@ -252,13 +260,19 @@ function createRemoteTeacherBox(){
   board.appendChild(box);
   return box;
 }
+function ensureStudentParticipantGrid(){
+  if(role!=="aluno")return null;
+  let grid=document.getElementById("liveStudentParticipantGrid");
+  if(grid)return grid;
+  grid=document.createElement("div");grid.id="liveStudentParticipantGrid";grid.className="live-student-participant-grid";board.appendChild(grid);
+  return grid;
+}
 function attachRemoteStudentVideo(student,stream){
-  if(role!=="professor")return;
-  const grid=document.getElementById("participantVideoGrid");if(!grid)return;
+  const grid=role==="professor"?document.getElementById("participantVideoGrid"):ensureStudentParticipantGrid();if(!grid)return;
   let tile=grid.querySelector('[data-live-video="'+CSS.escape(student)+'"]');
   if(!tile){
-    tile=document.createElement("div");tile.className="participant-video-tile";tile.dataset.liveVideo=student;
-    tile.innerHTML='<video autoplay playsinline></video><span>'+esc(student)+'</span>';
+    tile=document.createElement("div");tile.className=role==="professor"?"participant-video-tile":"live-student-participant-tile";tile.dataset.liveVideo=student;
+    tile.innerHTML='<video autoplay playsinline></video><small>'+esc(student)+'</small>';
     grid.prepend(tile);
   }
   const video=tile.querySelector("video");video.srcObject=stream;video.play().catch(()=>{});
@@ -406,7 +420,7 @@ async function makeStudentPeer(){
   pc._apsanPeer=peerKey;pc._apsanSendCandidate=cand=>writeCandidate("student",peerKey,cand);
   setupPcHandlers(pc,"professor","Professor");
   watchCandidates(pc,peerKey,"teacher");
-  await renegotiateStudent(pc,false);
+  await renegotiateStudent(pc,false,"professor","");
   mediaListeners.push(c.listen(peerRoot,async data=>{
     if(!data||!data.answer)return;
     try{
@@ -419,12 +433,68 @@ async function makeStudentPeer(){
   }));
   return pc;
 }
-async function renegotiateStudent(pc,iceRestart){
+async function makeStudentPeerToStudent(remote,data){
+  const c=cloud();if(!c||!data)return;
+  const p=normalize(remote);if(!p||p===peerKey)return;
+  const id="student:"+p;
+  if(peerConnections[id])return;
+  const pc=new RTCPeerConnection(RTC_CONFIG);peerConnections[id]=pc;pc._apsanPeer=p;
+  wireTransceivers(pc);
+  pc._apsanSendCandidate=cand=>writeCandidate("student",peerKey+"__"+p,cand);
+  setupPcHandlers(pc,"aluno",data.name||p);
+  watchCandidates(pc,peerKey+"__"+p,"studentPeer");
+  try{
+    const offer=await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    await c.set(mediaRoot+"/peers/"+peerKey+"__"+p+"/offer",{type:offer.type,sdp:offer.sdp,at:Date.now(),name:account.name||"Aluno",phone,from:peerKey,target:p,targetRole:"aluno"});
+    mediaListeners.push(c.listen(mediaRoot+"/peers/"+peerKey+"__"+p+"/answer",async ans=>{
+      if(!ans||!ans.sdp)return;
+      try{
+        const s=String(ans.sdp||"");if(!s||s===pc._apsanLastAnswer)return;
+        if(pc.signalingState!=="have-local-offer"&&pc.signalingState!=="stable")return;
+        await pc.setRemoteDescription(new RTCSessionDescription(ans));pc._apsanLastAnswer=s;
+      }catch(_){}
+    }));
+  }catch(_){}
+}
+function listenStudentPeers(){
+  const c=cloud();if(!c||role!=="aluno")return;
+  mediaListeners.push(c.listen(presenceRoot,all=>{
+    if(!all||typeof all!=="object")return;
+    Object.keys(all).forEach(p=>{
+      if(p===peerKey)return;
+      const info=all[p]||{};
+      if(info.role==="aluno"&&info.state!=="disconnected"&&info.state!=="ended") makeStudentPeerToStudent(p,info).catch(()=>{});
+    });
+  }));
+  mediaListeners.push(c.listen(mediaRoot+"/peers",async all=>{
+    if(!all||typeof all!=="object")return;
+    for(const pathKey of Object.keys(all)){
+      const d=all[pathKey];
+      if(!d||!d.offer||d.targetRole!=="aluno"||d.target!==peerKey)continue;
+      if(studentPeerListeners[pathKey])continue;
+      studentPeerListeners[pathKey]=true;
+      const pc=new RTCPeerConnection(RTC_CONFIG);
+      const id="incoming:"+d.from;peerConnections[id]=pc;pc._apsanPeer=d.from;
+      wireTransceivers(pc);
+      pc._apsanSendCandidate=cand=>writeCandidate("student",pathKey,"incoming");
+      setupPcHandlers(pc,"aluno",d.name||d.from);
+      watchCandidates(pc,pathKey,"student");
+      try{
+        await pc.setRemoteDescription(new RTCSessionDescription(d.offer));
+        const answer=await pc.createAnswer();await pc.setLocalDescription(answer);
+        await c.set(mediaRoot+"/peers/"+pathKey+"/answer",{type:answer.type,sdp:answer.sdp,at:Date.now(),name:account.name||"Aluno"});
+      }catch(_){}
+    }
+  }));
+}
+
+async function renegotiateStudent(pc,iceRestart,targetRole,target){
   const c=cloud();if(!c||!pc)return;
   try{
     const offer=await pc.createOffer(iceRestart?{iceRestart:true}:undefined);
     await pc.setLocalDescription(offer);
-    await c.set(peerRoot+"/offer",{type:offer.type,sdp:offer.sdp,at:Date.now(),name:account.name||"Aluno",phone});
+    await c.set(peerRoot+"/offer",{type:offer.type,sdp:offer.sdp,at:Date.now(),name:account.name||"Aluno",phone,targetRole:targetRole||"professor",target:target||""});
   }catch(_){}
 }
 async function makeTeacherPeer(student,data){
@@ -442,6 +512,44 @@ async function makeTeacherPeer(student,data){
     const answer=await pc.createAnswer();await pc.setLocalDescription(answer);
     await c.set(mediaRoot+"/peers/"+p+"/answer",{type:answer.type,sdp:answer.sdp,at:Date.now(),teacher:account.name||"Professor"});
   }catch(e){console.warn("WebRTC professor:",e)}
+}
+function bindLiveChat(){
+  const c=cloud();if(!c||!liveId)return;
+  const root="appData/apsan_live_chat/"+liveId;
+  const box=document.getElementById("chatList"),input=document.getElementById("chatInput"),send=document.getElementById("sendChat");
+  if(!box||!input||!send)return;
+  const escText=v=>esc(v).replace(/\n/g,"<br>");
+  const render=data=>{
+    const arr=Array.isArray(data)?data:Object.values(data||{});
+    arr.sort((a,b)=>(Number(a.at)||0)-(Number(b.at)||0));
+    box.innerHTML=arr.slice(-150).map(m=>{
+      const mine=normalize(m.phone)===normalize(phone);
+      const actions=mine?'<div class="live-chat-actions"><button data-edit="'+esc(m.id)+'">Editar</button><button data-delete="'+esc(m.id)+'">Apagar</button></div>':'';
+      return '<div class="chat-msg" data-live-chat-id="'+esc(m.id)+'"><strong>'+esc(m.name||"Utilizador")+'</strong><p>'+escText(m.text||"")+'</p>'+actions+'</div>';
+    }).join("")||'<div class="empty-state">O chat da aula aparecerá aqui.</div>';
+    box.scrollTop=box.scrollHeight;
+    box.querySelectorAll("[data-edit]").forEach(b=>b.onclick=async()=>{
+      const id=b.dataset.edit,all=await c.get(root).catch(()=>null),arr2=Array.isArray(all)?all:(all?Object.values(all):[]),m=arr2.find(x=>String(x.id)===String(id));
+      if(!m||normalize(m.phone)!==normalize(phone))return;
+      const next=prompt("Editar mensagem:",m.text||"");if(next==null||!next.trim())return;
+      await c.set(root+"/"+id,Object.assign({},m,{text:next.trim(),editedAt:Date.now()})).catch(()=>{});
+    });
+    box.querySelectorAll("[data-delete]").forEach(b=>b.onclick=async()=>{
+      const id=b.dataset.delete,all=await c.get(root).catch(()=>null),arr2=Array.isArray(all)?all:(all?Object.values(all):[]),m=arr2.find(x=>String(x.id)===String(id));
+      if(!m||normalize(m.phone)!==normalize(phone))return;
+      await c.set(root+"/"+id,null).catch(()=>{});
+    });
+  };
+  if(liveChatListener)try{liveChatListener()}catch(_){}
+  liveChatListener=c.listen(root,render);
+  const sendNow=async()=>{
+    const text=String(input.value||"").trim();if(!text)return;
+    const id=phone+"_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,6);
+    await c.set(root+"/"+id,{id,text,name:account.name||"Utilizador",phone,role,at:Date.now()}).catch(()=>{});
+    input.value="";
+  };
+  send.onclick=sendNow;
+  input.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();sendNow();}};
 }
 function listenTeacherPeers(){
   const c=cloud();if(!c)return;
@@ -556,7 +664,8 @@ async function boot(){
   addStyle();makeStudentTools();makeTeacherPointerTools();bindMediaButtons();bindPointerTracking();listenPointers();listenPresence();bindBoardSync();patchLocalStorageObjectSync();
   classActive=await ensureClassIsActive();
   if(!classActive){markClassEnded();return}
-  if(role==="aluno"){bindStudentBoard();listenStudentControls();makeStudentPeer().catch(()=>{});}
+  bindLiveChat();
+  if(role==="aluno"){bindStudentBoard();listenStudentControls();makeStudentPeer().catch(()=>{});listenStudentPeers();}
   else{listenTeacherPeers();addTeacherControls();}
   publishPresence();
   setInterval(measureNetwork,3000);
