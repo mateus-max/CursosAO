@@ -175,7 +175,7 @@ function ensurePointerEl(){
 function applyPointerStyle(mode,color){
   const el=ensurePointerEl();el.classList.remove("magnify","arrow");if(mode==="magnify")el.classList.add("magnify");else if(mode==="indicator")el.classList.add("arrow");el.style.background=mode==="indicator"?"transparent":(mode==="magnify"?"rgba(239,35,60,.12)":(color||"#ef233c"));el.style.borderColor=color||"#ef233c";
 }
-function toggleMagnify(){magnifyMode=!magnifyMode;if(magnifyMode)indicatorMode=false;applyLocalPointerButtons();publishPresence();toast(magnifyMode?"Lupa ativa no quadro.":"Lupa desligada.");}
+function toggleMagnify(){magnifyMode=!magnifyMode;if(magnifyMode)indicatorMode=false;applyLocalPointerButtons();document.getElementById("teacherMagnify")?.classList.toggle("active",magnifyMode);publishPresence();toast(magnifyMode?"Lupa ativa no quadro.":"Lupa desligada.");}
 function toggleIndicator(){indicatorMode=!indicatorMode;if(indicatorMode)magnifyMode=false;applyLocalPointerButtons();publishPresence();toast(indicatorMode?"Indicador ativo no quadro.":"Indicador desligado.");}
 function applyLocalPointerButtons(){
   document.getElementById("studentMagnify")?.classList.toggle("active",magnifyMode);
