@@ -129,6 +129,31 @@
     }catch(_){return false}
   }
   function formatDate(v){try{return new Date(v).toLocaleString("pt-PT")}catch(_){return v||""}}
+  async function deleteRecording(id){
+    const f=await cloudReady();
+    const snap=await f.db.ref("appData/apsan_recorded_classes/"+id).once("value");
+    const record=snap.exists()?snap.val():null;
+    if(!record) return false;
+    const account=(()=>{try{return JSON.parse(localStorage.getItem("apsan_account")||"{}")}catch(_){return {}}})();
+    if(cleanPhone(account.phone)!==cleanPhone(record.teacherPhone)) throw new Error("Não autorizado");
+    if(f.storage && record.storagePath){
+      try{await f.storage.ref(record.storagePath).delete()}catch(e){console.warn("Storage delete:",e)}
+    }
+    await f.db.ref("appData/apsan_recorded_classes/"+id).remove();
+    try{
+      const db=await openLocalDB();
+      await new Promise((res,rej)=>{const tx=db.transaction("recordings","readwrite");tx.objectStore("recordings").delete(id);tx.oncomplete=res;tx.onerror=()=>rej(tx.error)});
+      db.close();
+      const local=JSON.parse(localStorage.getItem("apsan_recordings_local")||"[]").filter(x=>x&&x.id!==id);
+      localStorage.setItem("apsan_recordings_local",JSON.stringify(local));
+    }catch(_){}
+    window.dispatchEvent(new CustomEvent("apsan-recording-changed",{detail:{id,deleted:true}}));
+    return true;
+  }
+  function downloadRecording(id,url,title){
+    const safe=String(url||""); if(!safe){alert("Este vídeo ainda não tem arquivo online disponível.");return}
+    const a=document.createElement("a");a.href=safe;a.target="_blank";a.rel="noopener";a.download=(String(title||"Aula gravada").replace(/[^a-z0-9áàâãéêíóôõúç _-]/gi,"_")+".webm");document.body.appendChild(a);a.click();a.remove();
+  }
   async function watchRecording(id,url,title){
     if(url){open(url,title);return}
     const local=(await localRecordingItems()).find(x=>x&&x.id===id);
@@ -141,16 +166,19 @@
     const items=await listOnline();
     const mine=items.filter(x=>accessible(x,account)&&String(x.teacherPhone)===cleanPhone(account.phone));
     if(!mine.length){box.innerHTML='<div class="recording-archive-empty">Nenhuma aula gravada arquivada ainda. Quando terminar uma gravação, ela ficará guardada aqui.</div>';return}
-    box.innerHTML=mine.map(item=>'<article class="recording-archive-card"><div class="recording-archive-info"><span>🎥 AULA GRAVADA</span><h3>'+esc(item.title||"Aula gravada")+'</h3><p>📚 '+esc(item.course||"Curso")+' · '+formatDate(item.createdAt)+'</p><small>Alunos da aula: '+((item.studentPhones||[]).length)+'</small></div><button type="button" class="recording-watch-button" data-recording-id="'+esc(item.id||"")+'" data-recording-url="'+esc(item.videoUrl||"")+'">▶ Assistir aula</button></article>').join("");
-    box.querySelectorAll("[data-recording-url]").forEach(btn=>btn.onclick=()=>watchRecording(btn.getAttribute("data-recording-id"),btn.getAttribute("data-recording-url"),"Aula gravada"));
+    box.innerHTML=mine.map(item=>'<article class="recording-archive-card"><div class="recording-archive-info"><span>🎥 AULA GRAVADA</span><h3>'+esc(item.title||"Aula gravada")+'</h3><p>📚 '+esc(item.course||"Curso")+' · '+formatDate(item.createdAt)+'</p><small>Alunos da aula: '+((item.studentPhones||[]).length)+'</small></div><div class="recording-card-actions"><button type="button" class="recording-watch-button" data-recording-id="'+esc(item.id||"")+'" data-recording-url="'+esc(item.videoUrl||"")+'">▶ Assistir</button><button type="button" class="recording-download-button" data-recording-id="'+esc(item.id||"")+'" data-recording-url="'+esc(item.videoUrl||"")+'">⬇ Baixar</button><button type="button" class="recording-delete-button" data-recording-id="'+esc(item.id||"")+'">🗑 Eliminar</button></div></article>').join("");
+    box.querySelectorAll(".recording-watch-button").forEach(btn=>btn.onclick=()=>watchRecording(btn.getAttribute("data-recording-id"),btn.getAttribute("data-recording-url"),"Aula gravada"));
+    box.querySelectorAll(".recording-download-button").forEach(btn=>btn.onclick=()=>downloadRecording(btn.getAttribute("data-recording-id"),btn.getAttribute("data-recording-url"),"Aula gravada"));
+    box.querySelectorAll(".recording-delete-button").forEach(btn=>btn.onclick=async()=>{if(!confirm("Eliminar esta gravação definitivamente? Ela deixará de ficar disponível para todos os alunos."))return;try{await deleteRecording(btn.dataset.recordingId);await renderProfessor(targetId)}catch(e){alert("Não foi possível eliminar a gravação.")}});
   }
   async function renderStudent(targetId){
     const box=document.getElementById(targetId);if(!box)return;
     const account=(()=>{try{return JSON.parse(localStorage.getItem("apsan_account")||"{}")}catch(_){return {}}})();
     const items=(await listOnline()).filter(x=>accessible(x,account));
     if(!items.length){box.innerHTML='<div class="recording-archive-empty"><strong>Nenhuma aula passada disponível.</strong><p>Quando uma aula for gravada pelos seus professores, e você fizer parte da aula, ela aparecerá aqui.</p></div>';return}
-    box.innerHTML=items.map(item=>'<article class="recording-archive-card student-recording-card"><div class="recording-archive-info"><span>🎥 AULA PASSADA</span><h3>'+esc(item.title||"Aula gravada")+'</h3><p>👨‍🏫 '+esc(item.teacherName||"Professor")+' · 📚 '+esc(item.course||"Curso")+'</p><small>'+formatDate(item.createdAt)+'</small></div><button type="button" class="recording-watch-button" data-recording-id="'+esc(item.id||"")+'" data-recording-url="'+esc(item.videoUrl||"")+'">▶ Assistir aula passada</button></article>').join("");
-    box.querySelectorAll("[data-recording-url]").forEach(btn=>btn.onclick=()=>watchRecording(btn.getAttribute("data-recording-id"),btn.getAttribute("data-recording-url"),"Aula passada"));
+    box.innerHTML=items.map(item=>'<article class="recording-archive-card student-recording-card"><div class="recording-archive-info"><span>🎥 AULA PASSADA</span><h3>'+esc(item.title||"Aula gravada")+'</h3><p>👨‍🏫 '+esc(item.teacherName||"Professor")+' · 📚 '+esc(item.course||"Curso")+'</p><small>'+formatDate(item.createdAt)+'</small></div><div class="recording-card-actions"><button type="button" class="recording-watch-button" data-recording-id="'+esc(item.id||"")+'" data-recording-url="'+esc(item.videoUrl||"")+'">▶ Assistir aula passada</button><button type="button" class="recording-download-button" data-recording-id="'+esc(item.id||"")+'" data-recording-url="'+esc(item.videoUrl||"")+'">⬇ Baixar</button></div></article>').join("");
+    box.querySelectorAll(".recording-watch-button").forEach(btn=>btn.onclick=()=>watchRecording(btn.getAttribute("data-recording-id"),btn.getAttribute("data-recording-url"),"Aula passada"));
+    box.querySelectorAll(".recording-download-button").forEach(btn=>btn.onclick=()=>downloadRecording(btn.getAttribute("data-recording-id"),btn.getAttribute("data-recording-url"),"Aula passada"));
   }
   function open(url,title){
     const safe=String(url||"");
@@ -167,5 +195,5 @@
     const video=document.getElementById("apsanRecordingPlayerVideo");video.src=safe;overlay.classList.add("open");video.play().catch(()=>{});
   }
   function close(){const o=document.getElementById("apsanRecordingPlayer");if(!o)return;o.classList.remove("open");const v=document.getElementById("apsanRecordingPlayerVideo");if(v){v.pause();v.removeAttribute("src");v.load()}}
-  window.APSANRecordings={save, listOnline, renderProfessor, renderStudent, open, close};
+  window.APSANRecordings={save, listOnline, renderProfessor, renderStudent, open, close, deleteRecording, downloadRecording};
 })();
