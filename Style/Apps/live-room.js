@@ -224,6 +224,8 @@ function listenPresence(){
         const ns=p.network==="weak"?"weak":(p.state==="disconnected"||p.network==="offline"?"off":"on");
         if(status)status.innerHTML='<span class="live-status-dot '+ns+'"></span>'+ (p.state==="disconnected"?"Saiu da aula":p.network==="weak"?"Rede fraca":p.cameraOn?"Câmara ligada":"Câmara desligada")+(p.handRaised?" · ✋ mão levantada":"");
         item.dataset.network=p.network||"";
+        const tile=document.querySelector('[data-live-video="'+CSS.escape(k)+'"]');
+        if(tile){const v=tile.querySelector("video");if(v)v.style.display=p.cameraOn&&p.state!=="disconnected"?"block":"none";}
       }
     });
   }));
@@ -345,7 +347,7 @@ function markClassEnded(){
 async function ensureClassIsActive(){
   try{
     const c=cloud();if(!c)return true;
-    const raw=await c.get("appData/apsan_live_classes");const item=raw&&raw[liveId];
+    const raw=await c.get("appData/apsan_live_classes");const item=Array.isArray(raw)?raw.find(x=>x&&x.id===liveId):(raw&&raw[liveId]);
     if(item&&item.active===false){markClassEnded();return false}
   }catch(_){}
   return true;
