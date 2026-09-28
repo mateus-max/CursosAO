@@ -159,11 +159,12 @@ function setToolActive(id){
 function makeTeacherPointerTools(){
   if(role!=="professor")return;
   const toolbar=document.querySelector(".board-toolbar");if(!toolbar)return;
+  const lupa=document.getElementById("teacherMagnify");
+  if(lupa){lupa.onclick=()=>toggleMagnify();lupa.classList.toggle("active",magnifyMode);}
   if(document.getElementById("teacherPointerTools"))return;
   const wrap=document.createElement("div");wrap.className="live-teacher-pointer-tools";wrap.id="teacherPointerTools";
-  wrap.innerHTML='<button type="button" id="teacherMagnify">🔴 Lupa</button><button type="button" id="teacherPointer">🖱 Indicador</button>';
+  wrap.innerHTML='<button type="button" id="teacherPointer">🖱 Indicador</button>';
   toolbar.appendChild(wrap);
-  document.getElementById("teacherMagnify").onclick=()=>toggleMagnify();
   document.getElementById("teacherPointer").onclick=()=>toggleIndicator();
 }
 function ensurePointerEl(){
