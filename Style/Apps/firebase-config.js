@@ -1,5 +1,5 @@
 /* Firebase — APSAN Academy / CursosAO
- * Backend online: Firebase Realtime Database + Authentication + Storage.
+ * Backend online: Firebase Realtime Database + Authentication.
  * This file intentionally contains only public Firebase web configuration.
  */
 (function(){
@@ -9,7 +9,6 @@
     "https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js",
     "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth-compat.js",
     "https://www.gstatic.com/firebasejs/12.19.0/firebase-database-compat.js",
-    "https://www.gstatic.com/firebasejs/12.19.0/firebase-storage-compat.js"
   ];
 
   function load(index){
@@ -19,7 +18,6 @@
         authDomain: "curso-a0.firebaseapp.com",
         databaseURL: "https://curso-a0-default-rtdb.firebaseio.com/",
         projectId: "curso-a0",
-        storageBucket: "curso-a0.firebasestorage.app",
         messagingSenderId: "424486251732",
         appId: "1:424486251732:web:3bba92f4b3c8e255945f41",
         measurementId: "G-B21TEJEP7Q"
@@ -30,8 +28,7 @@
       window.apsanFirebase = {
         app: window.firebase.app(),
         auth: window.firebase.auth(),
-        db: window.firebase.database(),
-        storage: window.firebase.storage()
+        db: window.firebase.database()
       };
       window.dispatchEvent(new CustomEvent("apsan-firebase-ready"));
       return;
