@@ -97,13 +97,14 @@ body.classroom-page{background:#eef3f9!important;overflow-x:hidden}
 
 <main class="classroom-main">
     <div class="board-toolbar">
-        <button class="tool active" data-tool="pen"><span>🖊</span>Caneta</button>
+        <button class="tool active" data-tool="text"><span>T</span>Texto</button>
+        <button class="tool" data-tool="pen"><span>🖊</span>Caneta</button>
         <button class="tool" data-tool="highlighter"><span>🖍</span>Destacar</button>
         <button class="tool" data-tool="eraser"><span>⌫</span>Borracha</button>
+        <label class="chalk-picker" title="Espessura do lápis"><span>✎</span><select id="penThickness" aria-label="Espessura"><option value="2">Fina</option><option value="5" selected>Média</option><option value="10">Grossa</option></select></label>
         <button class="tool" data-tool="line"><span>╱</span>Seta/Linha</button>
         <button class="tool" data-tool="rect"><span>□</span>Forma</button>
         <button class="tool" data-tool="circle"><span>○</span>Círculo</button>
-        <button class="tool" data-tool="text"><span>T</span>Texto</button>
         <button class="tool" id="addImage"><span>▧</span>Imagem</button>
         <button class="tool" id="addDocument"><span>▤</span>Documento</button>
         <button class="tool" id="undoBoard"><span>↶</span>Desfazer</button>
@@ -237,6 +238,7 @@ window.addEventListener("beforeunload",persistBoardBeforeExit);
 document.addEventListener("selectionchange",()=>{const active=document.activeElement;if(active&&active.classList?.contains("board-object-text"))saveTextSelection()});
 document.getElementById("boardObjects").addEventListener("click",e=>{const obj=e.target.closest(".board-object");if(obj)selectBoardObject(obj.dataset.id)});
 document.querySelector(".board").addEventListener("pointerdown",e=>{if(!e.target.closest(".board-object")&&!e.target.closest("#cameraDock")&&!e.target.closest(".text-format-bar")){deselectBoardObjects();document.querySelectorAll(".board-object.is-selected").forEach(x=>x.classList.remove("is-selected"))}});
+const penThickness=document.getElementById("penThickness");if(penThickness){window.apsanPenWidth=5;penThickness.onchange=()=>window.apsanPenWidth=Number(penThickness.value)||5;}
 document.querySelectorAll("[data-tool]").forEach(b=>b.addEventListener("click",()=>{tool=b.dataset.tool;document.querySelectorAll("[data-tool]").forEach(x=>x.classList.toggle("active",x===b))}));
 let boardFullscreenActive=false,boardFullscreenHistory=false;
 function enterBoardFullscreen(fromPopState){
