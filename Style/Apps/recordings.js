@@ -34,6 +34,7 @@
         db.close();
       }
     }catch(error){console.warn("Cópia local da aula:",error)}
+    window.dispatchEvent(new CustomEvent("apsan-recording-changed",{detail:{id,online,created:true}}));
     return {id,videoUrl,online};
   }
   async function openLocalDB(){
