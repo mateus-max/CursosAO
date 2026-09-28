@@ -151,9 +151,18 @@
     window.dispatchEvent(new CustomEvent("apsan-recording-changed",{detail:{id,deleted:true}}));
     return true;
   }
-  function downloadRecording(id,url,title){
+  async function downloadRecording(id,url,title){
     const safe=String(url||""); if(!safe){alert("Este vídeo ainda não tem arquivo online disponível.");return}
-    const a=document.createElement("a");a.href=safe;a.target="_blank";a.rel="noopener";a.download=(String(title||"Aula gravada").replace(/[^a-z0-9áàâãéêíóôõúç _-]/gi,"_")+".webm");document.body.appendChild(a);a.click();a.remove();
+    const filename=(String(title||"Aula gravada").replace(/[^a-z0-9áàâãéêíóôõúç _-]/gi,"_")+".webm");
+    try{
+      const response=await fetch(safe);
+      if(!response.ok)throw new Error("download");
+      const blob=await response.blob();const objectUrl=URL.createObjectURL(blob);
+      const a=document.createElement("a");a.href=objectUrl;a.download=filename;document.body.appendChild(a);a.click();a.remove();
+      setTimeout(()=>URL.revokeObjectURL(objectUrl),3000);
+    }catch(_){
+      const a=document.createElement("a");a.href=safe;a.target="_blank";a.rel="noopener";a.download=filename;document.body.appendChild(a);a.click();a.remove();
+    }
   }
   async function watchRecording(id,url,title){
     if(url){open(url,title);return}
