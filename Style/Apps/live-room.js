@@ -108,6 +108,12 @@ function addStyle(){
     .live-status-dot.off{background:#ef4444}
     .live-participant-actions{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap}
     .live-participant-actions button{border:0;border-radius:7px;padding:4px 7px;background:#eef3f8;color:#17304f;font-size:10px;font-weight:900;cursor:pointer}
+    /* O painel de participantes fica fechado até o professor o solicitar. */
+    body:not(.live-student-mode) #rightPanel{display:none!important}
+    body:not(.live-student-mode) #rightPanel.open{display:flex!important}
+    .live-teacher-self-tile{order:-1}
+    .live-teacher-self-tile video{display:block;width:100%;height:100%;object-fit:cover}
+    .live-participant-placeholder{font-size:22px;opacity:.9}
     .live-participant-actions button.active{background:#fee2e2;color:#991b1b}
     .live-teacher-pointer-tools{display:flex;gap:5px;margin:8px 0 10px;flex-wrap:wrap}
     .live-student-mode #cameraDock{display:none!important}
@@ -219,6 +225,33 @@ async function publishPresence(){
     if(f&&f.db)f.db.ref(presenceRoot+"/"+peerKey).onDisconnect().set(Object.assign({},data,{state:"disconnected",connection:"disconnected",updatedAt:Date.now()}));
   }catch(_){}
 }
+function ensureTeacherSelfTile(){
+  if(role!=="professor")return null;
+  const grid=document.getElementById("participantVideoGrid");if(!grid)return null;
+  let tile=grid.querySelector('[data-live-video="__teacher__"]');
+  if(!tile){
+    tile=document.createElement("div");tile.className="participant-video-tile live-teacher-self-tile";tile.dataset.liveVideo="__teacher__";
+    tile.innerHTML='<div class="live-participant-placeholder">🎥</div><span>'+esc(account.name||"Professor")+' · sua câmara</span>';
+    grid.prepend(tile);
+  }else if(grid.firstElementChild!==tile)grid.prepend(tile);
+  const v=tile.querySelector("video");
+  if(cameraStream&&cameraOn){
+    if(!v){const video=document.createElement("video");video.autoplay=true;video.muted=true;video.playsInline=true;tile.insertBefore(video,tile.firstChild)}
+    const video=tile.querySelector("video");video.srcObject=cameraStream;video.play().catch(()=>{});
+  }else if(v){v.remove()}
+  return tile;
+}
+function ensureStudentVideoTile(k,p){
+  if(role!=="professor")return null;
+  const grid=document.getElementById("participantVideoGrid");if(!grid)return null;
+  let tile=grid.querySelector('[data-live-video="'+CSS.escape(k)+'"]');
+  if(!tile){
+    tile=document.createElement("div");tile.className="participant-video-tile";tile.dataset.liveVideo=k;
+    tile.innerHTML='<div class="live-participant-placeholder">👤</div><span>'+esc(p&&p.name||"Aluno")+' · câmara desligada</span>';
+    grid.appendChild(tile);
+  }
+  return tile;
+}
 function renderConnectedParticipant(k,p){
   if(role!=="professor")return null;
   const list=document.getElementById("participantList");if(!list)return null;
@@ -227,9 +260,11 @@ function renderConnectedParticipant(k,p){
     item=document.createElement("div");item.className="participant";item.dataset.liveParticipant=k;
     const accounts=readJsonStorage("apsan_accounts",[]);
     const a=Array.isArray(accounts)?accounts.find(x=>x&&normalize(x.phone)===normalize(k))||{}:{};
-    item.innerHTML='<div class="participant-avatar">'+(a.photo?'<img src="'+esc(a.photo)+'">':esc(String(a.name||p.name||"A").charAt(0)))+'</div><div><strong>'+esc(a.name||p.name||"Aluno")+'</strong><small class="live-participant-status"><span class="live-status-dot on"></span>A entrar na aula</small></div>';
+    item.innerHTML='<div class="participant-avatar">'+(a.photo?'<img src="'+esc(a.photo)+'">':esc(String(a.name||p.name||"A").charAt(0)))+'</div><div><strong>'+esc(a.name||p.name||"Aluno")+'</strong><small class="live-participant-status"><span class="live-status-dot on"></span>A participar na aula</small></div>';
     list.appendChild(item);
   }
+  ensureStudentVideoTile(k,p);
+  ensureTeacherSelfTile();
   return item;
 }
 function removeDisconnectedParticipant(k){if(role!=="professor")return;const item=document.querySelector('[data-live-participant="'+CSS.escape(k)+'"]');if(item)item.remove();}
@@ -237,17 +272,32 @@ function listenPresence(){
   const c=cloud();if(!c)return;
   mediaListeners.push(c.listen(presenceRoot,(all)=>{
     if(!all||typeof all!=="object")return;
+    if(role==="professor")ensureTeacherSelfTile();
     Object.keys(all).forEach(k=>{
       if(k===peerKey)return;
       const p=all[k]||{};
-      const item=(role==="professor"&&p.role==="aluno"&&p.state!=="disconnected"&&p.state!=="ended")?renderConnectedParticipant(k,p):document.querySelector('[data-live-participant="'+CSS.escape(k)+'"]');
+      const connected=p.role==="aluno"&&p.state==="connected";
+      const item=(role==="professor"&&connected)?renderConnectedParticipant(k,p):document.querySelector('[data-live-participant="'+CSS.escape(k)+'"]');
       if(item){
         const status=item.querySelector(".live-participant-status");
         const ns=p.network==="weak"?"weak":(p.state==="disconnected"||p.network==="offline"?"off":"on");
         if(status)status.innerHTML='<span class="live-status-dot '+ns+'"></span>'+ (p.state==="disconnected"?"Saiu da aula":p.network==="weak"?"Rede fraca":p.cameraOn?"Câmara ligada":"Câmara desligada")+(p.handRaised?" · ✋ mão levantada":"");
         item.dataset.network=p.network||"";
         const tile=document.querySelector('[data-live-video="'+CSS.escape(k)+'"]');
-        if(tile){const v=tile.querySelector("video");if(v)v.style.display=p.cameraOn&&p.state!=="disconnected"?"block":"none";}
+        if(tile){
+          const v=tile.querySelector("video");
+          const placeholder=tile.querySelector(".live-participant-placeholder");
+          if(p.cameraOn&&p.state==="connected"){
+            if(v)v.style.display="block";
+            if(placeholder)placeholder.style.display="none";
+          }else{
+            if(v)v.style.display="none";
+            if(placeholder)placeholder.style.display="grid";
+          }
+        }
+      }else if(role==="professor"&&(p.state==="disconnected"||p.state==="ended"||!connected)){
+        removeDisconnectedParticipant(k);
+        const tile=document.querySelector('[data-live-video="'+CSS.escape(k)+'"]');if(tile)tile.remove();
       }
     });
   }));
