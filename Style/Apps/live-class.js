@@ -44,7 +44,7 @@ function mirrorCall(call){
 function listenStudent(phone,callback){
  if(!window.apsanCloud)return function(){};
  let off=function(){};
- window.apsanCloud.listen("appData/apsan_live_calls/"+norm(phone),async data=>{const map=data&&typeof data==="object"?data:{};const active=[];Object.keys(map).forEach(id=>{const call=map[id];if(call&&call.active!==false){mirrorCall(call);active.push(call)}});await Promise.all(active.map(call=>hydrateLive(call.liveId).catch(()=>null)));if(typeof callback==="function")callback(map)}).then(fn=>{off=fn}).catch(e=>console.warn("APSAN live listener",e));
+ window.apsanCloud.listen("appData/apsan_live_calls/"+norm(phone),async data=>{const map=data&&typeof data==="object"?data:{};const active=[];for(const id of Object.keys(map)){const call=map[id];if(!call||call.active===false)continue;const live=await hydrateLive(call.liveId).catch(()=>null);if(live&&live.active===true){mirrorCall(call);active.push(call)}else{await cloudSet("apsan_live_calls/"+norm(phone)+"/"+id,Object.assign({},call,{active:false,endedAt:call.endedAt||new Date().toISOString()})).catch(()=>{});}}if(typeof callback==="function")callback(active)}).then(fn=>{off=fn}).catch(e=>console.warn("APSAN live listener",e));
  return ()=>off();
 }
 async function markJoined(phone,id){
