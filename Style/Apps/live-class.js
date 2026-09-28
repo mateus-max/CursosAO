@@ -28,6 +28,13 @@ async function endLive(id){
  const list=readLocal("apsan_live_classes",[]),arr=Array.isArray(list)?list.slice():[],item=arr.find(x=>x&&x.id===id),endedAt=new Date().toISOString();
  if(item){item.active=false;item.endedAt=endedAt;writeLocal("apsan_live_classes",arr);await cloudSet("apsan_live_classes",arr)}
  const calls=await cloudGet("apsan_live_calls");if(calls)await Promise.all(Object.keys(calls).map(p=>calls[p]&&calls[p][id]?cloudSet("apsan_live_calls/"+p+"/"+id,Object.assign({},calls[p][id],{active:false,endedAt})):Promise.resolve()));
+ // Ao terminar, a sessão do quadro, objetos e sinalização desta aula são descartados.
+ await Promise.all([
+   cloudSet("apsan_live_board/"+id,null),
+   cloudSet("apsan_board_objects/"+id,null),
+   cloudSet("apsan_live_chat/"+id,null),
+   cloudSet("apsan_live_media/"+id,null)
+ ]);
 }
 async function hydrateLive(id){
  if(!id)return null;let local=readLocal("apsan_live_classes",[]).find(x=>x&&x.id===id)||null,remote=await cloudGet("apsan_live_classes");
