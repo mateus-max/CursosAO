@@ -357,6 +357,27 @@ document.addEventListener("DOMContentLoaded", function () {
             } catch (_) {}
         }
 
+        /* Em aparelho novo não existe localStorage. Mesmo assim, uma conta
+           já existente no Firebase pode ser reconhecida pelo telefone + papel. */
+        if (!loginAccount && window.apsanCloud) {
+            loginAccount = {
+                id: normalizePhone(phone) + "_" + userType,
+                phone: phone,
+                type: userType,
+                password: password,
+                name: userType === "professor" ? "Professor" : "Aluno"
+            };
+            try {
+                const authUser = await window.apsanCloud.signIn(loginAccount, { allowCreate: false });
+                loginAccount = Object.assign({}, loginAccount, {
+                    authUid: authUser && authUser.uid ? authUser.uid : "",
+                    authEmail: window.apsanCloud.authEmail(loginAccount)
+                });
+            } catch (_) {
+                loginAccount = null;
+            }
+        }
+
         if (!loginAccount) {
             message.textContent = "Número de telefone, palavra-passe ou perfil incorreto.";
             return;
@@ -390,9 +411,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 await window.apsanCloud.saveAccount(loginAccount);
             }
         } catch (firebaseError) {
-            /* A conta antiga continua válida no primeiro acesso se ainda estiver no navegador. */
+            const code=String(firebaseError && (firebaseError.message||firebaseError.code) || "");
+            if (code.indexOf("wrong-password")!==-1 || code.indexOf("invalid-credential")!==-1 || code.indexOf("invalid-login-credentials")!==-1 || code.indexOf("INVALID_PASSWORD")!==-1) {
+                message.textContent = "Palavra-passe incorreta para esta conta.";
+                return;
+            }
+            /* Se a conta local antiga ainda estiver disponível, preserva o acesso
+               enquanto a sincronização online é recuperada. Em aparelho novo,
+               nunca inventamos uma conta nem aceitamos uma sessão sem autenticação. */
             if (!localAccount || localAccount.password !== password) {
-                message.textContent = "Não foi possível autenticar esta conta online. Verifique a palavra-passe e tente novamente.";
+                message.textContent = "Não foi possível ligar ao serviço de autenticação. Verifique a internet e tente novamente.";
                 return;
             }
         }
