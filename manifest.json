@@ -23,7 +23,7 @@
       "src": "./icons/apsan-academy-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "label": "Logo APSAN LDA"
+      "label": "Logo oficial APSAN Academy"
     }
   ],
   "icons": [
@@ -32,6 +32,12 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "./icons/apsan-academy-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
