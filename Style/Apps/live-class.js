@@ -25,13 +25,16 @@ async function publishLive(item){
  const list=readLocal("apsan_live_classes",[]),arr=Array.isArray(list)?list.slice():[],i=arr.findIndex(x=>x&&x.id===item.id);if(i>=0)arr[i]=item;else arr.push(item);writeLocal("apsan_live_classes",arr);
  await cloudSet("apsan_live_classes",arr);
  const now=item.startedAt||new Date().toISOString();
- await Promise.all(recipients.map(p=>cloudSet("apsan_live_calls/"+p+"/"+item.id,{id:"livecall_"+item.id+"_"+p,liveId:item.id,recipientPhone:p,teacherPhone:norm(item.teacherPhone),teacherName:item.teacherName||"Professor",title:item.title||"Aula ao vivo",course:item.course||"Curso",createdAt:now,active:true,joinedAt:null,joinUrl:item.joinUrl,readAt:null})));
+ const baseCall={id:"livecall_"+item.id,liveId:item.id,teacherPhone:norm(item.teacherPhone),teacherName:item.teacherName||"Professor",title:item.title||"Aula ao vivo",course:item.course||"Curso",createdAt:now,active:true,joinedAt:null,joinUrl:item.joinUrl,readAt:null,allowedStudents:recipients.slice()};
+ await cloudSet("apsan_live_calls_global/"+item.id,baseCall);
+ await Promise.all(recipients.map(p=>cloudSet("apsan_live_calls/"+p+"/"+item.id,Object.assign({},baseCall,{id:"livecall_"+item.id+"_"+p,recipientPhone:p}))));
  return item;
 }
 async function endLive(id){
  const list=readLocal("apsan_live_classes",[]),arr=Array.isArray(list)?list.slice():[],item=arr.find(x=>x&&x.id===id),endedAt=new Date().toISOString();
  if(item){item.active=false;item.endedAt=endedAt;writeLocal("apsan_live_classes",arr);await cloudSet("apsan_live_classes",arr)}
  const calls=await cloudGet("apsan_live_calls");if(calls)await Promise.all(Object.keys(calls).map(p=>calls[p]&&calls[p][id]?cloudSet("apsan_live_calls/"+p+"/"+id,Object.assign({},calls[p][id],{active:false,endedAt})):Promise.resolve()));
+ await cloudSet("apsan_live_calls_global/"+id,{id:"livecall_"+id,liveId:id,active:false,endedAt});
  // Ao terminar, a sessão do quadro, objetos e sinalização desta aula são descartados.
  await Promise.all([
    cloudSet("apsan_live_board/"+id,null),
@@ -84,38 +87,55 @@ function mirrorCall(call){
  if(hi>=0)h[hi]=item;else h.push(item);writeLocal("apsan_header_notifications",h.slice(-100));playLiveCallSound(call);window.dispatchEvent(new CustomEvent("apsan-live-call",{detail:call}));
 }
 function listenStudent(phone,callback){
- const studentPath="appData/apsan_live_calls/"+norm(phone);
- let stopped=false,off=function(){};
+ const studentPhone=norm(phone);
+ let stopped=false,offs=[];
  async function attach(){
    if(stopped)return;
    try{
      if(!window.apsanCloud)return;
      if(typeof window.apsanCloud.ready==="function")await window.apsanCloud.ready();
      if(stopped)return;
-     const listener=window.apsanCloud.listen(studentPath,async data=>{
+     const process=async function(call,forceRecipient){
+       if(!call||!call.liveId)return null;
+       const live=await hydrateLive(call.liveId).catch(()=>null);
+       const allowed=live&&live.active===true &&
+         (Array.isArray(live.allowedStudents)?live.allowedStudents:Array.isArray(call.allowedStudents)?call.allowedStudents:[])
+           .map(norm).includes(studentPhone);
+       if(call.active!==false&&allowed){
+         const item=Object.assign({},call,{recipientPhone:studentPhone});
+         mirrorCall(item);
+         return item;
+       }
+       if(call.active===false || (live&&!live.active)){
+         const ended=Object.assign({},call,{recipientPhone:studentPhone,active:false,endedAt:call.endedAt||new Date().toISOString()});
+         mirrorCall(ended);
+       }
+       return null;
+     };
+     const globalListener=await window.apsanCloud.listen("appData/apsan_live_calls_global",async data=>{
        const map=data&&typeof data==="object"?data:{};
        const active=[];
        for(const id of Object.keys(map)){
-         const call=map[id];if(!call)continue;
-         const live=await hydrateLive(call.liveId).catch(()=>null);
-         if(call.active!==false&&live&&live.active===true){
-           mirrorCall(call);active.push(call);
-         }else{
-           const ended=Object.assign({},call,{active:false,endedAt:call.endedAt||new Date().toISOString()});
-           mirrorCall(ended);
-           if(call.active!==false)await cloudSet("apsan_live_calls/"+norm(phone)+"/"+id,ended).catch(()=>{});
-         }
+         const item=await process(map[id],true);
+         if(item)active.push(item);
        }
        if(typeof callback==="function")callback(active);
      });
-     off=await listener;
+     const personalListener=await window.apsanCloud.listen("appData/apsan_live_calls/"+studentPhone,async data=>{
+       const map=data&&typeof data==="object"?data:{};
+       for(const id of Object.keys(map))await process(map[id],false);
+       if(typeof callback==="function")callback([]);
+     });
+     offs=[globalListener,personalListener];
    }catch(e){
      console.warn("APSAN live listener",e);
+     offs.forEach(function(fn){try{fn&&fn()}catch(_){}});
+     offs=[];
      if(!stopped)setTimeout(attach,1500);
    }
  }
  attach();
- return function(){stopped=true;try{off&&off()}catch(_){}};
+ return function(){stopped=true;offs.forEach(function(fn){try{fn&&fn()}catch(_){} });};
 }
 async function markJoined(phone,id){
  const p=norm(phone),live=await hydrateLive(id);if(!live||live.active!==true)return;
