@@ -19,6 +19,7 @@ const presenceRoot=mediaRoot+"/presence";
 const peerRoot=mediaRoot+"/peers/"+peerKey;
 const boardRoot="appData/apsan_live_board_"+liveId;
 const objectsRoot="appData/apsan_board_objects_"+liveId;
+const boardFilesRoot="appData/apsan_live_board_files/"+liveId;
 const studentBoardRoot="appData/apsan_live_student_boards/"+liveId;
 const pointerRoot="appData/apsan_live_pointer_"+liveId;
 const controlRoot="appData/apsan_live_controls/"+liveId;
@@ -44,6 +45,7 @@ let drawSnapshot=null;
 let pointerTimer=null;
 let pointerVisible=false;
 let remotePointerEl=null;
+let remotePointerEls={};
 let remoteTeacherVideo=null;
 let studentRemoteAudio=null;
 let peerConnections={};
@@ -179,14 +181,29 @@ function makeTeacherPointerTools(){
   }
   document.getElementById("teacherPointer")?.addEventListener("click",()=>toggleIndicator(),{once:true});
 }
-function ensurePointerEl(){
-  if(remotePointerEl)return remotePointerEl;
-  remotePointerEl=document.createElement("div");remotePointerEl.className="live-board-pointer";remotePointerEl.id="liveBoardRemotePointer";board.appendChild(remotePointerEl);
-  return remotePointerEl;
+function ensurePointerEl(peerId,name){
+  const id=String(peerId||"remote");
+  if(remotePointerEls[id])return remotePointerEls[id];
+  const el=document.createElement("div");
+  el.className="live-board-pointer";
+  el.dataset.peer=id;
+  el.innerHTML='<span class="live-board-pointer-label"></span>';
+  const label=el.querySelector(".live-board-pointer-label");
+  if(label)label.textContent=name||"Utilizador";
+  board.appendChild(el);
+  remotePointerEls[id]=el;
+  if(id==="remote")remotePointerEl=el;
+  return el;
 }
-function applyPointerStyle(mode,color){
-  const el=ensurePointerEl();el.classList.remove("magnify","arrow");el.classList.add("arrow");
+function removePointerEl(peerId){
+  const id=String(peerId||"");
+  const el=remotePointerEls[id];
+  if(el){el.remove();delete remotePointerEls[id];}
+}
+function applyPointerStyle(mode,color,peerId,name){
+  const el=ensurePointerEl(peerId,name);el.classList.remove("magnify","arrow");el.classList.add("arrow");
   el.style.background="transparent";el.style.borderColor=color||"#ffd400";
+  const label=el.querySelector(".live-board-pointer-label");if(label)label.textContent=name||"Utilizador";
 }
 function toggleMagnify(){magnifyMode=!magnifyMode;if(magnifyMode)indicatorMode=false;applyLocalPointerButtons();publishPresence();toast(magnifyMode?"Lupa ativa no quadro.":"Lupa desligada.");}
 function toggleIndicator(){indicatorMode=!indicatorMode;if(indicatorMode)magnifyMode=false;applyLocalPointerButtons();publishPresence();toast(indicatorMode?"Indicador ativo no quadro.":"Indicador desligado.");}
@@ -214,13 +231,20 @@ function listenPointers(){
   const c=cloud();if(!c)return;
   mediaListeners.push(c.listen(pointerRoot,(all)=>{
     if(!all||typeof all!=="object")return;
+    const seen={};
     Object.keys(all).forEach(k=>{
       if(k===peerKey)return;
       const p=all[k];if(!p)return;
-      const el=ensurePointerEl();el.classList.toggle("show",p.visible!==false);if(p.visible===false)return;
-      applyPointerStyle(p.mode,p.color);
-      const r=board.getBoundingClientRect();el.style.left=(Math.max(0,Math.min(1,Number(p.x)||0))*r.width)+"px";el.style.top=(Math.max(0,Math.min(1,Number(p.y)||0))*r.height)+"px";
+      seen[k]=true;
+      const el=ensurePointerEl(k,p.name||k);
+      el.classList.toggle("show",p.visible!==false);
+      if(p.visible===false)return;
+      applyPointerStyle(p.mode,p.color,k,p.name||k);
+      const r=board.getBoundingClientRect();
+      el.style.left=(Math.max(0,Math.min(1,Number(p.x)||0))*r.width)+"px";
+      el.style.top=(Math.max(0,Math.min(1,Number(p.y)||0))*r.height)+"px";
     });
+    Object.keys(remotePointerEls).forEach(k=>{if(k!=="remote"&&!seen[k])removePointerEl(k)});
   }));
 }
 function bindPointerTracking(){
@@ -797,6 +821,55 @@ function drawTeacherBoardSnapshot(data){
   const cv=ensureTeacherBoardLayer();if(!cv)return;
   const im=new Image();im.onload=()=>{const x=cv.getContext("2d");x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,cv.width,cv.height);x.drawImage(im,0,0,cv.width,cv.height)};im.src=data;
 }
+function openBoardFileDB(){
+  return new Promise((resolve,reject)=>{
+    if(!window.indexedDB)return reject(new Error("indexeddb"));
+    const req=indexedDB.open("apsanAcademyBoard",1);
+    req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains("documents"))req.result.createObjectStore("documents",{keyPath:"id"})};
+    req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);
+  });
+}
+function dataUrlToBlob(dataUrl,type){
+  const parts=String(dataUrl||"").split(",");
+  const raw=atob(parts[1]||"");const bytes=new Uint8Array(raw.length);
+  for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);
+  return new Blob([bytes],{type:type||"application/octet-stream"});
+}
+async function cacheBoardFile(item){
+  if(!item||!item.id||!item.dataUrl)return;
+  try{
+    const file=dataUrlToBlob(item.dataUrl,item.type);
+    const db=await openBoardFileDB();
+    await new Promise((res,rej)=>{const tx=db.transaction("documents","readwrite");tx.objectStore("documents").put({id:item.id,file,liveId:liveId,name:item.name||"Documento",type:item.type||file.type,size:item.size||file.size,createdAt:item.createdAt||new Date().toISOString()});tx.oncomplete=res;tx.onerror=()=>rej(tx.error)});
+    db.close();
+    window.dispatchEvent(new Event("apsan-board-file-ready"));
+  }catch(_){}
+}
+async function publishBoardFile(file,meta){
+  if(role!=="professor"||!liveId||!file||!file.size)return;
+  const c=cloud();if(!c)return;
+  try{
+    const dataUrl=await new Promise((resolve,reject)=>{const rd=new FileReader();rd.onload=()=>resolve(String(rd.result||""));rd.onerror=()=>reject(rd.error);rd.readAsDataURL(file)});
+    if(!dataUrl)return;
+    const chunkSize=220000;
+    const total=Math.ceil(dataUrl.length/chunkSize);
+    const root=boardFilesRoot+"/"+String(meta.id).replace(/[^a-zA-Z0-9_-]/g,"_");
+    await c.set(root+"/meta",{id:meta.id,name:meta.name||file.name,type:meta.type||file.type||"application/octet-stream",size:file.size,totalChunks:total,createdAt:Date.now()});
+    await Promise.all(Array.from({length:total},(_,i)=>c.set(root+"/chunks/"+i,dataUrl.slice(i*chunkSize,(i+1)*chunkSize))));
+  }catch(_){toast("Documento guardado localmente; a sincronização online falhou.")}}
+function listenBoardFiles(){
+  const c=cloud();if(!c)return;
+  mediaListeners.push(c.listen(boardFilesRoot,all=>{
+    if(!all||typeof all!=="object")return;
+    Object.keys(all).forEach(id=>{
+      const pack=all[id]||{},meta=pack.meta,chunks=pack.chunks;
+      if(!meta||!chunks||Number(meta.totalChunks||0)<1)return;
+      const total=Number(meta.totalChunks)||0;
+      const parts=[];for(let i=0;i<total;i++){if(typeof chunks[i]!=="string")return;parts.push(chunks[i])}
+      cacheBoardFile({id:meta.id,name:meta.name,type:meta.type,size:meta.size,createdAt:meta.createdAt,dataUrl:parts.join("")}).catch(()=>{});
+    });
+  }));
+}
 function bindBoardSync(){
   const c=cloud();if(!c)return;
   const off1=c.listen(boardRoot,data=>{if(role==="professor")drawRemoteSnapshot(data);else if(role==="aluno")drawTeacherBoardSnapshot(data)});
@@ -816,8 +889,11 @@ function bindBoardSync(){
       if(typeof window.renderBoardObjects==="function")try{window.renderBoardObjects()}catch(_){}
     }
   });
+  window.addEventListener("apsan-board-file-ready",()=>{
+    if(role==="aluno"&&typeof window.renderBoardObjects==="function")try{window.renderBoardObjects()}catch(_){}
+  });
   window.addEventListener("resize",()=>{if(role==="aluno"&&lastTeacherBoard)drawTeacherBoardSnapshot(lastTeacherBoard)});
-
+  listenBoardFiles();
 }
 function publishBoardSnapshot(){
   if(role!=="professor"&&!localDrawing)return;
@@ -826,18 +902,18 @@ function publishBoardSnapshot(){
   boardSyncTimer=setTimeout(()=>{
     const c=cloud();if(!c)return;
     try{
-      const data=canvas.toDataURL("image/png");
+      let data=canvas.toDataURL("image/webp",0.82);
+      if(!data||!data.startsWith("data:image/"))data=canvas.toDataURL("image/png");
       const objs=localStorage.getItem(liveObjectsKey())||"[]";
-      c.set(boardRoot,data).catch(()=>{});
-      c.set(objectsRoot,JSON.parse(objs)).catch(()=>{});
+      Promise.all([c.set(boardRoot,data),c.set(objectsRoot,JSON.parse(objs))]).catch(()=>{});
     }catch(_){}
-  },80);
+  },45);
 }
 function bindTeacherBoardSync(){
   if(role!=="professor")return;
   ["pointerup","pointercancel"].forEach(ev=>canvas.addEventListener(ev,publishBoardSnapshot));
   let lastBoardPush=0;
-  canvas.addEventListener("pointermove",()=>{if(drawing&&Date.now()-lastBoardPush>180){lastBoardPush=Date.now();publishBoardSnapshot();}});
+  canvas.addEventListener("pointermove",()=>{if(drawing&&Date.now()-lastBoardPush>70){lastBoardPush=Date.now();publishBoardSnapshot();}});
   const originalSet=localStorage.setItem.bind(localStorage);
   window.addEventListener("apsan-cloud-sync",e=>{
     if(e.detail&&e.detail.key===liveObjectsKey())window.dispatchEvent(new Event("apsan-board-remote"));
