@@ -436,6 +436,7 @@ function clearEndedSession(){
     document.getElementById("boardEmpty")?.classList.remove("hidden");
     document.getElementById("participantList")?.replaceChildren();
     document.getElementById("participantVideoGrid")?.replaceChildren();
+    document.getElementById("liveStudentBoardLayers")?.remove();
   }catch(_){}
 }
 function markClassEnded(){
