@@ -2094,7 +2094,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    function startLiveClass(lessonId) {
+    async function startLiveClass(lessonId) {
         const lessons = getStoredList(lessonsKey);
         const lesson = lessons.find(function (item) { return String(item.id) === String(lessonId); });
         const message = document.getElementById("lessonMessage");
@@ -2120,6 +2120,10 @@ document.addEventListener("DOMContentLoaded", function () {
         };
         liveClasses.push(live);
         localStorage.setItem("apsan_live_classes", JSON.stringify(liveClasses.slice(-30)));
+        /* Publica imediatamente a chamada no canal realtime para os dispositivos dos alunos. */
+        if (window.APSANLive && typeof window.APSANLive.publishLive === "function") {
+            await window.APSANLive.publishLive(live);
+        }
         students.forEach(function (student) {
             const recipientKey = "aluno:" + student.phone;
             notifications.push({
