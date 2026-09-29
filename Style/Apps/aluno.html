@@ -1754,15 +1754,30 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    /* Canal realtime: a chamada chega mesmo quando o professor está noutro aparelho. */
-    if (window.APSANLive && currentAccount && currentAccount.phone) {
-        window.APSANLive.listenStudent(currentAccount.phone, function () {
+    /* Canal realtime: a chamada chega imediatamente quando o professor inicia. */
+    let liveStudentUnsubscribe = null;
+    let liveStudentBooted = false;
+    function bootLiveStudentListener() {
+        if (liveStudentBooted || !currentAccount || !currentAccount.phone) return;
+        if (!window.APSANLive || typeof window.APSANLive.listenStudent !== "function") {
+            setTimeout(bootLiveStudentListener, 500);
+            return;
+        }
+        liveStudentBooted = true;
+        liveStudentUnsubscribe = window.APSANLive.listenStudent(currentAccount.phone, function () {
             updateStudentLiveClassNotice();
             if (typeof renderStudentExtraAreas === "function") renderStudentExtraAreas();
         });
     }
+    bootLiveStudentListener();
+
     window.addEventListener("apsan-live-call", function (event) {
         if (event.detail) updateStudentLiveClassNotice();
+    });
+    window.addEventListener("apsan-cloud-sync", function (event) {
+        if (event.detail && String(event.detail.key || "").indexOf("apsan_live_calls") === 0) {
+            updateStudentLiveClassNotice();
+        }
     });
 
     updateStudentLiveClassNotice();
