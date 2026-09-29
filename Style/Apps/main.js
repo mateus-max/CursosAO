@@ -261,7 +261,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             try {
                 if (window.apsanCloud) {
-                    const authUser = await window.apsanCloud.signIn(directionAccount, { allowCreate: false });
+                    const authUser = await window.apsanCloud.signIn(directionAccount, { allowCreate: true });
                     let savedDirectionProfile = {};
                     try {
                         savedDirectionProfile = JSON.parse(localStorage.getItem("apsan_direction_profile") || "{}") || {};
@@ -462,7 +462,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if(adminAccessMessage){adminAccessMessage.style.color="#1769e0";adminAccessMessage.textContent="A verificar acesso...";}
         try{
             if(!window.apsanCloud) throw new Error("cloud");
-            const authUser=await window.apsanCloud.signIn(directionAccount,{allowCreate:false});
+            const authUser=await window.apsanCloud.signIn(directionAccount,{allowCreate:true});
             let profile={};try{profile=JSON.parse(localStorage.getItem("apsan_direction_profile")||"{}")||{};}catch(_){ }
             const session=Object.assign({},directionAccount,{name:profile.name||"Direção APSAN Academy",photo:profile.logo||"",nif:profile.nif||"",location:profile.location||"",authUid:authUser&&authUser.uid?authUser.uid:"",authEmail:"suporte@apsanlda.com"});
             localStorage.setItem("apsan_account",JSON.stringify(session));localStorage.setItem("apsan_phone","suporte@apsanlda.com");localStorage.setItem("apsan_user_type","direcao");localStorage.setItem("apsan_logged_in","true");
