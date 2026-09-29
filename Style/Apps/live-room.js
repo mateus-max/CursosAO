@@ -159,12 +159,15 @@ function setToolActive(id){
 function makeTeacherPointerTools(){
   if(role!=="professor")return;
   const toolbar=document.querySelector(".board-toolbar");if(!toolbar)return;
-  if(document.getElementById("teacherPointerTools"))return;
-  const wrap=document.createElement("div");wrap.className="live-teacher-pointer-tools";wrap.id="teacherPointerTools";
-  wrap.innerHTML='<button type="button" id="teacherMagnify">🔴 Lupa</button><button type="button" id="teacherPointer">🖱 Indicador</button>';
-  toolbar.appendChild(wrap);
-  document.getElementById("teacherMagnify").onclick=()=>toggleMagnify();
-  document.getElementById("teacherPointer").onclick=()=>toggleIndicator();
+  const lupa=document.getElementById("teacherMagnify");
+  if(lupa){lupa.onclick=()=>toggleMagnify();lupa.classList.toggle("active",magnifyMode);}
+  let wrap=document.getElementById("teacherPointerTools");
+  if(!wrap){
+    wrap=document.createElement("div");wrap.className="live-teacher-pointer-tools";wrap.id="teacherPointerTools";
+    const pointer=document.createElement("button");pointer.type="button";pointer.id="teacherPointer";pointer.textContent="🖱 Indicador";wrap.appendChild(pointer);
+    toolbar.appendChild(wrap);
+  }
+  document.getElementById("teacherPointer")?.addEventListener("click",()=>toggleIndicator(),{once:true});
 }
 function ensurePointerEl(){
   if(remotePointerEl)return remotePointerEl;
