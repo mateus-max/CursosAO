@@ -97,7 +97,7 @@ function addStyle(){
     .live-board-pointer{position:absolute;z-index:60;width:18px;height:18px;border-radius:50%;background:#ef233c;border:3px solid #fff;box-shadow:0 0 0 3px rgba(239,35,60,.35),0 3px 12px rgba(0,0,0,.3);pointer-events:none;transform:translate(-50%,-50%);display:none}
     .live-board-pointer.show{display:block}
     .live-board-pointer.magnify{width:0;height:0;border:0;border-top:10px solid transparent;border-bottom:10px solid transparent;border-left:20px solid #ffd400;border-radius:0;background:transparent;box-shadow:2px 2px 7px rgba(0,0,0,.35);transform:translate(-4px,-4px) rotate(-18deg)}
-    .live-board-pointer.arrow{width:0;height:0;border:0;border-top:10px solid transparent;border-bottom:10px solid transparent;border-left:20px solid #ffd400;border-radius:0;background:transparent;box-shadow:2px 2px 7px rgba(0,0,0,.35);transform:translate(-4px,-4px) rotate(-18deg)}
+    .live-board-pointer.arrow{width:0;height:0;border:0;border-top:10px solid transparent;border-bottom:10px solid transparent;border-left:20px solid #ffd400;border-radius:0;background:transparent;box-shadow:2px 2px 7px rgba(0,0,0,.35);transform:translate(-4px,-4px) rotate(-18deg)}.live-board-pointer-label{position:absolute;left:15px;top:13px;white-space:nowrap;padding:2px 5px;border-radius:5px;background:rgba(13,29,56,.9);color:#fff;font-size:8px;font-weight:900;pointer-events:none;transform:rotate(18deg);box-shadow:0 2px 5px rgba(0,0,0,.2)}
     .live-teacher-board-layer{position:absolute;inset:0;z-index:20;pointer-events:none}
     .live-teacher-board-layer canvas{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
     body.live-student-mode #whiteboardCanvas{position:relative;z-index:30;background:transparent!important}
@@ -202,7 +202,7 @@ function removePointerEl(peerId){
 }
 function applyPointerStyle(mode,color,peerId,name){
   const el=ensurePointerEl(peerId,name);el.classList.remove("magnify","arrow");el.classList.add("arrow");
-  el.style.background="transparent";el.style.borderColor=color||"#ffd400";
+  el.style.background="transparent";el.style.borderColor="transparent";el.style.borderLeftColor=color||"#ffd400";
   const label=el.querySelector(".live-board-pointer-label");if(label)label.textContent=name||"Utilizador";
 }
 function toggleMagnify(){magnifyMode=!magnifyMode;if(magnifyMode)indicatorMode=false;applyLocalPointerButtons();publishPresence();toast(magnifyMode?"Lupa ativa no quadro.":"Lupa desligada.");}
