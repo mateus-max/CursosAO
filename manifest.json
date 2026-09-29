@@ -1,21 +1,37 @@
 {
-  "id":"./",
-  "name":"APSAN Academy",
-  "short_name":"APSAN Academy",
-  "description":"Plataforma de aulas, cursos e comunicação da APSAN Academy.",
-  "lang":"pt",
-  "start_url":"./index.html",
-  "scope":"./",
-  "display":"standalone",
-  "display_override":["standalone"],
-  "orientation":"any",
-  "theme_color":"#1769e0",
-  "background_color":"#ffffff",
-  "categories":["education","productivity"],
-  "prefer_related_applications":false,
-  "screenshots":[{"src":"./icons/apsan-academy-512.png","sizes":"512x512","type":"image/png","label":"Logo original APSAN Academy"}],
-  "icons":[
-    {"src":"./icons/apsan-academy-192.png","sizes":"192x192","type":"image/png","purpose":"any"},
-    {"src":"./icons/apsan-academy-512.png","sizes":"512x512","type":"image/png","purpose":"any"}
+  "id": "./",
+  "name": "APSAN Academy",
+  "short_name": "APSAN Academy",
+  "description": "Plataforma de aulas, cursos e comunicação da APSAN Academy.",
+  "lang": "pt",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "standalone"
+  ],
+  "orientation": "any",
+  "theme_color": "#1769e0",
+  "background_color": "#ffffff",
+  "categories": [
+    "education",
+    "productivity"
+  ],
+  "prefer_related_applications": false,
+  "screenshots": [
+    {
+      "src": "./icons/apsan-academy-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "label": "Logo APSAN LDA"
+    }
+  ],
+  "icons": [
+    {
+      "src": "./icons/apsan-academy-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
   ]
 }
