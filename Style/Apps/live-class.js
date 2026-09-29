@@ -66,7 +66,7 @@ function stopLiveCallSound(liveId){
  try{clearTimeout(state.cycleTimer)}catch(_){}
  try{clearTimeout(state.stopTimer)}catch(_){}
  try{state.ac&&state.ac.close&&state.ac.close()}catch(_){}
- try{if(state.voicePending&&window.speechSynthesis)window.speechSynthesis.cancel()}catch(_){}
+ try{if(window.speechSynthesis)window.speechSynthesis.cancel()}catch(_){}
  delete ringingCalls[liveId];
 }
 
