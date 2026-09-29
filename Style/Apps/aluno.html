@@ -466,9 +466,40 @@ document.addEventListener("DOMContentLoaded", function () {
     const studentTopAvatar = document.getElementById("studentTopAvatar");
     const studentTopAvatarLetter = document.getElementById("studentTopAvatarLetter");
 
+    function getStudentProfilePhoto() {
+        const candidates = [
+            currentAccount && currentAccount.photo,
+            currentAccount && currentAccount.profilePhoto,
+            currentAccount && currentAccount.avatar,
+            currentAccount && currentAccount.photoURL
+        ];
+        for (const value of candidates) {
+            if (value) return String(value);
+        }
+
+        try {
+            const phone = String(currentAccount && currentAccount.phone || "");
+            const username = String(currentAccount && currentAccount.username || "");
+            const keys = [];
+            if (phone) keys.push("apsan_student_profile_" + phone);
+            if (phone && window.apsanCloud) keys.push("apsan_student_profile_" + window.apsanCloud.normalizePhone(phone));
+            if (username) keys.push("apsan_student_profile_" + username);
+
+            for (const key of keys) {
+                const raw = localStorage.getItem(key);
+                if (!raw) continue;
+                const profile = JSON.parse(raw);
+                const photo = profile && (profile.photo || profile.profilePhoto || profile.avatar || profile.photoURL);
+                if (photo) return String(photo);
+            }
+        } catch (_) {}
+
+        return "";
+    }
+
     function updateStudentProfileDisplay() {
         const name = currentAccount.name || currentAccount.fullName || "Aluno";
-        const photo = currentAccount.photo || "";
+        const photo = getStudentProfilePhoto();
 
         if (studentName) studentName.textContent = name;
 
