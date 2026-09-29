@@ -1691,45 +1691,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 return String(b.createdAt || "").localeCompare(String(a.createdAt || ""));
             })[0];
 
-        if (!current) {
-            let activeClass = null;
-            try {
-                const classes = JSON.parse(localStorage.getItem("apsan_live_classes") || "[]");
-                activeClass = Array.isArray(classes) ? classes
-                    .filter(function (liveClass) {
-                        return liveClass &&
-                            liveClass.active === true &&
-                            (Array.isArray(liveClass.allowedStudents)||Array.isArray(liveClass.students)) &&
-                            (liveClass.allowedStudents||liveClass.students).map(normalizeLivePhone).includes(phoneKey);
-                    })
-                    .sort(function (a, b) {
-                        return String(b.startedAt || "").localeCompare(String(a.startedAt || ""));
-                    })[0] : null;
-            } catch (_) {}
-
-            if (activeClass) {
-                current = {
-                    id: "livecall_" + activeClass.id + "_" + phoneKey,
-                    liveId: activeClass.id,
-                    recipientPhone: phoneKey,
-                    teacherPhone: normalizeLivePhone(activeClass.teacherPhone),
-                    teacherName: activeClass.teacherName || "Professor",
-                    title: activeClass.title || "Aula ao vivo",
-                    course: activeClass.course || "Curso",
-                    createdAt: activeClass.startedAt || new Date().toISOString(),
-                    active: true,
-                    joinedAt: null,
-                    readAt: null
-                };
-                const rebuilt = notifications.filter(function (item) {
-                    return !(item && item.liveId === current.liveId &&
-                        normalizeLivePhone(item.recipientPhone) === phoneKey);
-                });
-                rebuilt.push(current);
-                localStorage.setItem("apsan_live_notifications", JSON.stringify(rebuilt.slice(-200)));
-            }
-        }
-
+        /* A chamada só nasce pelo evento realtime emitido quando o professor inicia a aula.
+           Não reconstruímos uma chamada apenas a partir de dados locais antigos. */
         if (!current) {
             notice.hidden = true;
             notice.innerHTML = "";
@@ -1761,6 +1724,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 return item;
             });
             localStorage.setItem("apsan_live_notifications", JSON.stringify(updated));
+            if (window.APSANLive && typeof window.APSANLive.markJoined === "function") {
+                window.APSANLive.markJoined(currentAccount.phone, current.liveId).catch(function(){});
+            }
             window.location.href = "quadro.html?live=" + encodeURIComponent(current.liveId);
         };
     }
