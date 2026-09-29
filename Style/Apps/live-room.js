@@ -318,7 +318,6 @@ function listenPresence(){
             if(placeholder)placeholder.style.display="grid";
           }
         }
-        if(role==="professor")addTeacherControls();
       }else if(role==="professor"&&(p.state==="disconnected"||p.state==="ended"||!connected)){
         removeDisconnectedParticipant(k);
         const tile=document.querySelector('[data-live-video="'+CSS.escape(k)+'"]');if(tile)tile.remove();
@@ -434,6 +433,12 @@ function listenStudentControls(){
     if(d.camera&&typeof d.camera.enabled==="boolean"&&d.camera.enabled!==cameraOn)setCamera(!!d.camera.enabled);
   }));
 }
+function leaveLiveClassAsStudent(){
+  if(role!=="aluno")return;
+  try{classActive=false;publishPresence();cleanupPeers();}catch(_){}
+  clearEndedSession();
+  location.href="aluno.html#classroom";
+}
 async function measureNetwork(){
   const pc=peerConnections.teacher;if(role!=="aluno"||!pc)return;
   try{
@@ -443,12 +448,6 @@ async function measureNetwork(){
     networkState=(rtt>0.45||loss>0.08)?"weak":"good";
     publishPresence();
   }catch(_){}
-}
-function leaveLiveClassAsStudent(){
-  if(role!=="aluno")return;
-  try{classActive=false;publishPresence();cleanupPeers();}catch(_){}
-  clearEndedSession();
-  location.href="aluno.html#classroom";
 }
 function clearEndedSession(){
   try{
@@ -785,8 +784,7 @@ function ensureTeacherBoardLayer(){
   let layer=document.getElementById("liveTeacherBoardLayer");
   if(!layer){
     layer=document.createElement("div");layer.id="liveTeacherBoardLayer";layer.className="live-teacher-board-layer";
-    const cv=document.createElement("canvas");cv.id="liveTeacherBoardCanvas";layer.appendChild(cv);
-    board.appendChild(layer);
+    const cv=document.createElement("canvas");cv.id="liveTeacherBoardCanvas";layer.appendChild(cv);board.appendChild(layer);
   }
   const cv=layer.querySelector("canvas");cv.width=canvas.width;cv.height=canvas.height;return cv;
 }
@@ -797,18 +795,14 @@ function drawTeacherBoardSnapshot(data){
 }
 function bindBoardSync(){
   const c=cloud();if(!c)return;
-  const off1=c.listen(boardRoot,data=>{
-    if(role==="professor")drawRemoteSnapshot(data);
-    else if(role==="aluno")drawTeacherBoardSnapshot(data);
-  });
+  const off1=c.listen(boardRoot,data=>{if(role==="professor")drawRemoteSnapshot(data);else if(role==="aluno")drawTeacherBoardSnapshot(data)});
   const off2=c.listen(objectsRoot,data=>{
     if(data==null)return;
     const encoded=typeof data==="string"?data:JSON.stringify(data);
     if(encoded===lastRemoteObjects)return;
     lastRemoteObjects=encoded;applyingRemote=true;
     try{localStorage.setItem(liveObjectsKey(),encoded)}catch(_){}
-    applyingRemote=false;
-    window.dispatchEvent(new Event("apsan-board-remote"));
+    applyingRemote=false;window.dispatchEvent(new Event("apsan-board-remote"));
   });
   boardListeners.push(off1,off2);
   window.addEventListener("apsan-board-remote",()=>{
@@ -866,20 +860,4 @@ async function boot(){
   window.addEventListener("beforeunload",()=>{try{publishPointer(0,0,false);cleanupPeers();}catch(_){}});
 }
 boot();
-})()function renderParticipantVideos(students,accounts){
-  const grid=document.getElementById("participantVideoGrid");if(!grid)return;
-  grid.innerHTML="";
-  if(live&&live.active&&role==="professor"){
-    const self=document.createElement("div");self.className="participant-video-tile live-teacher-self-tile";self.dataset.liveVideo="__teacher__";
-    self.innerHTML="<span>"+esc(account.name||"Professor")+" · sua câmara</span>";
-    if(cameraStream&&cameraOn){const v=document.createElement("video");v.autoplay=true;v.muted=true;v.playsInline=true;v.srcObject=cameraStream;self.prepend(v)}
-    else self.insertAdjacentHTML("afterbegin",'<div class="live-participant-placeholder">🎥</div>');
-    grid.appendChild(self);
-  }
-  students.forEach(p=>{
-    const a=accounts.find(x=>x&&String(x.phone||"").replace(/\D/g,"")===p)||{};
-    const tile=document.createElement("div");tile.className="participant-video-tile";tile.dataset.liveVideo=p;
-    tile.innerHTML='<div class="live-participant-placeholder">👤</div><span>'+esc(a.name||"Aluno")+' · aguardando câmara</span>';
-    grid.appendChild(tile);
-  });
-};
+})();
