@@ -84,7 +84,7 @@ function mirrorCall(call){
    return;
  }
  const item={id:"hn_live_"+call.liveId+"_"+norm(call.recipientPhone),recipientKey,recipientType:"aluno",title:"🔴 Aula ao vivo",text:(call.teacherName||"Professor")+" iniciou "+(call.title||"uma aula")+" · toque para entrar.",kind:"live-class",link:call.joinUrl||classroomUrl(call.liveId),liveId:call.liveId,signature:"Aula ao vivo · "+call.liveId,createdAt:call.createdAt||new Date().toISOString(),readAt:null};
- if(hi>=0)h[hi]=item;else h.push(item);writeLocal("apsan_header_notifications",h.slice(-100));playLiveCallSound(call);window.dispatchEvent(new CustomEvent("apsan-live-call",{detail:call}));
+ if(hi>=0)h[hi]=item;else h.push(item);writeLocal("apsan_header_notifications",h.slice(-100)); cloudSet("apsan_live_notifications",readLocal("apsan_live_notifications",[])).catch(()=>{}); cloudSet("apsan_header_notifications",readLocal("apsan_header_notifications",[])).catch(()=>{}); playLiveCallSound(call); window.dispatchEvent(new CustomEvent("apsan-live-call",{detail:call}));
 }
 function listenStudent(phone,callback){
  const studentPhone=norm(phone);
