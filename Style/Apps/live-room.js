@@ -392,6 +392,7 @@ async function setCamera(on){
       const track=cameraStream.getVideoTracks()[0];await replaceAllSenders("video",track);
     }else{stopMedia("video");cameraOn=false;await replaceAllSenders("video",null)}
     const v=document.getElementById("localCamera");if(v)v.srcObject=cameraStream||null;
+    window.apsanLiveRoomCameraStream=cameraStream||null;
     if(v&&cameraStream)v.play().catch(()=>{});
     showLocalCamera();
     if(role==="professor")ensureTeacherSelfTile();
@@ -704,6 +705,7 @@ function listenTeacherPeers(){
 function cleanupPeers(){
   Object.keys(peerConnections).forEach(k=>{try{peerConnections[k].close()}catch(_){}});
   peerConnections={};
+  window.apsanLiveRoomCameraStream=null;
 }
 
 function drawRemoteSnapshot(data){
