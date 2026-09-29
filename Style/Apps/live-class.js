@@ -15,8 +15,11 @@ async function officialStudents(teacherPhone,course){
  return [...out];
 }
 async function publishLive(item){
- item=Object.assign({},item);const students=new Set((Array.isArray(item.students)?item.students:[]).map(s=>norm(typeof s==="object"?(s.phone||s.studentPhone||s.telefone):s)).filter(Boolean));
- (await officialStudents(item.teacherPhone,item.course)).forEach(p=>students.add(p));
+ item=Object.assign({},item);const students=new Set();
+ const addStudent=function(s){const p=norm(typeof s==="object"?(s.phone||s.studentPhone||s.telefone):s);if(p)students.add(p)};
+ (Array.isArray(item.students)?item.students:[]).forEach(addStudent);
+ (Array.isArray(item.allowedStudents)?item.allowedStudents:[]).forEach(addStudent);
+ (await officialStudents(item.teacherPhone,item.course)).forEach(addStudent);
  const recipients=[...students];
  item.allowedStudents=recipients.slice();item.students=[];item.active=true;item.joinUrl=classroomUrl(item.id);
  const list=readLocal("apsan_live_classes",[]),arr=Array.isArray(list)?list.slice():[],i=arr.findIndex(x=>x&&x.id===item.id);if(i>=0)arr[i]=item;else arr.push(item);writeLocal("apsan_live_classes",arr);
@@ -81,23 +84,38 @@ function mirrorCall(call){
  if(hi>=0)h[hi]=item;else h.push(item);writeLocal("apsan_header_notifications",h.slice(-100));playLiveCallSound(call);window.dispatchEvent(new CustomEvent("apsan-live-call",{detail:call}));
 }
 function listenStudent(phone,callback){
- if(!window.apsanCloud)return function(){};
- let off=function(){};
- window.apsanCloud.listen("appData/apsan_live_calls/"+norm(phone),async data=>{
-   const map=data&&typeof data==="object"?data:{};const active=[];
-   for(const id of Object.keys(map)){
-     const call=map[id];if(!call)continue;
-     const live=await hydrateLive(call.liveId).catch(()=>null);
-     if(call.active!==false&&live&&live.active===true){mirrorCall(call);active.push(call)}
-     else{
-       const ended=Object.assign({},call,{active:false,endedAt:call.endedAt||new Date().toISOString()});
-       mirrorCall(ended);
-       if(call.active!==false)await cloudSet("apsan_live_calls/"+norm(phone)+"/"+id,ended).catch(()=>{});
-     }
+ const studentPath="appData/apsan_live_calls/"+norm(phone);
+ let stopped=false,off=function(){};
+ async function attach(){
+   if(stopped)return;
+   try{
+     if(!window.apsanCloud)return;
+     if(typeof window.apsanCloud.ready==="function")await window.apsanCloud.ready();
+     if(stopped)return;
+     const listener=window.apsanCloud.listen(studentPath,async data=>{
+       const map=data&&typeof data==="object"?data:{};
+       const active=[];
+       for(const id of Object.keys(map)){
+         const call=map[id];if(!call)continue;
+         const live=await hydrateLive(call.liveId).catch(()=>null);
+         if(call.active!==false&&live&&live.active===true){
+           mirrorCall(call);active.push(call);
+         }else{
+           const ended=Object.assign({},call,{active:false,endedAt:call.endedAt||new Date().toISOString()});
+           mirrorCall(ended);
+           if(call.active!==false)await cloudSet("apsan_live_calls/"+norm(phone)+"/"+id,ended).catch(()=>{});
+         }
+       }
+       if(typeof callback==="function")callback(active);
+     });
+     off=await listener;
+   }catch(e){
+     console.warn("APSAN live listener",e);
+     if(!stopped)setTimeout(attach,1500);
    }
-   if(typeof callback==="function")callback(active)
- }).then(fn=>{off=fn}).catch(e=>console.warn("APSAN live listener",e));
- return ()=>off();
+ }
+ attach();
+ return function(){stopped=true;try{off&&off()}catch(_){}};
 }
 async function markJoined(phone,id){
  const p=norm(phone),live=await hydrateLive(id);if(!live||live.active!==true)return;
