@@ -43,6 +43,7 @@ let drawSnapshot=null;
 let pointerTimer=null;
 let pointerVisible=false;
 let remotePointerEl=null;
+let localPointerEl=null;
 let remoteTeacherVideo=null;
 let studentRemoteAudio=null;
 let peerConnections={};
@@ -171,6 +172,27 @@ function makeTeacherPointerTools(){
   toolbar.appendChild(wrap);
   document.getElementById("teacherPointer").onclick=()=>toggleIndicator();
 }
+function ensureLocalPointerEl(){
+  if(localPointerEl)return localPointerEl;
+  localPointerEl=document.createElement("div");
+  localPointerEl.className="live-board-pointer";
+  localPointerEl.id="liveBoardLocalPointer";
+  localPointerEl.style.pointerEvents="none";
+  board.appendChild(localPointerEl);
+  return localPointerEl;
+}
+function renderLocalPointer(x,y,mode,color,visible){
+  const el=ensureLocalPointerEl();
+  el.classList.remove("magnify","arrow");
+  if(mode==="magnify")el.classList.add("magnify");
+  else if(mode==="indicator")el.classList.add("arrow");
+  el.classList.toggle("show",!!visible);
+  el.style.background=mode==="indicator"?"transparent":(mode==="magnify"?"rgba(239,35,60,.12)":(color||"#ef233c"));
+  el.style.borderColor=color||"#ef233c";
+  const r=board.getBoundingClientRect();
+  el.style.left=Math.max(0,Math.min(r.width,x))+"px";
+  el.style.top=Math.max(0,Math.min(r.height,y))+"px";
+}
 function ensurePointerEl(){
   if(remotePointerEl)return remotePointerEl;
   remotePointerEl=document.createElement("div");remotePointerEl.className="live-board-pointer";remotePointerEl.id="liveBoardRemotePointer";board.appendChild(remotePointerEl);
@@ -179,8 +201,37 @@ function ensurePointerEl(){
 function applyPointerStyle(mode,color){
   const el=ensurePointerEl();el.classList.remove("magnify","arrow");if(mode==="magnify")el.classList.add("magnify");else if(mode==="indicator")el.classList.add("arrow");el.style.background=mode==="indicator"?"transparent":(mode==="magnify"?"rgba(239,35,60,.12)":(color||"#ef233c"));el.style.borderColor=color||"#ef233c";
 }
-function toggleMagnify(){magnifyMode=!magnifyMode;if(magnifyMode)indicatorMode=false;applyLocalPointerButtons();document.getElementById("teacherMagnify")?.classList.toggle("active",magnifyMode);publishPresence();toast(magnifyMode?"Lupa ativa no quadro.":"Lupa desligada.");}
-function toggleIndicator(){indicatorMode=!indicatorMode;if(indicatorMode)magnifyMode=false;applyLocalPointerButtons();publishPresence();toast(indicatorMode?"Indicador ativo no quadro.":"Indicador desligado.");}
+function toggleMagnify(){
+  magnifyMode=!magnifyMode;
+  if(magnifyMode)indicatorMode=false;
+  applyLocalPointerButtons();
+  document.getElementById("teacherMagnify")?.classList.toggle("active",magnifyMode);
+  if(magnifyMode){
+    const r=board.getBoundingClientRect();
+    renderLocalPointer(r.width/2,r.height/2,"magnify","#ef233c",true);
+    publishPointer(.5,.5,true);
+  }else{
+    renderLocalPointer(0,0,"magnify","#ef233c",false);
+    publishPointer(0,0,false);
+  }
+  publishPresence();
+  toast(magnifyMode?"Lupa ativa no quadro.":"Lupa desligada.");
+}
+function toggleIndicator(){
+  indicatorMode=!indicatorMode;
+  if(indicatorMode)magnifyMode=false;
+  applyLocalPointerButtons();
+  if(indicatorMode){
+    const r=board.getBoundingClientRect();
+    renderLocalPointer(r.width/2,r.height/2,"indicator","#ffd400",true);
+    publishPointer(.5,.5,true);
+  }else{
+    renderLocalPointer(0,0,"indicator","#ffd400",false);
+    publishPointer(0,0,false);
+  }
+  publishPresence();
+  toast(indicatorMode?"Indicador ativo no quadro.":"Indicador desligado.");
+}
 function applyLocalPointerButtons(){
   document.getElementById("studentMagnify")?.classList.toggle("active",magnifyMode);
   document.getElementById("studentPointer")?.classList.toggle("active",indicatorMode);
@@ -194,11 +245,14 @@ async function publishPointer(x,y,visible){
 }
 function localPointer(e){
   if(!indicatorMode&&!magnifyMode)return;
-  const r=board.getBoundingClientRect();const x=Math.max(0,Math.min(r.width,e.clientX-r.left)),y=Math.max(0,Math.min(r.height,e.clientY-r.top));
+  const r=board.getBoundingClientRect();
+  const x=Math.max(0,Math.min(r.width,e.clientX-r.left)),y=Math.max(0,Math.min(r.height,e.clientY-r.top));
+  renderLocalPointer(x,y,magnifyMode?"magnify":"indicator",magnifyMode?"#ef233c":"#ffd400",true);
   publishPointer(x/r.width,y/r.height,true);
 }
 function hideLocalPointer(){
   if(!indicatorMode&&!magnifyMode)return;
+  renderLocalPointer(0,0,magnifyMode?"magnify":"indicator",magnifyMode?"#ef233c":"#ffd400",false);
   publishPointer(0,0,false);
 }
 function listenPointers(){
