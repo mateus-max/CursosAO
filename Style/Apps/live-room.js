@@ -157,10 +157,14 @@ function setToolActive(id){
   ["studentWrite","studentErase"].forEach(x=>document.getElementById(x)?.classList.toggle("active",x===id));
 }
 function makeTeacherPointerTools(){
+  const lupa=document.getElementById("teacherMagnify");
+  if(lupa){
+    lupa.onclick=null;
+    lupa.onpointerdown=e=>{e.preventDefault();e.stopPropagation();toggleMagnify();};
+    lupa.classList.toggle("active",magnifyMode);
+  }
   if(role!=="professor")return;
   const toolbar=document.querySelector(".board-toolbar");if(!toolbar)return;
-  const lupa=document.getElementById("teacherMagnify");
-  if(lupa){lupa.onclick=()=>toggleMagnify();lupa.classList.toggle("active",magnifyMode);}
   if(document.getElementById("teacherPointerTools"))return;
   const wrap=document.createElement("div");wrap.className="live-teacher-pointer-tools";wrap.id="teacherPointerTools";
   wrap.innerHTML='<button type="button" id="teacherPointer">🖱 Indicador</button>';
