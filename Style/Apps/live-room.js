@@ -4,7 +4,9 @@
 const params=new URLSearchParams(location.search);
 const liveId=params.get("live")||"";
 const account=(()=>{try{return JSON.parse(localStorage.getItem("apsan_account")||"{}")}catch(_){return {}}})();
-const role=account.type||localStorage.getItem("apsan_user_type")||"";
+const roleRaw=account.type||account.role||localStorage.getItem("apsan_user_type")||"";
+const roleAlias=String(roleRaw).trim().toLowerCase();
+const role=roleAlias==="teacher"||roleAlias==="docente"?"professor":roleAlias==="student"||roleAlias==="estudante"?"aluno":roleAlias;
 const phone=String(account.phone||localStorage.getItem("apsan_phone")||"").replace(/\D/g,"");
 if(!liveId || !["professor","aluno"].includes(role)) return;
 
