@@ -54,6 +54,8 @@ let lastRemoteObjects="";
 let applyingRemote=false;
 let boardSyncTimer=null;
 let remoteStrokeCanvas=null;
+let studentPeerListeners={};
+let liveChatListener=null;
 let networkState="connecting";
 let classActive=true;
 
@@ -106,6 +108,12 @@ function addStyle(){
     .live-status-dot.off{background:#ef4444}
     .live-participant-actions{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap}
     .live-participant-actions button{border:0;border-radius:7px;padding:4px 7px;background:#eef3f8;color:#17304f;font-size:10px;font-weight:900;cursor:pointer}
+    /* O painel de participantes fica fechado até o professor o solicitar. */
+    body:not(.live-student-mode) #rightPanel{display:none!important}
+    body:not(.live-student-mode) #rightPanel.open{display:flex!important}
+    .live-teacher-self-tile{order:-1}
+    .live-teacher-self-tile video{display:block;width:100%;height:100%;object-fit:cover}
+    .live-participant-placeholder{font-size:22px;opacity:.9}
     .live-participant-actions button.active{background:#fee2e2;color:#991b1b}
     .live-teacher-pointer-tools{display:flex;gap:5px;margin:8px 0 10px;flex-wrap:wrap}
     .live-student-mode #cameraDock{display:none!important}
@@ -113,6 +121,12 @@ function addStyle(){
     .live-student-mode .board{min-height:calc(100dvh - 150px)}
     .live-student-mode .board-objects{pointer-events:none!important}
     .live-student-mode .board-object{pointer-events:none!important}
+    .live-student-participant-grid{position:absolute;right:12px;bottom:12px;z-index:44;display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end;max-width:min(58%,420px);pointer-events:none}
+    .live-student-participant-tile{width:128px;padding:4px;border-radius:9px;background:#0d1d38;color:#fff;box-shadow:0 7px 18px rgba(0,0,0,.24);border:1px solid rgba(255,255,255,.16)}
+    .live-student-participant-tile video{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:6px;background:#020b18}
+    .live-student-participant-tile small{display:block;padding:3px 2px 0;font-size:9px;color:#d6e1ef;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .live-chat-actions{display:flex;gap:4px;margin-top:4px}
+    .live-chat-actions button{border:0;border-radius:6px;padding:3px 6px;font-size:9px;font-weight:800;cursor:pointer}
     @media(max-width:700px){
       .live-local-camera{width:118px;left:8px;bottom:8px}
       .live-remote-camera{width:132px;right:8px;top:8px}
@@ -211,21 +225,79 @@ async function publishPresence(){
     if(f&&f.db)f.db.ref(presenceRoot+"/"+peerKey).onDisconnect().set(Object.assign({},data,{state:"disconnected",connection:"disconnected",updatedAt:Date.now()}));
   }catch(_){}
 }
+function ensureTeacherSelfTile(){
+  if(role!=="professor")return null;
+  const grid=document.getElementById("participantVideoGrid");if(!grid)return null;
+  let tile=grid.querySelector('[data-live-video="__teacher__"]');
+  if(!tile){
+    tile=document.createElement("div");tile.className="participant-video-tile live-teacher-self-tile";tile.dataset.liveVideo="__teacher__";
+    tile.innerHTML='<div class="live-participant-placeholder">🎥</div><span>'+esc(account.name||"Professor")+' · sua câmara</span>';
+    grid.prepend(tile);
+  }else if(grid.firstElementChild!==tile)grid.prepend(tile);
+  const v=tile.querySelector("video");
+  if(cameraStream&&cameraOn){
+    if(!v){const video=document.createElement("video");video.autoplay=true;video.muted=true;video.playsInline=true;tile.insertBefore(video,tile.firstChild)}
+    const video=tile.querySelector("video");video.srcObject=cameraStream;video.play().catch(()=>{});
+  }else if(v){v.remove()}
+  return tile;
+}
+function ensureStudentVideoTile(k,p){
+  if(role!=="professor")return null;
+  const grid=document.getElementById("participantVideoGrid");if(!grid)return null;
+  let tile=grid.querySelector('[data-live-video="'+CSS.escape(k)+'"]');
+  if(!tile){
+    tile=document.createElement("div");tile.className="participant-video-tile";tile.dataset.liveVideo=k;
+    tile.innerHTML='<div class="live-participant-placeholder">👤</div><span>'+esc(p&&p.name||"Aluno")+' · câmara desligada</span>';
+    grid.appendChild(tile);
+  }
+  return tile;
+}
+function renderConnectedParticipant(k,p){
+  if(role!=="professor")return null;
+  const list=document.getElementById("participantList");if(!list)return null;
+  let item=list.querySelector('[data-live-participant="'+CSS.escape(k)+'"]');
+  if(!item){
+    item=document.createElement("div");item.className="participant";item.dataset.liveParticipant=k;
+    const accounts=readJsonStorage("apsan_accounts",[]);
+    const a=Array.isArray(accounts)?accounts.find(x=>x&&normalize(x.phone)===normalize(k))||{}:{};
+    item.innerHTML='<div class="participant-avatar">'+(a.photo?'<img src="'+esc(a.photo)+'">':esc(String(a.name||p.name||"A").charAt(0)))+'</div><div><strong>'+esc(a.name||p.name||"Aluno")+'</strong><small class="live-participant-status"><span class="live-status-dot on"></span>A participar na aula</small></div>';
+    list.appendChild(item);
+  }
+  ensureStudentVideoTile(k,p);
+  ensureTeacherSelfTile();
+  return item;
+}
+function removeDisconnectedParticipant(k){if(role!=="professor")return;const item=document.querySelector('[data-live-participant="'+CSS.escape(k)+'"]');if(item)item.remove();}
 function listenPresence(){
   const c=cloud();if(!c)return;
   mediaListeners.push(c.listen(presenceRoot,(all)=>{
     if(!all||typeof all!=="object")return;
+    if(role==="professor")ensureTeacherSelfTile();
     Object.keys(all).forEach(k=>{
       if(k===peerKey)return;
       const p=all[k]||{};
-      const item=document.querySelector('[data-live-participant="'+CSS.escape(k)+'"]');
+      const connected=p.role==="aluno"&&p.state==="connected";
+      const item=(role==="professor"&&connected)?renderConnectedParticipant(k,p):document.querySelector('[data-live-participant="'+CSS.escape(k)+'"]');
       if(item){
         const status=item.querySelector(".live-participant-status");
         const ns=p.network==="weak"?"weak":(p.state==="disconnected"||p.network==="offline"?"off":"on");
         if(status)status.innerHTML='<span class="live-status-dot '+ns+'"></span>'+ (p.state==="disconnected"?"Saiu da aula":p.network==="weak"?"Rede fraca":p.cameraOn?"Câmara ligada":"Câmara desligada")+(p.handRaised?" · ✋ mão levantada":"");
         item.dataset.network=p.network||"";
         const tile=document.querySelector('[data-live-video="'+CSS.escape(k)+'"]');
-        if(tile){const v=tile.querySelector("video");if(v)v.style.display=p.cameraOn&&p.state!=="disconnected"?"block":"none";}
+        if(tile){
+          const v=tile.querySelector("video");
+          const placeholder=tile.querySelector(".live-participant-placeholder");
+          if(p.cameraOn&&p.state==="connected"){
+            if(v)v.style.display="block";
+            if(placeholder)placeholder.style.display="none";
+          }else{
+            if(v)v.style.display="none";
+            if(placeholder)placeholder.style.display="grid";
+          }
+        }
+      }else if(role==="professor"&&(p.state==="disconnected"||p.state==="ended"||!connected)){
+        removeDisconnectedParticipant(k);
+        const tile=document.querySelector('[data-live-video="'+CSS.escape(k)+'"]');if(tile)tile.remove();
       }
     });
   }));
@@ -252,13 +324,19 @@ function createRemoteTeacherBox(){
   board.appendChild(box);
   return box;
 }
+function ensureStudentParticipantGrid(){
+  if(role!=="aluno")return null;
+  let grid=document.getElementById("liveStudentParticipantGrid");
+  if(grid)return grid;
+  grid=document.createElement("div");grid.id="liveStudentParticipantGrid";grid.className="live-student-participant-grid";board.appendChild(grid);
+  return grid;
+}
 function attachRemoteStudentVideo(student,stream){
-  if(role!=="professor")return;
-  const grid=document.getElementById("participantVideoGrid");if(!grid)return;
+  const grid=role==="professor"?document.getElementById("participantVideoGrid"):ensureStudentParticipantGrid();if(!grid)return;
   let tile=grid.querySelector('[data-live-video="'+CSS.escape(student)+'"]');
   if(!tile){
-    tile=document.createElement("div");tile.className="participant-video-tile";tile.dataset.liveVideo=student;
-    tile.innerHTML='<video autoplay playsinline></video><span>'+esc(student)+'</span>';
+    tile=document.createElement("div");tile.className=role==="professor"?"participant-video-tile":"live-student-participant-tile";tile.dataset.liveVideo=student;
+    tile.innerHTML='<video autoplay playsinline></video><small>'+esc(student)+'</small>';
     grid.prepend(tile);
   }
   const video=tile.querySelector("video");video.srcObject=stream;video.play().catch(()=>{});
@@ -292,7 +370,9 @@ async function setCamera(on){
     }else{stopMedia("video");cameraOn=false;await replaceAllSenders("video",null)}
     const v=document.getElementById("localCamera");if(v)v.srcObject=cameraStream||null;
     if(v&&cameraStream)v.play().catch(()=>{});
-    showLocalCamera();updateButton("toggleCamera",cameraOn?"<span>▣</span>Desligar câmara":"<span>▣</span>Ligar câmara");
+    showLocalCamera();
+    if(role==="professor")ensureTeacherSelfTile();
+    updateButton("toggleCamera",cameraOn?"<span>▣</span>Desligar câmara":"<span>▣</span>Ligar câmara");
     await publishPresence();toast(cameraOn?"Câmara ligada e partilhada na aula.":"Câmara desligada.");
   }catch(e){toast("Não foi possível ativar a câmara. Verifique a permissão do navegador.");}
 }
@@ -340,9 +420,40 @@ async function measureNetwork(){
     publishPresence();
   }catch(_){}
 }
+function clearEndedSession(){
+  try{
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    localStorage.removeItem(liveBoardKey());
+    localStorage.removeItem(liveObjectsKey());
+    localStorage.removeItem("apsan_board_documents_"+liveId);
+    document.getElementById("boardEmpty")?.classList.remove("hidden");
+    document.getElementById("participantList")?.replaceChildren();
+    document.getElementById("participantVideoGrid")?.replaceChildren();
+  }catch(_){}
+}
 function markClassEnded(){
-  classActive=false;networkState="offline";publishPresence();
+  classActive=false;networkState="offline";
+  try{stopMedia("video");stopMedia("audio")}catch(_){}
+  cleanupPeers();
+  clearEndedSession();
+  publishPresence();
   document.querySelectorAll(".classroom-bottom button").forEach(b=>{if(b.id!=="leaveClass")b.disabled=true});
+}
+function listenLiveEnd(){
+  const c=cloud();if(!c||!liveId)return;
+  mediaListeners.push(c.listen("appData/apsan_live_classes",data=>{
+    const item=Array.isArray(data)?data.find(x=>x&&x.id===liveId):(data&&data[liveId]);
+    if(item&&item.active===false&&!classActive)return;
+    if(!item||item.active!==true){
+      if(classActive){
+        markClassEnded();
+        if(role==="aluno"){
+          toast("Aula encerrada pelo professor.");
+          setTimeout(()=>{location.href="aluno.html#classroom"},900);
+        }
+      }
+    }
+  }));
 }
 async function ensureClassIsActive(){
   try{
@@ -406,7 +517,7 @@ async function makeStudentPeer(){
   pc._apsanPeer=peerKey;pc._apsanSendCandidate=cand=>writeCandidate("student",peerKey,cand);
   setupPcHandlers(pc,"professor","Professor");
   watchCandidates(pc,peerKey,"teacher");
-  await renegotiateStudent(pc,false);
+  await renegotiateStudent(pc,false,"professor","");
   mediaListeners.push(c.listen(peerRoot,async data=>{
     if(!data||!data.answer)return;
     try{
@@ -419,12 +530,68 @@ async function makeStudentPeer(){
   }));
   return pc;
 }
-async function renegotiateStudent(pc,iceRestart){
+async function makeStudentPeerToStudent(remote,data){
+  const c=cloud();if(!c||!data)return;
+  const p=normalize(remote);if(!p||p===peerKey)return;
+  const id="student:"+p;
+  if(peerConnections[id])return;
+  const pc=new RTCPeerConnection(RTC_CONFIG);peerConnections[id]=pc;pc._apsanPeer=p;
+  wireTransceivers(pc);
+  pc._apsanSendCandidate=cand=>writeCandidate("student",peerKey+"__"+p,cand);
+  setupPcHandlers(pc,"aluno",data.name||p);
+  watchCandidates(pc,peerKey+"__"+p,"studentPeer");
+  try{
+    const offer=await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    await c.set(mediaRoot+"/peers/"+peerKey+"__"+p+"/offer",{type:offer.type,sdp:offer.sdp,at:Date.now(),name:account.name||"Aluno",phone,from:peerKey,target:p,targetRole:"aluno"});
+    mediaListeners.push(c.listen(mediaRoot+"/peers/"+peerKey+"__"+p+"/answer",async ans=>{
+      if(!ans||!ans.sdp)return;
+      try{
+        const s=String(ans.sdp||"");if(!s||s===pc._apsanLastAnswer)return;
+        if(pc.signalingState!=="have-local-offer"&&pc.signalingState!=="stable")return;
+        await pc.setRemoteDescription(new RTCSessionDescription(ans));pc._apsanLastAnswer=s;
+      }catch(_){}
+    }));
+  }catch(_){}
+}
+function listenStudentPeers(){
+  const c=cloud();if(!c||role!=="aluno")return;
+  mediaListeners.push(c.listen(presenceRoot,all=>{
+    if(!all||typeof all!=="object")return;
+    Object.keys(all).forEach(p=>{
+      if(p===peerKey)return;
+      const info=all[p]||{};
+      if(info.role==="aluno"&&info.state!=="disconnected"&&info.state!=="ended") makeStudentPeerToStudent(p,info).catch(()=>{});
+    });
+  }));
+  mediaListeners.push(c.listen(mediaRoot+"/peers",async all=>{
+    if(!all||typeof all!=="object")return;
+    for(const pathKey of Object.keys(all)){
+      const d=all[pathKey];
+      if(!d||!d.offer||d.targetRole!=="aluno"||d.target!==peerKey)continue;
+      if(studentPeerListeners[pathKey])continue;
+      studentPeerListeners[pathKey]=true;
+      const pc=new RTCPeerConnection(RTC_CONFIG);
+      const id="incoming:"+d.from;peerConnections[id]=pc;pc._apsanPeer=d.from;
+      wireTransceivers(pc);
+      pc._apsanSendCandidate=cand=>writeCandidate("student",pathKey,"incoming");
+      setupPcHandlers(pc,"aluno",d.name||d.from);
+      watchCandidates(pc,pathKey,"student");
+      try{
+        await pc.setRemoteDescription(new RTCSessionDescription(d.offer));
+        const answer=await pc.createAnswer();await pc.setLocalDescription(answer);
+        await c.set(mediaRoot+"/peers/"+pathKey+"/answer",{type:answer.type,sdp:answer.sdp,at:Date.now(),name:account.name||"Aluno"});
+      }catch(_){}
+    }
+  }));
+}
+
+async function renegotiateStudent(pc,iceRestart,targetRole,target){
   const c=cloud();if(!c||!pc)return;
   try{
     const offer=await pc.createOffer(iceRestart?{iceRestart:true}:undefined);
     await pc.setLocalDescription(offer);
-    await c.set(peerRoot+"/offer",{type:offer.type,sdp:offer.sdp,at:Date.now(),name:account.name||"Aluno",phone});
+    await c.set(peerRoot+"/offer",{type:offer.type,sdp:offer.sdp,at:Date.now(),name:account.name||"Aluno",phone,targetRole:targetRole||"professor",target:target||""});
   }catch(_){}
 }
 async function makeTeacherPeer(student,data){
@@ -443,13 +610,51 @@ async function makeTeacherPeer(student,data){
     await c.set(mediaRoot+"/peers/"+p+"/answer",{type:answer.type,sdp:answer.sdp,at:Date.now(),teacher:account.name||"Professor"});
   }catch(e){console.warn("WebRTC professor:",e)}
 }
+function bindLiveChat(){
+  const c=cloud();if(!c||!liveId)return;
+  const root="appData/apsan_live_chat/"+liveId;
+  const box=document.getElementById("chatList"),input=document.getElementById("chatInput"),send=document.getElementById("sendChat");
+  if(!box||!input||!send)return;
+  const escText=v=>esc(v).replace(/\n/g,"<br>");
+  const render=data=>{
+    const arr=Array.isArray(data)?data:Object.values(data||{});
+    arr.sort((a,b)=>(Number(a.at)||0)-(Number(b.at)||0));
+    box.innerHTML=arr.slice(-150).map(m=>{
+      const mine=normalize(m.phone)===normalize(phone);
+      const actions=mine?'<div class="live-chat-actions"><button data-edit="'+esc(m.id)+'">Editar</button><button data-delete="'+esc(m.id)+'">Apagar</button></div>':'';
+      return '<div class="chat-msg" data-live-chat-id="'+esc(m.id)+'"><strong>'+esc(m.name||"Utilizador")+'</strong><p>'+escText(m.text||"")+'</p>'+actions+'</div>';
+    }).join("")||'<div class="empty-state">O chat da aula aparecerá aqui.</div>';
+    box.scrollTop=box.scrollHeight;
+    box.querySelectorAll("[data-edit]").forEach(b=>b.onclick=async()=>{
+      const id=b.dataset.edit,all=await c.get(root).catch(()=>null),arr2=Array.isArray(all)?all:(all?Object.values(all):[]),m=arr2.find(x=>String(x.id)===String(id));
+      if(!m||normalize(m.phone)!==normalize(phone))return;
+      const next=prompt("Editar mensagem:",m.text||"");if(next==null||!next.trim())return;
+      await c.set(root+"/"+id,Object.assign({},m,{text:next.trim(),editedAt:Date.now()})).catch(()=>{});
+    });
+    box.querySelectorAll("[data-delete]").forEach(b=>b.onclick=async()=>{
+      const id=b.dataset.delete,all=await c.get(root).catch(()=>null),arr2=Array.isArray(all)?all:(all?Object.values(all):[]),m=arr2.find(x=>String(x.id)===String(id));
+      if(!m||normalize(m.phone)!==normalize(phone))return;
+      await c.set(root+"/"+id,null).catch(()=>{});
+    });
+  };
+  if(liveChatListener)try{liveChatListener()}catch(_){}
+  liveChatListener=c.listen(root,render);
+  const sendNow=async()=>{
+    const text=String(input.value||"").trim();if(!text)return;
+    const id=phone+"_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,6);
+    await c.set(root+"/"+id,{id,text,name:account.name||"Utilizador",phone,role,at:Date.now()}).catch(()=>{});
+    input.value="";
+  };
+  send.onclick=sendNow;
+  input.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();sendNow();}};
+}
 function listenTeacherPeers(){
   const c=cloud();if(!c)return;
   mediaListeners.push(c.listen(mediaRoot+"/peers",async all=>{
     if(!all||typeof all!=="object")return;
     for(const p of Object.keys(all)){
       if(p===peerKey)continue;
-      const d=all[p];if(!d||!d.offer)continue;
+      const d=all[p];if(!d||!d.offer||d.targetRole==="aluno")continue;
       if(!peerConnections[p]){makeTeacherPeer(p,d);continue}
       const pc=peerConnections[p];
       const nextSdp=String(d.offer.sdp||"");
@@ -536,6 +741,8 @@ function publishBoardSnapshot(){
 function bindTeacherBoardSync(){
   if(role!=="professor")return;
   ["pointerup","pointercancel"].forEach(ev=>canvas.addEventListener(ev,publishBoardSnapshot));
+  let lastBoardPush=0;
+  canvas.addEventListener("pointermove",()=>{if(drawing&&Date.now()-lastBoardPush>180){lastBoardPush=Date.now();publishBoardSnapshot();}});
   const originalSet=localStorage.setItem.bind(localStorage);
   window.addEventListener("apsan-cloud-sync",e=>{
     if(e.detail&&e.detail.key===liveObjectsKey())window.dispatchEvent(new Event("apsan-board-remote"));
@@ -556,7 +763,9 @@ async function boot(){
   addStyle();makeStudentTools();makeTeacherPointerTools();bindMediaButtons();bindPointerTracking();listenPointers();listenPresence();bindBoardSync();patchLocalStorageObjectSync();
   classActive=await ensureClassIsActive();
   if(!classActive){markClassEnded();return}
-  if(role==="aluno"){bindStudentBoard();listenStudentControls();makeStudentPeer().catch(()=>{});}
+  listenLiveEnd();
+  bindLiveChat();
+  if(role==="aluno"){bindStudentBoard();listenStudentControls();makeStudentPeer().catch(()=>{});listenStudentPeers();}
   else{listenTeacherPeers();addTeacherControls();}
   publishPresence();
   setInterval(measureNetwork,3000);
