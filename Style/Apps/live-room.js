@@ -94,10 +94,15 @@ function addStyle(){
     .live-student-tools button,.live-teacher-pointer-tools button{border:0;border-radius:11px;background:#172d4c;color:#fff;padding:9px 11px;font-weight:900;cursor:pointer}
     .live-student-tools button.active,.live-teacher-pointer-tools button.active{background:#b91c1c}
     .live-student-tools button.write.active{background:#1769e0}
-    .live-board-pointer{position:absolute;z-index:60;width:18px;height:18px;border-radius:50%;background:#ef233c;border:3px solid #fff;box-shadow:0 0 0 3px rgba(239,35,60,.35),0 3px 12px rgba(0,0,0,.3);pointer-events:none;transform:translate(-50%,-50%);display:none}
+    /* Indicador remoto: cursor realista do PC, acompanhando o rato em tempo real. */
+    .live-board-pointer{position:absolute;z-index:60;width:22px;height:30px;pointer-events:none;display:none;transform:translate(-2px,-2px);filter:drop-shadow(1px 2px 2px rgba(0,0,0,.38))}
+    .live-board-pointer::before{content:"";position:absolute;left:0;top:0;width:0;height:0;border-top:28px solid #fff;border-right:14px solid transparent;transform:rotate(-6deg);filter:drop-shadow(0 0 0 #17202a)}
+    .live-board-pointer::after{content:"";position:absolute;left:2px;top:2px;width:0;height:0;border-top:24px solid var(--pointer-color,#111827);border-right:12px solid transparent;transform:rotate(-6deg)}
     .live-board-pointer.show{display:block}
-    .live-board-pointer.magnify{width:0;height:0;border:0;border-top:10px solid transparent;border-bottom:10px solid transparent;border-left:20px solid #ffd400;border-radius:0;background:transparent;box-shadow:2px 2px 7px rgba(0,0,0,.35);transform:translate(-4px,-4px) rotate(-18deg)}
-    .live-board-pointer.arrow{width:0;height:0;border:0;border-top:10px solid transparent;border-bottom:10px solid transparent;border-left:20px solid #ffd400;border-radius:0;background:transparent;box-shadow:2px 2px 7px rgba(0,0,0,.35);transform:translate(-4px,-4px) rotate(-18deg)}.live-board-pointer-label{position:absolute;left:15px;top:13px;white-space:nowrap;padding:2px 5px;border-radius:5px;background:rgba(13,29,56,.9);color:#fff;font-size:8px;font-weight:900;pointer-events:none;transform:rotate(18deg);box-shadow:0 2px 5px rgba(0,0,0,.2)}
+    .live-board-pointer.magnify::before,.live-board-pointer.magnify::after{content:"";border:0}
+    .live-board-pointer.magnify::before{width:16px;height:16px;left:0;top:0;border:3px solid #fff;border-radius:50%;background:transparent;transform:none}
+    .live-board-pointer.magnify::after{width:7px;height:3px;left:15px;top:16px;background:#fff;border-radius:2px;transform:rotate(45deg)}
+    .live-board-pointer-label{position:absolute;left:17px;top:23px;white-space:nowrap;padding:2px 5px;border-radius:5px;background:rgba(13,29,56,.9);color:#fff;font-size:8px;font-weight:900;pointer-events:none;box-shadow:0 2px 5px rgba(0,0,0,.2)}
     .live-teacher-board-layer{position:absolute;inset:0;z-index:20;pointer-events:none}
     .live-teacher-board-layer canvas{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
     body.live-student-mode #whiteboardCanvas{position:relative;z-index:30;background:transparent!important}
@@ -201,8 +206,10 @@ function removePointerEl(peerId){
   if(el){el.remove();delete remotePointerEls[id];}
 }
 function applyPointerStyle(mode,color,peerId,name){
-  const el=ensurePointerEl(peerId,name);el.classList.remove("magnify","arrow");el.classList.add("arrow");
-  el.style.background="transparent";el.style.borderColor="transparent";el.style.borderLeftColor=color||"#ffd400";
+  const el=ensurePointerEl(peerId,name);
+  el.classList.toggle("magnify",mode==="magnify");
+  el.classList.remove("arrow");
+  el.style.setProperty("--pointer-color",color||"#111827");
   const label=el.querySelector(".live-board-pointer-label");if(label)label.textContent=name||"Utilizador";
 }
 function toggleMagnify(){magnifyMode=!magnifyMode;if(magnifyMode)indicatorMode=false;applyLocalPointerButtons();publishPresence();toast(magnifyMode?"Lupa ativa no quadro.":"Lupa desligada.");}
