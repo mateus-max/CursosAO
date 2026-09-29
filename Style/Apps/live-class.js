@@ -17,11 +17,12 @@ async function officialStudents(teacherPhone,course){
 async function publishLive(item){
  item=Object.assign({},item);const students=new Set((Array.isArray(item.students)?item.students:[]).map(s=>norm(typeof s==="object"?(s.phone||s.studentPhone||s.telefone):s)).filter(Boolean));
  (await officialStudents(item.teacherPhone,item.course)).forEach(p=>students.add(p));
- item.allowedStudents=[...students];item.students=[];item.active=true;item.joinUrl=classroomUrl(item.id);
+ const recipients=[...students];
+ item.allowedStudents=recipients.slice();item.students=[];item.active=true;item.joinUrl=classroomUrl(item.id);
  const list=readLocal("apsan_live_classes",[]),arr=Array.isArray(list)?list.slice():[],i=arr.findIndex(x=>x&&x.id===item.id);if(i>=0)arr[i]=item;else arr.push(item);writeLocal("apsan_live_classes",arr);
  await cloudSet("apsan_live_classes",arr);
  const now=item.startedAt||new Date().toISOString();
- await Promise.all(item.students.map(p=>cloudSet("apsan_live_calls/"+p+"/"+item.id,{id:"livecall_"+item.id+"_"+p,liveId:item.id,recipientPhone:p,teacherPhone:norm(item.teacherPhone),teacherName:item.teacherName||"Professor",title:item.title||"Aula ao vivo",course:item.course||"Curso",createdAt:now,active:true,joinedAt:null,joinUrl:item.joinUrl,readAt:null})));
+ await Promise.all(recipients.map(p=>cloudSet("apsan_live_calls/"+p+"/"+item.id,{id:"livecall_"+item.id+"_"+p,liveId:item.id,recipientPhone:p,teacherPhone:norm(item.teacherPhone),teacherName:item.teacherName||"Professor",title:item.title||"Aula ao vivo",course:item.course||"Curso",createdAt:now,active:true,joinedAt:null,joinUrl:item.joinUrl,readAt:null})));
  return item;
 }
 async function endLive(id){
@@ -42,16 +43,53 @@ async function hydrateLive(id){
  if(local){const arr=readLocal("apsan_live_classes",[]).filter(x=>!x||x.id!==id);arr.push(local);writeLocal("apsan_live_classes",arr)}
  return local;
 }
+const playedCalls={};
+function playLiveCallSound(call){
+ if(!call||call.active===false||playedCalls[call.liveId])return;
+ playedCalls[call.liveId]=true;
+ try{
+   const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+   const ac=new AC();const now=ac.currentTime;
+   [0,0.18,0.36].forEach((offset,i)=>{
+     const o=ac.createOscillator(),g=ac.createGain();o.type="sine";o.frequency.value=i===1?880:660;
+     g.gain.setValueAtTime(0.0001,now+offset);g.gain.exponentialRampToValueAtTime(0.18,now+offset+0.02);g.gain.exponentialRampToValueAtTime(0.0001,now+offset+0.13);
+     o.connect(g);g.connect(ac.destination);o.start(now+offset);o.stop(now+offset+0.15);
+   });
+   setTimeout(()=>ac.close().catch(()=>{}),700);
+ }catch(_){}
+}
 function mirrorCall(call){
- if(!call)return;const all=readLocal("apsan_live_notifications",[]),arr=Array.isArray(all)?all.slice():[],i=arr.findIndex(x=>x&&x.liveId===call.liveId&&norm(x.recipientPhone)===norm(call.recipientPhone));if(i>=0)arr[i]=call;else arr.push(call);writeLocal("apsan_live_notifications",arr.slice(-300));
+ if(!call)return;
+ const all=readLocal("apsan_live_notifications",[]),arr=Array.isArray(all)?all.slice():[],i=arr.findIndex(x=>x&&x.liveId===call.liveId&&norm(x.recipientPhone)===norm(call.recipientPhone));
+ if(i>=0)arr[i]=Object.assign({},arr[i],call);else arr.push(call);
+ writeLocal("apsan_live_notifications",arr.slice(-300));
  const headers=readLocal("apsan_header_notifications",[]),h=Array.isArray(headers)?headers.slice():[],recipientKey="aluno:"+norm(call.recipientPhone),hi=h.findIndex(x=>x&&x.recipientKey===recipientKey&&x.kind==="live-class"&&x.liveId===call.liveId);
+ if(call.active===false){
+   if(hi>=0)h.splice(hi,1);
+   writeLocal("apsan_header_notifications",h.slice(-100));
+   window.dispatchEvent(new CustomEvent("apsan-live-call",{detail:call}));
+   return;
+ }
  const item={id:"hn_live_"+call.liveId+"_"+norm(call.recipientPhone),recipientKey,recipientType:"aluno",title:"🔴 Aula ao vivo",text:(call.teacherName||"Professor")+" iniciou "+(call.title||"uma aula")+" · toque para entrar.",kind:"live-class",link:call.joinUrl||classroomUrl(call.liveId),liveId:call.liveId,signature:"Aula ao vivo · "+call.liveId,createdAt:call.createdAt||new Date().toISOString(),readAt:null};
- if(hi>=0)h[hi]=item;else h.push(item);writeLocal("apsan_header_notifications",h.slice(-100));window.dispatchEvent(new CustomEvent("apsan-live-call",{detail:call}));
+ if(hi>=0)h[hi]=item;else h.push(item);writeLocal("apsan_header_notifications",h.slice(-100));playLiveCallSound(call);window.dispatchEvent(new CustomEvent("apsan-live-call",{detail:call}));
 }
 function listenStudent(phone,callback){
  if(!window.apsanCloud)return function(){};
  let off=function(){};
- window.apsanCloud.listen("appData/apsan_live_calls/"+norm(phone),async data=>{const map=data&&typeof data==="object"?data:{};const active=[];for(const id of Object.keys(map)){const call=map[id];if(!call||call.active===false)continue;const live=await hydrateLive(call.liveId).catch(()=>null);if(live&&live.active===true){mirrorCall(call);active.push(call)}else{await cloudSet("apsan_live_calls/"+norm(phone)+"/"+id,Object.assign({},call,{active:false,endedAt:call.endedAt||new Date().toISOString()})).catch(()=>{});}}if(typeof callback==="function")callback(active)}).then(fn=>{off=fn}).catch(e=>console.warn("APSAN live listener",e));
+ window.apsanCloud.listen("appData/apsan_live_calls/"+norm(phone),async data=>{
+   const map=data&&typeof data==="object"?data:{};const active=[];
+   for(const id of Object.keys(map)){
+     const call=map[id];if(!call)continue;
+     const live=await hydrateLive(call.liveId).catch(()=>null);
+     if(call.active!==false&&live&&live.active===true){mirrorCall(call);active.push(call)}
+     else{
+       const ended=Object.assign({},call,{active:false,endedAt:call.endedAt||new Date().toISOString()});
+       mirrorCall(ended);
+       if(call.active!==false)await cloudSet("apsan_live_calls/"+norm(phone)+"/"+id,ended).catch(()=>{});
+     }
+   }
+   if(typeof callback==="function")callback(active)
+ }).then(fn=>{off=fn}).catch(e=>console.warn("APSAN live listener",e));
  return ()=>off();
 }
 async function markJoined(phone,id){
