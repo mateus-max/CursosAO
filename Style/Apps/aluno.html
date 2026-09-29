@@ -1674,25 +1674,42 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    function updateStudentLiveClassNotice() {
+    let liveNoticeCheck=0;
+    async function updateStudentLiveClassNotice() {
         const notice = document.getElementById("studentLiveClassNotice");
         if (!notice || !currentAccount) return;
-
+        const check=++liveNoticeCheck;
         const phoneKey = normalizeLivePhone(currentAccount.phone);
         const notifications = readLiveNotifications();
-
         let current = notifications
             .filter(function (item) {
                 return item &&
                     normalizeLivePhone(item.recipientPhone) === phoneKey &&
-                    getActiveLiveForStudent(item);
+                    item.active !== false;
             })
             .sort(function (a, b) {
                 return String(b.createdAt || "").localeCompare(String(a.createdAt || ""));
             })[0];
 
-        /* A chamada só nasce pelo evento realtime emitido quando o professor inicia a aula.
-           Não reconstruímos uma chamada apenas a partir de dados locais antigos. */
+        if (current && window.APSANLive && typeof window.APSANLive.hydrateLive === "function") {
+            const live = await window.APSANLive.hydrateLive(current.liveId).catch(function(){ return null; });
+            if (check !== liveNoticeCheck) return;
+            const allowed = live && live.active === true &&
+                (Array.isArray(live.allowedStudents) ? live.allowedStudents : Array.isArray(live.students) ? live.students : [])
+                    .map(normalizeLivePhone).includes(phoneKey);
+            if (!allowed) {
+                const cleaned = notifications.filter(function(item){
+                    return !(item && item.liveId === current.liveId &&
+                        normalizeLivePhone(item.recipientPhone) === phoneKey);
+                });
+                localStorage.setItem("apsan_live_notifications", JSON.stringify(cleaned));
+                notice.hidden = true;
+                notice.innerHTML = "";
+                return;
+            }
+            current = Object.assign({}, current, live);
+        }
+
         if (!current) {
             notice.hidden = true;
             notice.innerHTML = "";
