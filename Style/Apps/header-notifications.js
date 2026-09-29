@@ -25,7 +25,8 @@
     };
 
     const normalizePhone = function (value) {
-        return String(value || "").replace(/\D/g, "");
+        const digits = String(value || "").replace(/\D/g, "");
+        return digits.length > 9 ? digits.slice(-9) : digits;
     };
 
     const account = read("apsan_account", {}) || {};
@@ -297,6 +298,80 @@
         renderPanel();
     }
 
+    async function bindCloudRealtime() {
+        if (!window.apsanCloud || typeof window.apsanCloud.listen !== "function") return;
+        try {
+            await window.apsanCloud.ready();
+
+            // Mensagens antigas e novas: a fonte é o Firebase, não apenas o cache
+            // do aparelho onde o aluno abriu a página pela primeira vez.
+            await window.apsanCloud.listen("appData/apsan_message_notifications", function (value) {
+                if (value === null || value === undefined) return;
+                const encoded = typeof value === "string" ? value : JSON.stringify(value);
+                if (localStorage.getItem("apsan_message_notifications") !== encoded) {
+                    localStorage.setItem("apsan_message_notifications", encoded);
+                }
+                updateBadge();
+                renderPanel();
+            });
+
+            // Chamadas antigas e novas destinadas diretamente a este aluno.
+            if (ROLE_BY_BODY === "aluno" && identity) {
+                await window.apsanCloud.listen("appData/apsan_live_calls/" + identity, function (value) {
+                    const map = value && typeof value === "object" ? value : {};
+                    const current = read("apsan_live_notifications", []);
+                    const arr = Array.isArray(current) ? current.slice() : [];
+
+                    Object.keys(map).forEach(function (id) {
+                        const call = map[id];
+                        if (!call || !call.liveId) return;
+                        const index = arr.findIndex(function (item) {
+                            return item && item.liveId === call.liveId &&
+                                normalizePhone(item.recipientPhone) === identity;
+                        });
+                        const item = Object.assign({}, call, {
+                            recipientPhone: identity
+                        });
+                        if (index >= 0) arr[index] = Object.assign({}, arr[index], item);
+                        else arr.push(item);
+
+                        if (call.active !== false) {
+                            const headers = notifications();
+                            const hi = headers.findIndex(function (item) {
+                                return item && item.recipientKey === recipientKey &&
+                                    item.kind === "live-class" && item.liveId === call.liveId;
+                            });
+                            const notification = {
+                                id: "hn_live_" + call.liveId + "_" + identity,
+                                recipientKey: recipientKey,
+                                recipientType: "aluno",
+                                title: "🔴 Aula ao vivo",
+                                text: (call.teacherName || "Professor") + " iniciou " + (call.title || "uma aula") + " · toque para entrar.",
+                                kind: "live-class",
+                                link: call.joinUrl || ("quadro.html?live=" + encodeURIComponent(call.liveId)),
+                                liveId: call.liveId,
+                                signature: "Aula ao vivo · " + call.liveId,
+                                createdAt: call.createdAt || new Date().toISOString(),
+                                readAt: null
+                            };
+                            if (hi >= 0) headers[hi] = notification;
+                            else headers.push(notification);
+                            localStorage.setItem("apsan_header_notifications", JSON.stringify(headers.slice(-100)));
+                        }
+                    });
+
+                    localStorage.setItem("apsan_live_notifications", JSON.stringify(arr.slice(-300)));
+                    updateBadge();
+                    renderPanel();
+                    window.dispatchEvent(new CustomEvent("apsan-live-call", {detail:{source:"header-realtime"}}));
+                });
+            }
+        } catch (error) {
+            console.warn("APSAN notificações realtime:", error);
+            setTimeout(bindCloudRealtime, 2000);
+        }
+    }
+
     function bind() {
         const button = document.getElementById("apsanHeaderNotificationButton");
         const close = document.getElementById("apsanHeaderNotificationClose");
@@ -363,6 +438,7 @@
             updateBadge();
             renderPanel();
         }, 2500);
+        bindCloudRealtime();
     }
 
     if (document.readyState === "loading") {
