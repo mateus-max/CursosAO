@@ -86,11 +86,28 @@
     }
 
     function updateBadge() {
-        const badge = getBadge();
-        if (!badge) return;
         const count = genericUnread().length + messageNotifications().length;
-        badge.textContent = count > 99 ? "99+" : String(count);
-        badge.hidden = count === 0;
+        const badge = getBadge();
+        if (badge) {
+            badge.textContent = count > 99 ? "99+" : String(count);
+            badge.hidden = count === 0;
+        }
+        // O menu lateral do aluno também precisa refletir as mensagens
+        // recebidas, sem depender de abrir a página de mensagens.
+        if (ROLE_BY_BODY === "aluno") {
+            const menuBadge = document.getElementById("studentMessageMenuBadge");
+            if (menuBadge) {
+                menuBadge.textContent = count > 99 ? "99+" : String(count);
+                menuBadge.hidden = count === 0;
+            }
+        } else if (ROLE_BY_BODY === "professor") {
+            const menuBadge = document.getElementById("professorMessageMenuBadge");
+            if (menuBadge) {
+                const n = messageNotifications().length;
+                menuBadge.textContent = n > 99 ? "99+" : String(n);
+                menuBadge.hidden = n === 0;
+            }
+        }
     }
 
     function panel() {
@@ -326,7 +343,8 @@
             var key = event.detail && String(event.detail.key || "");
             if (key === "apsan_message_notifications" ||
                 key === "apsan_header_notifications" ||
-                key === "apsan_live_notifications") {
+                key === "apsan_live_notifications" ||
+                key === "apsan_messages") {
                 checkForUpdates();
                 updateBadge();
                 renderPanel();
