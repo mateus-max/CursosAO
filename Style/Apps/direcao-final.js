@@ -196,7 +196,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return "approved";
     }
 
-    function setAccountDecision(key, decision) {
+    async function setAccountDecision(key, decision) {
         const accounts = read("apsan_accounts", []);
         const index = accounts.findIndex(a => getAccountKey(a) === String(key));
         if (index < 0) return;
@@ -219,6 +219,19 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         write("apsan_accounts", accounts);
+
+        /* A decisão da Direção deve ficar persistida também no Realtime Database.
+         * Antes, ficava apenas no localStorage deste aparelho e a sincronização
+         * podia trazer novamente o estado "pending".
+         */
+        try {
+            if (window.apsanCloud && typeof window.apsanCloud.saveAccount === "function") {
+                await window.apsanCloud.saveAccount(accounts[index]);
+            }
+        } catch (error) {
+            console.warn("Falha ao sincronizar a decisão da Direção:", error);
+        }
+
         render();
     }
 
