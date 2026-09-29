@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>APSAN Academy - Mensagens</title>
-<link rel="stylesheet" href="../style.css?v=messages-notifications-20260926">
+<link rel="stylesheet" href="../style.css?v=messages-notifications-20260926"><script src="firebase-config.js?v=20260928-online-1"></script><script src="cloud-data.js?v=20260928-auth-cross-device-2"></script>
 <style>
 /* Caixa de entrada estilo SMS: primeiro a lista, depois a conversa. */
 .messages-shell{
@@ -1133,10 +1133,8 @@ document.addEventListener("DOMContentLoaded", function () {
   showInbox();
   renderContacts();
   updateUnreadUI();
-  setInterval(function () {
-    renderContacts();
-    if (selectedContact) renderMessages();
-  }, 2000);
+  setInterval(function () { renderContacts(); if (selectedContact) renderMessages(); }, 1200);
+  window.addEventListener("apsan-cloud-sync", function (event) { if (event.detail && (String(event.detail.key || "") === "apsan_messages" || String(event.detail.key || "") === "apsan_message_notifications")) { renderContacts(); updateUnreadUI(); if (selectedContact) renderMessages(); } });
 });
 </script>
 </body>
