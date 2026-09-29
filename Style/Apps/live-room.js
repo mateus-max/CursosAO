@@ -19,6 +19,7 @@ const presenceRoot=mediaRoot+"/presence";
 const peerRoot=mediaRoot+"/peers/"+peerKey;
 const boardRoot="appData/apsan_live_board_"+liveId;
 const objectsRoot="appData/apsan_board_objects_"+liveId;
+const studentBoardRoot="appData/apsan_live_student_boards/"+liveId;
 const pointerRoot="appData/apsan_live_pointer_"+liveId;
 const controlRoot="appData/apsan_live_controls/"+liveId;
 
@@ -125,6 +126,9 @@ function addStyle(){
     .live-student-participant-tile{width:128px;padding:4px;border-radius:9px;background:#0d1d38;color:#fff;box-shadow:0 7px 18px rgba(0,0,0,.24);border:1px solid rgba(255,255,255,.16)}
     .live-student-participant-tile video{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:6px;background:#020b18}
     .live-student-participant-tile small{display:block;padding:3px 2px 0;font-size:9px;color:#d6e1ef;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .live-student-board-layer{position:absolute;inset:0;z-index:35;pointer-events:none}
+    .live-student-board-layer canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+    .live-student-board-label{position:absolute;top:6px;left:6px;z-index:2;background:rgba(13,29,56,.9);color:#fff;border-radius:7px;padding:4px 7px;font-size:10px;font-weight:900}
     .live-chat-actions{display:flex;gap:4px;margin-top:4px}
     .live-chat-actions button{border:0;border-radius:6px;padding:3px 6px;font-size:9px;font-weight:800;cursor:pointer}
     @media(max-width:700px){
@@ -686,6 +690,42 @@ function drawRemoteSnapshot(data){
     const r=canvas.getBoundingClientRect();ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(im,0,0,canvas.width,canvas.height);ctx.restore();applyingRemote=false;
   };im.src=data;
 }
+function clearStudentTeacherBoard(){
+  if(role!=="aluno")return;
+  try{ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,canvas.width,canvas.height);ctx.restore()}catch(_){}
+  const objects=document.getElementById("boardObjects");if(objects)objects.replaceChildren();
+  const docs=document.getElementById("boardDocuments");if(docs)docs.replaceChildren();
+}
+function studentBoardPublish(){
+  if(role!=="aluno"||!liveId||!classActive)return;
+  const c=cloud();if(!c)return;
+  clearTimeout(studentBoardPublish._t);
+  studentBoardPublish._t=setTimeout(()=>{try{c.set(studentBoardRoot+"/"+peerKey,{phone,name:account.name||"Aluno",at:Date.now(),image:canvas.toDataURL("image/png")}).catch(()=>{})}catch(_){}},120);
+}
+function ensureTeacherStudentBoardLayer(k,name){
+  if(role!=="professor")return null;
+  let root=document.getElementById("liveStudentBoardLayers");
+  if(!root){root=document.createElement("div");root.id="liveStudentBoardLayers";root.className="live-student-board-layer";board.appendChild(root)}
+  let layer=root.querySelector("[data-student-board=\""+CSS.escape(k)+"\"]");
+  if(!layer){
+    layer=document.createElement("div");layer.dataset.studentBoard=k;
+    layer.innerHTML='<span class="live-student-board-label">'+esc(name||"Aluno")+' · quadro do aluno</span><canvas></canvas>';
+    root.appendChild(layer);
+  }
+  const cv=layer.querySelector("canvas");cv.width=canvas.width;cv.height=canvas.height;
+  return cv;
+}
+function listenStudentBoards(){
+  const c=cloud();if(!c||role!=="professor")return;
+  mediaListeners.push(c.listen(studentBoardRoot,all=>{
+    if(!all||typeof all!=="object")return;
+    Object.keys(all).forEach(k=>{
+      const item=all[k];if(!item||!item.image)return;
+      const cv=ensureTeacherStudentBoardLayer(k,item.name||k);if(!cv)return;
+      const image=new Image();image.onload=()=>{const x=cv.getContext("2d");x.clearRect(0,0,cv.width,cv.height);x.drawImage(image,0,0,cv.width,cv.height)};image.src=item.image;
+    });
+  }));
+}
 function drawLocalStudentStroke(e){
   if(role!=="aluno"||!liveId)return;
   const r=canvas.getBoundingClientRect();const p={x:e.clientX-r.left,y:e.clientY-r.top};
@@ -697,14 +737,16 @@ function studentBoardDown(e){
   if(indicatorMode||magnifyMode)return;
   localDrawing=true;lastPoint=null;drawSnapshot=canvas.toDataURL("image/png");
   const r=canvas.getBoundingClientRect();const p={x:e.clientX-r.left,y:e.clientY-r.top};
-  ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineCap="round";ctx.lineJoin="round";ctx.strokeStyle=localDrawMode==="erase"?"#fff":"#1769e0";ctx.lineWidth=localDrawMode==="erase"?24:3;
+  ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineCap="round";ctx.lineJoin="round";
+  ctx.globalCompositeOperation=localDrawMode==="erase"?"destination-out":"source-over";
+  ctx.strokeStyle=localDrawMode==="erase"?"rgba(0,0,0,1)":"#1769e0";ctx.lineWidth=localDrawMode==="erase"?24:3;
   ctx.lineTo(p.x+.1,p.y+.1);ctx.stroke();
   e.preventDefault();
 }
 function studentBoardMove(e){if(role!=="aluno"||!localDrawing)return;drawLocalStudentStroke(e)}
 async function studentBoardUp(e){
-  if(role!=="aluno"||!localDrawing)return;localDrawing=false;
-  try{localStorage.setItem(liveBoardKey(),canvas.toDataURL("image/png"));const obj=readJsonStorage(liveObjectsKey(),[]);localStorage.setItem(liveObjectsKey(),JSON.stringify(obj));}catch(_){}
+  if(role!=="aluno"||!localDrawing)return;localDrawing=false;ctx.globalCompositeOperation="source-over";
+  try{studentBoardPublish()}catch(_){}
 }
 function bindStudentBoard(){
   canvas.addEventListener("pointerdown",studentBoardDown);
@@ -714,7 +756,8 @@ function bindStudentBoard(){
 }
 function bindBoardSync(){
   const c=cloud();if(!c)return;
-  const off1=c.listen(boardRoot,data=>{if(role==="aluno"||role==="professor")drawRemoteSnapshot(data)});
+  if(role==="aluno")return;
+  const off1=c.listen(boardRoot,data=>{if(role==="professor")drawRemoteSnapshot(data)});
   const off2=c.listen(objectsRoot,data=>{
     if(data==null)return;
     const encoded=typeof data==="string"?data:JSON.stringify(data);
@@ -764,12 +807,13 @@ function patchLocalStorageObjectSync(){
 }
 async function boot(){
   addStyle();makeStudentTools();makeTeacherPointerTools();bindMediaButtons();bindPointerTracking();listenPointers();listenPresence();bindBoardSync();patchLocalStorageObjectSync();
+  if(role==="aluno")clearStudentTeacherBoard();
   classActive=await ensureClassIsActive();
   if(!classActive){markClassEnded();return}
   listenLiveEnd();
   bindLiveChat();
   if(role==="aluno"){bindStudentBoard();listenStudentControls();makeStudentPeer().catch(()=>{});listenStudentPeers();}
-  else{listenTeacherPeers();addTeacherControls();}
+  else{listenTeacherPeers();listenStudentBoards();addTeacherControls();}
   publishPresence();
   setInterval(measureNetwork,3000);
   setInterval(addTeacherControls,1500);
