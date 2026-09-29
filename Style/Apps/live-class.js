@@ -38,10 +38,17 @@ async function endLive(id){
  ]);
 }
 async function hydrateLive(id){
- if(!id)return null;let local=readLocal("apsan_live_classes",[]).find(x=>x&&x.id===id)||null,remote=await cloudGet("apsan_live_classes");
- if(Array.isArray(remote)){const f=remote.find(x=>x&&x.id===id);if(f)local=f}else if(remote&&remote[id])local=remote[id];
- if(local){const arr=readLocal("apsan_live_classes",[]).filter(x=>!x||x.id!==id);arr.push(local);writeLocal("apsan_live_classes",arr)}
- return local;
+ if(!id)return null;
+ const local=readLocal("apsan_live_classes",[]).find(x=>x&&x.id===id)||null;
+ if(!window.apsanCloud)return local;
+ const remote=await cloudGet("apsan_live_classes");
+ let live=null;
+ if(Array.isArray(remote)) live=remote.find(x=>x&&x.id===id)||null;
+ else if(remote&&typeof remote==="object") live=remote[id]||null;
+ const arr=readLocal("apsan_live_classes",[]).filter(x=>!x||x.id!==id);
+ if(live){arr.push(live);writeLocal("apsan_live_classes",arr)}
+ else{writeLocal("apsan_live_classes",arr)}
+ return live;
 }
 const playedCalls={};
 function playLiveCallSound(call){
