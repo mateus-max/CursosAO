@@ -63,6 +63,7 @@ function stopLiveCallSound(liveId){
  const state=ringingCalls[liveId];
  if(!state)return;
  try{clearTimeout(state.voiceTimer)}catch(_){}
+ try{clearTimeout(state.cycleTimer)}catch(_){}
  try{clearTimeout(state.stopTimer)}catch(_){}
  try{state.ac&&state.ac.close&&state.ac.close()}catch(_){}
  try{if(state.voicePending&&window.speechSynthesis)window.speechSynthesis.cancel()}catch(_){}
@@ -111,56 +112,44 @@ function speakLiveStudentGreeting(call){
 function ringLiveCallOnce(state){
  try{
    const now=state.ac.currentTime;
-   // Toque curto inspirado no toque de chamada do iPhone, sem repetir indefinidamente.
-   [[0,523.25],[0.16,659.25],[0.32,783.99],[0.56,659.25],[0.72,523.25],
-    [1.02,523.25],[1.18,659.25],[1.34,783.99],[1.58,659.25],[1.74,523.25]]
-   .forEach(function(pair){
-     const offset=pair[0],freq=pair[1];
-     const o=state.ac.createOscillator(),g=state.ac.createGain();
-     o.type="sine";o.frequency.value=freq;
-     g.gain.setValueAtTime(0.0001,now+offset);
-     g.gain.exponentialRampToValueAtTime(0.42,now+offset+0.025);
-     g.gain.exponentialRampToValueAtTime(0.0001,now+offset+0.12);
-     o.connect(g);g.connect(state.ac.destination);
-     o.start(now+offset);o.stop(now+offset+0.14);
-   });
+   [[0,523.25],[0.13,659.25],[0.26,783.99],[0.39,659.25],[0.52,523.25],[0.65,659.25],[0.78,783.99],[0.91,659.25]]
+   .forEach(function(pair){const offset=pair[0],freq=pair[1],o=state.ac.createOscillator(),g=state.ac.createGain();
+     o.type="sine";o.frequency.value=freq;g.gain.setValueAtTime(0.0001,now+offset);
+     g.gain.exponentialRampToValueAtTime(0.78,now+offset+0.018);g.gain.exponentialRampToValueAtTime(0.0001,now+offset+0.105);
+     o.connect(g);g.connect(state.ac.destination);o.start(now+offset);o.stop(now+offset+0.12);});
  }catch(_){}
 }
-
+function speakLiveStudentGreeting(call){
+ if(!call||call.active===false)return;
+ try{
+   if(!window.speechSynthesis||typeof window.SpeechSynthesisUtterance!=="function")return;
+   const identity=getLocalStudentIdentity(call.recipientPhone),name=identity.name||"Aluno";
+   const feminine=/^(f|female|feminino|menina|mulher)$/i.test(identity.gender),prefix=feminine?"Querida":"Querido";
+   const utterance=new SpeechSynthesisUtterance(prefix+" "+name+", a sua aula já está a decorrer, por favor entre na aula.");
+   utterance.lang="pt-PT";utterance.rate=0.92;utterance.pitch=1.08;utterance.volume=1;
+   const voices=window.speechSynthesis.getVoices?window.speechSynthesis.getVoices():[];
+   const preferred=voices.find(v=>/female|feminina|woman|zira|samantha|helena|joana|maria/i.test(String(v.name||""))&&/^pt(-|_)/i.test(String(v.lang||"")))
+    ||voices.find(v=>/^pt(-|_)/i.test(String(v.lang||"")))
+    ||voices.find(v=>/female|feminina|woman|zira|samantha|helena|joana|maria/i.test(String(v.name||"")));
+   if(preferred)utterance.voice=preferred;window.speechSynthesis.cancel();window.speechSynthesis.speak(utterance);
+ }catch(_){}
+}
+function scheduleLiveCallCycle(call,state){
+ if(!state||!ringingCalls[call.liveId]||call.active===false)return;
+ try{if(state.ac.state==="suspended")state.ac.resume().catch(()=>{});}catch(_){}
+ ringLiveCallOnce(state);
+ state.voiceTimer=setTimeout(function(){if(ringingCalls[call.liveId]&&call.active!==false)speakLiveStudentGreeting(call)},1000);
+ state.cycleTimer=setTimeout(function(){if(ringingCalls[call.liveId]&&call.active!==false)scheduleLiveCallCycle(call,state)},4300);
+}
 function playLiveCallSound(call){
  if(!call||call.active===false||ringingCalls[call.liveId])return;
  playedCalls[call.liveId]=true;
  try{
-   const AC=window.AudioContext||window.webkitAudioContext;
-   if(!AC){
-     setTimeout(function(){speakLiveStudentGreeting(call)},2000);
-     return;
-   }
-   const ac=new AC();
-   const state={ac,voiceTimer:null,stopTimer:null,voicePending:true};
-   ringingCalls[call.liveId]=state;
-   const start=function(){
-     try{if(ac.state==="suspended")ac.resume().catch(()=>{});}catch(_){}
-     ringLiveCallOnce(state);
-     state.voiceTimer=setTimeout(function(){
-       if(!ringingCalls[call.liveId])return;
-       state.voicePending=false;
-       speakLiveStudentGreeting(call);
-     },2000);
-     state.stopTimer=setTimeout(function(){
-       try{ac.close&&ac.close()}catch(_){}
-       if(ringingCalls[call.liveId]===state)delete ringingCalls[call.liveId];
-     },2050);
-   };
-   start();
-   const unlock=function(){
-     try{if(ac.state==="suspended")ac.resume().catch(()=>{});}catch(_){}
-   };
-   window.addEventListener("pointerdown",unlock,{once:false,passive:true});
-   window.addEventListener("keydown",unlock,{once:false,passive:true});
- }catch(_){
-   setTimeout(function(){speakLiveStudentGreeting(call)},2000);
- }
+   const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+   const ac=new AC(),state={ac,voiceTimer:null,cycleTimer:null};ringingCalls[call.liveId]=state;scheduleLiveCallCycle(call,state);
+   const unlock=function(){try{if(ac.state==="suspended")ac.resume().catch(()=>{});}catch(_){}};
+   window.addEventListener("pointerdown",unlock,{passive:true});window.addEventListener("keydown",unlock,{passive:true});
+ }catch(_){}
 }
 function mirrorCall(call){
  if(!call)return;
@@ -171,7 +160,15 @@ function mirrorCall(call){
  if(call.active===false){
    stopLiveCallSound(call.liveId);
    if(hi>=0)h.splice(hi,1);
+   const endedId="hn_live_ended_"+call.liveId+"_"+norm(call.recipientPhone);
+   if(!h.some(x=>x&&x.id===endedId)){
+     h.push({id:endedId,recipientKey,recipientType:"aluno",title:"Aula encerrada",
+       text:(call.teacherName||"Professor")+" encerrou "+(call.title||"a aula")+".",
+       kind:"live-class-ended",link:"",liveId:call.liveId,signature:"Aula encerrada · "+call.liveId,
+       createdAt:call.endedAt||new Date().toISOString(),readAt:null});
+   }
    writeLocal("apsan_header_notifications",h.slice(-100));
+   cloudSet("apsan_header_notifications",readLocal("apsan_header_notifications",[])).catch(()=>{});
    window.dispatchEvent(new CustomEvent("apsan-live-call",{detail:call}));
    return;
  }
