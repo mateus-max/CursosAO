@@ -186,7 +186,9 @@ body.classroom-page{background:#eef3f9!important;overflow-x:hidden}
 const params=new URLSearchParams(location.search);
 const liveId=params.get("live")||"";
 const account=(()=>{try{return JSON.parse(localStorage.getItem("apsan_account")||"{}")}catch(_){return {}}})();
-const role=account.type||localStorage.getItem("apsan_user_type")||"";
+const roleRaw=account.type||account.role||localStorage.getItem("apsan_user_type")||"";
+const roleAlias=String(roleRaw).trim().toLowerCase();
+const role=roleAlias==="teacher"||roleAlias==="docente"?"professor":roleAlias==="student"||roleAlias==="estudante"?"aluno":roleAlias;
 const phone=String(account.phone||localStorage.getItem("apsan_phone")||"").replace(/\D/g,"");
 const canvas=document.getElementById("whiteboardCanvas"),ctx=canvas.getContext("2d");
 const boardEmpty=document.getElementById("boardEmpty");
@@ -235,8 +237,16 @@ document.querySelector(".board").addEventListener("pointerdown",e=>{
   e.stopPropagation();
 },{capture:true});
 document.querySelector(".board").addEventListener("pointermove",e=>{
-  if(role!=="professor"||!drawing)return;
-  if(e.target!==canvas)return;
+  if(role!=="professor"||!drawing||e.target===canvas)return;
+  move(e);
+},{capture:true});
+document.querySelector(".board").addEventListener("pointerup",e=>{
+  if(role!=="professor"||!drawing||e.target===canvas)return;
+  up(e);
+},{capture:true});
+document.querySelector(".board").addEventListener("pointercancel",e=>{
+  if(role!=="professor"||!drawing||e.target===canvas)return;
+  up(e);
 },{capture:true});
 
 window.addEventListener("resize",()=>{resizeCanvas();loadBoard();const active=document.activeElement;const editing=!!active?.classList?.contains("board-object-text")||active?.isContentEditable===true;if(!editing)renderBoardObjects();});
