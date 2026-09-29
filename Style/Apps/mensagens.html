@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>APSAN Academy - Mensagens</title>
-<link rel="stylesheet" href="../style.css?v=messages-notifications-20260926"><script src="firebase-config.js?v=20260928-online-1"></script><script src="cloud-data.js?v=20260928-auth-cross-device-2"></script>
+<link rel="stylesheet" href="../style.css?v=messages-notifications-20260926">
 <style>
 /* Caixa de entrada estilo SMS: primeiro a lista, depois a conversa. */
 .messages-shell{
@@ -1091,6 +1091,7 @@ document.addEventListener("DOMContentLoaded", function () {
       createdAt: now
     });
     saveMessages(items);
+    if (window.apsanCloud) window.apsanCloud.set("appData/apsan_messages", items).catch(function(){});
 
     const notifications = readNotifications();
     notifications.push({
@@ -1107,6 +1108,7 @@ document.addEventListener("DOMContentLoaded", function () {
       readAt: null
     });
     saveNotifications(notifications);
+    if (window.apsanCloud) window.apsanCloud.set("appData/apsan_message_notifications", notifications).catch(function(){});
 
     messageInput.value = "";
     messageWarning.textContent = "";
@@ -1134,7 +1136,35 @@ document.addEventListener("DOMContentLoaded", function () {
   renderContacts();
   updateUnreadUI();
   setInterval(function () { renderContacts(); if (selectedContact) renderMessages(); }, 1200);
-  window.addEventListener("apsan-cloud-sync", function (event) { if (event.detail && (String(event.detail.key || "") === "apsan_messages" || String(event.detail.key || "") === "apsan_message_notifications")) { renderContacts(); updateUnreadUI(); if (selectedContact) renderMessages(); } });
+  window.addEventListener("apsan-cloud-sync", function (event) {
+    if (event.detail && (String(event.detail.key || "") === "apsan_messages" || String(event.detail.key || "") === "apsan_message_notifications")) {
+      renderContacts(); updateUnreadUI(); if (selectedContact) renderMessages();
+    }
+  });
+  if (window.apsanCloud && typeof window.apsanCloud.listen === "function") {
+    window.apsanCloud.ready().then(function(){
+      return Promise.all([
+        window.apsanCloud.listen("appData/apsan_messages", function(value){
+          if (value !== null && value !== undefined) {
+            var encoded = typeof value === "string" ? value : JSON.stringify(value);
+            if (localStorage.getItem("apsan_messages") !== encoded) {
+              localStorage.setItem("apsan_messages", encoded);
+              renderContacts(); if (selectedContact) renderMessages();
+            }
+          }
+        }),
+        window.apsanCloud.listen("appData/apsan_message_notifications", function(value){
+          if (value !== null && value !== undefined) {
+            var encoded = typeof value === "string" ? value : JSON.stringify(value);
+            if (localStorage.getItem("apsan_message_notifications") !== encoded) {
+              localStorage.setItem("apsan_message_notifications", encoded);
+              renderContacts(); updateUnreadUI();
+            }
+          }
+        })
+      ]);
+    }).catch(function(){});
+  }
 });
 </script>
 </body>
