@@ -815,6 +815,14 @@
 <script src="Style/Apps/cloud-data.js?v=20260928-auth-cross-device-2"></script>
 <script src="Style/Apps/settings.js?v=20260927-themes-final-2"></script><script src="Style/Apps/main.js?v=20260928-auth-cross-device-2"></script>
     <div class="admin-access-modal" id="adminAccessModal" aria-hidden="true"><section class="admin-access-card" role="dialog" aria-modal="true" aria-labelledby="adminAccessTitle"><button type="button" class="admin-access-close" id="adminAccessClose" aria-label="Fechar">×</button><h2 id="adminAccessTitle">Acesso da Administração</h2><p>Acesso reservado à equipa de administração da plataforma.</p><form id="adminAccessForm" autocomplete="off"><input type="email" id="adminAccessEmail" placeholder="E-mail da administração" autocomplete="username" required><input type="password" id="adminAccessPassword" placeholder="Palavra-passe" autocomplete="current-password" required><p class="admin-access-error" id="adminAccessMessage"></p><button type="submit" class="admin-access-submit">Entrar na Administração</button></form></section></div>
+<script>
+/* Standard PWA registration: keeps the service worker discoverable by PWA tooling. */
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js", { scope: "./" }).catch(() => {});
+  });
+}
+</script>
 <script src="./pwa.js?v=1"></script>
 </body>
 </html>
