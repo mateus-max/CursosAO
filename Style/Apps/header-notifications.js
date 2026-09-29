@@ -322,6 +322,20 @@
                 renderPanel();
             }
         });
+        window.addEventListener("apsan-cloud-sync", function (event) {
+            var key = event.detail && String(event.detail.key || "");
+            if (key === "apsan_message_notifications" ||
+                key === "apsan_header_notifications" ||
+                key === "apsan_live_notifications") {
+                checkForUpdates();
+                updateBadge();
+                renderPanel();
+            }
+        });
+        window.addEventListener("apsan-live-call", function () {
+            updateBadge();
+            renderPanel();
+        });
 
         updateBadge();
         renderPanel();
