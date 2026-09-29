@@ -93,8 +93,11 @@ function addStyle(){
     .live-student-tools button.write.active{background:#1769e0}
     .live-board-pointer{position:absolute;z-index:60;width:18px;height:18px;border-radius:50%;background:#ef233c;border:3px solid #fff;box-shadow:0 0 0 3px rgba(239,35,60,.35),0 3px 12px rgba(0,0,0,.3);pointer-events:none;transform:translate(-50%,-50%);display:none}
     .live-board-pointer.show{display:block}
-    .live-board-pointer.magnify{width:42px;height:42px;background:rgba(239,35,60,.12);border-color:#ef233c;box-shadow:0 0 0 4px rgba(239,35,60,.2),inset 0 0 0 2px rgba(239,35,60,.55)}
+    .live-board-pointer.magnify{width:0;height:0;border:0;border-top:10px solid transparent;border-bottom:10px solid transparent;border-left:20px solid #ffd400;border-radius:0;background:transparent;box-shadow:2px 2px 7px rgba(0,0,0,.35);transform:translate(-4px,-4px) rotate(-18deg)}
     .live-board-pointer.arrow{width:0;height:0;border:0;border-top:10px solid transparent;border-bottom:10px solid transparent;border-left:20px solid #ffd400;border-radius:0;background:transparent;box-shadow:2px 2px 7px rgba(0,0,0,.35);transform:translate(-4px,-4px) rotate(-18deg)}
+    .live-teacher-board-layer{position:absolute;inset:0;z-index:20;pointer-events:none}
+    .live-teacher-board-layer canvas{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
+    body.live-student-mode #whiteboardCanvas{position:relative;z-index:30;background:transparent!important}
     .live-local-camera{position:absolute;left:14px;bottom:14px;z-index:42;width:150px;padding:5px;border-radius:10px;background:#0d1d38;color:#fff;box-shadow:0 8px 20px rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.16);display:none}
     .live-local-camera.show{display:block}
     .live-local-camera video{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:7px;background:#020b18}
@@ -148,13 +151,15 @@ function makeStudentTools(){
   wrap.innerHTML=
     '<button type="button" id="studentWrite" class="write active">🖊 Escrever</button>'+
     '<button type="button" id="studentErase">⌫ Apagar</button>'+
-    '<button type="button" id="studentMagnify">🔴 Lupa</button>'+
-    '<button type="button" id="studentPointer">🖱 Indicador</button>';
+    '<button type="button" id="studentMagnify">➡️ Lupa</button>'+
+    '<button type="button" id="studentPointer">🖱 Indicador</button>'+
+    '<button type="button" id="studentLeaveClass" class="danger">↩ Sair da aula</button>';
   bar.appendChild(wrap);
   document.getElementById("studentWrite").onclick=()=>{localDrawMode="write";setToolActive("studentWrite");};
   document.getElementById("studentErase").onclick=()=>{localDrawMode="erase";setToolActive("studentErase");};
   document.getElementById("studentMagnify").onclick=()=>toggleMagnify();
   document.getElementById("studentPointer").onclick=()=>toggleIndicator();
+  document.getElementById("studentLeaveClass").onclick=()=>leaveLiveClassAsStudent();
 }
 
 function setToolActive(id){
@@ -179,7 +184,8 @@ function ensurePointerEl(){
   return remotePointerEl;
 }
 function applyPointerStyle(mode,color){
-  const el=ensurePointerEl();el.classList.remove("magnify","arrow");if(mode==="magnify")el.classList.add("magnify");else if(mode==="indicator")el.classList.add("arrow");el.style.background=mode==="indicator"?"transparent":(mode==="magnify"?"rgba(239,35,60,.12)":(color||"#ef233c"));el.style.borderColor=color||"#ef233c";
+  const el=ensurePointerEl();el.classList.remove("magnify","arrow");el.classList.add("arrow");
+  el.style.background="transparent";el.style.borderColor=color||"#ffd400";
 }
 function toggleMagnify(){magnifyMode=!magnifyMode;if(magnifyMode)indicatorMode=false;applyLocalPointerButtons();publishPresence();toast(magnifyMode?"Lupa ativa no quadro.":"Lupa desligada.");}
 function toggleIndicator(){indicatorMode=!indicatorMode;if(indicatorMode)magnifyMode=false;applyLocalPointerButtons();publishPresence();toast(indicatorMode?"Indicador ativo no quadro.":"Indicador desligado.");}
@@ -274,7 +280,17 @@ function renderConnectedParticipant(k,p){
   ensureTeacherSelfTile();
   return item;
 }
-function removeDisconnectedParticipant(k){if(role!=="professor")return;const item=document.querySelector('[data-live-participant="'+CSS.escape(k)+'"]');if(item)item.remove();}
+function removeDisconnectedParticipant(k){
+  if(role!=="professor")return;
+  document.querySelector('[data-live-participant="'+CSS.escape(k)+'"]')?.remove();
+  document.querySelector('[data-live-video="'+CSS.escape(k)+'"]')?.remove();
+  updateParticipantSummary();
+}
+function updateParticipantSummary(){
+  if(role!=="professor")return;
+  const ids=[...new Set([...document.querySelectorAll("[data-live-participant]")].map(x=>x.dataset.liveParticipant).filter(Boolean))];
+  const summary=document.getElementById("participantSummary");if(summary)summary.textContent="Participantes ("+(ids.length+1)+")";
+}
 function listenPresence(){
   const c=cloud();if(!c)return;
   mediaListeners.push(c.listen(presenceRoot,(all)=>{
@@ -302,6 +318,7 @@ function listenPresence(){
             if(placeholder)placeholder.style.display="grid";
           }
         }
+        if(role==="professor")addTeacherControls();
       }else if(role==="professor"&&(p.state==="disconnected"||p.state==="ended"||!connected)){
         removeDisconnectedParticipant(k);
         const tile=document.querySelector('[data-live-video="'+CSS.escape(k)+'"]');if(tile)tile.remove();
@@ -427,6 +444,12 @@ async function measureNetwork(){
     publishPresence();
   }catch(_){}
 }
+function leaveLiveClassAsStudent(){
+  if(role!=="aluno")return;
+  try{classActive=false;publishPresence();cleanupPeers();}catch(_){}
+  clearEndedSession();
+  location.href="aluno.html#classroom";
+}
 function clearEndedSession(){
   try{
     ctx.clearRect(0,0,canvas.width,canvas.height);
@@ -437,6 +460,7 @@ function clearEndedSession(){
     document.getElementById("participantList")?.replaceChildren();
     document.getElementById("participantVideoGrid")?.replaceChildren();
     document.getElementById("liveStudentBoardLayers")?.remove();
+    document.getElementById("liveTeacherBoardLayer")?.remove();
   }catch(_){}
 }
 function markClassEnded(){
@@ -693,7 +717,8 @@ function drawRemoteSnapshot(data){
 }
 function clearStudentTeacherBoard(){
   if(role!=="aluno")return;
-  try{ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,canvas.width,canvas.height);ctx.restore()}catch(_){}
+  try{ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.globalCompositeOperation="source-over";ctx.clearRect(0,0,canvas.width,canvas.height);ctx.restore()}catch(_){}
+  const teacher=document.getElementById("liveTeacherBoardCanvas");if(teacher){const x=teacher.getContext("2d");x.clearRect(0,0,teacher.width,teacher.height)}
   const objects=document.getElementById("boardObjects");if(objects)objects.replaceChildren();
   const docs=document.getElementById("boardDocuments");if(docs)docs.replaceChildren();
 }
@@ -755,10 +780,27 @@ function bindStudentBoard(){
   canvas.addEventListener("pointerup",studentBoardUp);
   canvas.addEventListener("pointercancel",()=>{localDrawing=false});
 }
+function ensureTeacherBoardLayer(){
+  if(role!=="aluno")return null;
+  let layer=document.getElementById("liveTeacherBoardLayer");
+  if(!layer){
+    layer=document.createElement("div");layer.id="liveTeacherBoardLayer";layer.className="live-teacher-board-layer";
+    const cv=document.createElement("canvas");cv.id="liveTeacherBoardCanvas";layer.appendChild(cv);
+    board.appendChild(layer);
+  }
+  const cv=layer.querySelector("canvas");cv.width=canvas.width;cv.height=canvas.height;return cv;
+}
+function drawTeacherBoardSnapshot(data){
+  if(role!=="aluno"||!data||typeof data!=="string"||!data.startsWith("data:image/"))return;
+  const cv=ensureTeacherBoardLayer();if(!cv)return;
+  const im=new Image();im.onload=()=>{const x=cv.getContext("2d");x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,cv.width,cv.height);x.drawImage(im,0,0,cv.width,cv.height)};im.src=data;
+}
 function bindBoardSync(){
   const c=cloud();if(!c)return;
-  if(role==="aluno")return;
-  const off1=c.listen(boardRoot,data=>{if(role==="professor")drawRemoteSnapshot(data)});
+  const off1=c.listen(boardRoot,data=>{
+    if(role==="professor")drawRemoteSnapshot(data);
+    else if(role==="aluno")drawTeacherBoardSnapshot(data);
+  });
   const off2=c.listen(objectsRoot,data=>{
     if(data==null)return;
     const encoded=typeof data==="string"?data:JSON.stringify(data);
@@ -769,7 +811,10 @@ function bindBoardSync(){
     window.dispatchEvent(new Event("apsan-board-remote"));
   });
   boardListeners.push(off1,off2);
-  window.addEventListener("apsan-board-remote",()=>{window.dispatchEvent(new Event("resize"))});
+  window.addEventListener("apsan-board-remote",()=>{
+    window.dispatchEvent(new Event("resize"));
+    if(role==="aluno"&&typeof window.renderBoardObjects==="function")try{window.renderBoardObjects()}catch(_){}
+  });
 }
 function publishBoardSnapshot(){
   if(role!=="professor"&&!localDrawing)return;
@@ -821,4 +866,20 @@ async function boot(){
   window.addEventListener("beforeunload",()=>{try{publishPointer(0,0,false);cleanupPeers();}catch(_){}});
 }
 boot();
-})();
+})()function renderParticipantVideos(students,accounts){
+  const grid=document.getElementById("participantVideoGrid");if(!grid)return;
+  grid.innerHTML="";
+  if(live&&live.active&&role==="professor"){
+    const self=document.createElement("div");self.className="participant-video-tile live-teacher-self-tile";self.dataset.liveVideo="__teacher__";
+    self.innerHTML="<span>"+esc(account.name||"Professor")+" · sua câmara</span>";
+    if(cameraStream&&cameraOn){const v=document.createElement("video");v.autoplay=true;v.muted=true;v.playsInline=true;v.srcObject=cameraStream;self.prepend(v)}
+    else self.insertAdjacentHTML("afterbegin",'<div class="live-participant-placeholder">🎥</div>');
+    grid.appendChild(self);
+  }
+  students.forEach(p=>{
+    const a=accounts.find(x=>x&&String(x.phone||"").replace(/\D/g,"")===p)||{};
+    const tile=document.createElement("div");tile.className="participant-video-tile";tile.dataset.liveVideo=p;
+    tile.innerHTML='<div class="live-participant-placeholder">👤</div><span>'+esc(a.name||"Aluno")+' · aguardando câmara</span>';
+    grid.appendChild(tile);
+  });
+};
