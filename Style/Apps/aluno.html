@@ -1694,7 +1694,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (current && window.APSANLive && typeof window.APSANLive.hydrateLive === "function") {
             const live = await window.APSANLive.hydrateLive(current.liveId).catch(function(){ return null; });
             if (check !== liveNoticeCheck) return;
-            const allowed = live && live.active === true && live.started === true &&
+            // Só mostrar a chamada quando a aula existir e estiver realmente iniciada.
+            const allowed = !!live && live.active === true && live.started === true &&
                 (Array.isArray(live.allowedStudents) ? live.allowedStudents : Array.isArray(live.students) ? live.students : [])
                     .map(normalizeLivePhone).includes(phoneKey);
             if (!allowed) {
@@ -1702,7 +1703,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     return !(item && item.liveId === current.liveId &&
                         normalizeLivePhone(item.recipientPhone) === phoneKey);
                 });
-                localStorage.setItem("apsan_live_notifications", JSON.stringify(cleaned));
+                localStorage.setItem("apsan_live_notifications", JSON.stringify(cleaned);
                 notice.hidden = true;
                 notice.innerHTML = "";
                 return;
