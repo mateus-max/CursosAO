@@ -1,7 +1,0 @@
-(()=>{const standalone=window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true;
-if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js",{scope:"./"}).catch(()=>{}));
-let deferredPrompt=null;
-function installButton(){if(standalone||document.getElementById("apsanInstallAppButton"))return;const b=document.createElement("button");b.id="apsanInstallAppButton";b.type="button";b.textContent="📲 Instalar APSAN Academy";Object.assign(b.style,{position:"fixed",right:"16px",bottom:"16px",zIndex:"99999",border:"0",borderRadius:"999px",padding:"12px 17px",background:"#1769e0",color:"#fff",font:"700 14px Inter,Segoe UI,Arial,sans-serif",boxShadow:"0 8px 25px rgba(0,0,0,.22)",cursor:"pointer"});b.onclick=async()=>{if(!deferredPrompt){alert("Abra o menu do navegador e escolha “Instalar APSAN Academy” ou “Adicionar à tela inicial”.");return;}deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;b.remove();};document.body.appendChild(b);}
-window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;installButton();});
-window.addEventListener("appinstalled",()=>{const b=document.getElementById("apsanInstallAppButton");if(b)b.remove();deferredPrompt=null;});
-})();
