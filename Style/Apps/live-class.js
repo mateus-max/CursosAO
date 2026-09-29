@@ -57,18 +57,46 @@ async function hydrateLive(id){
  return live;
 }
 const playedCalls={};
+const ringingCalls={};
+function stopLiveCallSound(liveId){
+ const state=ringingCalls[liveId];
+ if(!state)return;
+ try{clearInterval(state.timer)}catch(_){}
+ try{state.ac&&state.ac.close&&state.ac.close()}catch(_){}
+ delete ringingCalls[liveId];
+}
+function ringLiveCallOnce(state){
+ try{
+   const now=state.ac.currentTime;
+   [0,0.22,0.44].forEach((offset,i)=>{
+     const o=state.ac.createOscillator(),g=state.ac.createGain();
+     o.type="sine";o.frequency.value=i===1?920:700;
+     g.gain.setValueAtTime(0.0001,now+offset);
+     g.gain.exponentialRampToValueAtTime(0.55,now+offset+0.025);
+     g.gain.exponentialRampToValueAtTime(0.0001,now+offset+0.18);
+     o.connect(g);g.connect(state.ac.destination);
+     o.start(now+offset);o.stop(now+offset+0.2);
+   });
+ }catch(_){}
+}
 function playLiveCallSound(call){
- if(!call||call.active===false||playedCalls[call.liveId])return;
+ if(!call||call.active===false)return;
+ if(ringingCalls[call.liveId])return;
  playedCalls[call.liveId]=true;
  try{
    const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
-   const ac=new AC();const now=ac.currentTime;
-   [0,0.18,0.36].forEach((offset,i)=>{
-     const o=ac.createOscillator(),g=ac.createGain();o.type="sine";o.frequency.value=i===1?880:660;
-     g.gain.setValueAtTime(0.0001,now+offset);g.gain.exponentialRampToValueAtTime(0.18,now+offset+0.02);g.gain.exponentialRampToValueAtTime(0.0001,now+offset+0.13);
-     o.connect(g);g.connect(ac.destination);o.start(now+offset);o.stop(now+offset+0.15);
-   });
-   setTimeout(()=>ac.close().catch(()=>{}),700);
+   const ac=new AC();
+   const state={ac,timer:null};
+   ringingCalls[call.liveId]=state;
+   const start=()=>{
+     try{if(ac.state==="suspended")ac.resume().catch(()=>{});}catch(_){}
+     ringLiveCallOnce(state);
+     state.timer=setInterval(()=>ringLiveCallOnce(state),1400);
+   };
+   start();
+   const unlock=()=>{try{if(ac.state==="suspended")ac.resume().catch(()=>{});}catch(_){}};
+   window.addEventListener("pointerdown",unlock,{once:false,passive:true});
+   window.addEventListener("keydown",unlock,{once:false,passive:true});
  }catch(_){}
 }
 function mirrorCall(call){
@@ -78,6 +106,7 @@ function mirrorCall(call){
  writeLocal("apsan_live_notifications",arr.slice(-300));
  const headers=readLocal("apsan_header_notifications",[]),h=Array.isArray(headers)?headers.slice():[],recipientKey="aluno:"+norm(call.recipientPhone),hi=h.findIndex(x=>x&&x.recipientKey===recipientKey&&x.kind==="live-class"&&x.liveId===call.liveId);
  if(call.active===false){
+   stopLiveCallSound(call.liveId);
    if(hi>=0)h.splice(hi,1);
    writeLocal("apsan_header_notifications",h.slice(-100));
    window.dispatchEvent(new CustomEvent("apsan-live-call",{detail:call}));
@@ -139,7 +168,8 @@ function listenStudent(phone,callback){
 }
 async function markJoined(phone,id){
  const p=norm(phone),live=await hydrateLive(id);if(!live||live.active!==true)return;
+ stopLiveCallSound(id);
  const current=await cloudGet("apsan_live_calls/"+p+"/"+id);if(current){current.joinedAt=current.joinedAt||new Date().toISOString();current.readAt=null;current.active=true;await cloudSet("apsan_live_calls/"+p+"/"+id,current);mirrorCall(current)}
 }
-window.APSANLive={norm,classroomUrl,publishLive,endLive,hydrateLive,listenStudent,markJoined};
+window.APSANLive={norm,classroomUrl,publishLive,endLive,hydrateLive,listenStudent,markJoined,stopLiveCallSound};
 })();
