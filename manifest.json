@@ -20,7 +20,7 @@
   "prefer_related_applications": false,
   "screenshots": [
     {
-      "src": "./icons/apsan-academy-512.png?v=5",
+      "src": "./icons/apsan-academy-512.png?v=6",
       "sizes": "512x512",
       "type": "image/png",
       "label": "Logo oficial APSAN Academy"
@@ -28,13 +28,13 @@
   ],
   "icons": [
     {
-      "src": "./icons/apsan-academy-512.png?v=5",
+      "src": "./icons/apsan-academy-512.png?v=6",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icons/apsan-academy-512.png?v=5",
+      "src": "./icons/apsan-academy-512.png?v=6",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
