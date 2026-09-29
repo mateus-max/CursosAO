@@ -13,7 +13,7 @@
 body.classroom-page{background:#eef3f9!important;overflow-x:hidden}
 .classroom-shell{min-height:100dvh;display:flex;flex-direction:column;background:#0b1830;color:#fff}
 .classroom-top{height:66px;display:flex;align-items:center;gap:18px;padding:0 18px;border-bottom:1px solid rgba(255,255,255,.1);background:#0d1d38}
-.classroom-brand{display:flex;align-items:center;gap:10px;min-width:210px}.classroom-brand-mark{width:38px;height:38px;border-radius:10px;background:#fff;color:#1769e0;display:grid;place-items:center;font-weight:1000;font-size:22px}.classroom-brand strong{font-size:16px}.classroom-title{flex:1;min-width:0}.classroom-title strong{display:block;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.classroom-title small{color:#9eb0c8}.live-pill{display:inline-flex;align-items:center;gap:6px;color:#fff;background:#e53935;padding:5px 9px;border-radius:999px;font-weight:900;font-size:11px;margin-left:8px}.live-dot{width:7px;height:7px;border-radius:50%;background:#fff}
+.classroom-brand{display:flex;align-items:center;gap:10px;min-width:210px}.classroom-brand-mark{width:38px;height:38px;border-radius:10px;background:#fff;color:#1769e0;display:grid;place-items:center;font-weight:1000;font-size:22px}.classroom-brand-logo{width:42px;height:42px;object-fit:contain;display:block;border-radius:10px;background:#fff;padding:3px;box-sizing:border-box}.classroom-brand strong{font-size:16px}.classroom-title{flex:1;min-width:0}.classroom-title strong{display:block;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.classroom-title small{color:#9eb0c8}.live-pill{display:inline-flex;align-items:center;gap:6px;color:#fff;background:#e53935;padding:5px 9px;border-radius:999px;font-weight:900;font-size:11px;margin-left:8px}.live-dot{width:7px;height:7px;border-radius:50%;background:#fff}
 .classroom-top-actions{display:flex;gap:8px}.classroom-top-actions button{border:1px solid rgba(255,255,255,.12);background:#132846;color:#fff;border-radius:9px;padding:8px 10px;font-weight:800;cursor:pointer}.classroom-top-actions .leave{background:#ef4444;border-color:#ef4444}.classroom-top-actions .start-class-button{padding:7px 10px;font-size:11px;border-radius:8px;min-width:auto}.classroom-top-actions .recordings-button{padding:7px 10px;font-size:11px}
 .classroom-body{flex:1;display:grid;grid-template-columns:190px minmax(0,1fr) 300px;min-height:0}
 .classroom-side{background:#0d1d38;border-right:1px solid rgba(255,255,255,.08);padding:12px 10px}.classroom-side button{width:100%;display:flex;align-items:center;gap:10px;border:0;background:transparent;color:#dbe7f5;text-align:left;padding:12px;border-radius:10px;margin-bottom:4px;font-weight:800;cursor:pointer}.classroom-side button.active,.classroom-side button:hover{background:#1769e0;color:#fff}
@@ -71,7 +71,7 @@ body.classroom-page{background:#eef3f9!important;overflow-x:hidden}
 <body class="classroom-page">
 <div class="classroom-shell">
 <header class="classroom-top">
-    <div class="classroom-brand"><div class="classroom-brand-mark">A</div><strong>APSAN Academy</strong></div>
+    <div class="classroom-brand"><img class="classroom-brand-logo" src="../assets/apsan-academy-logo.svg" alt="APSAN Academy"><strong>APSAN Academy</strong></div>
     <div class="classroom-title">
         <strong id="classTitle">Sala Virtual</strong>
         <small id="classMeta">Quadro interativo de aprendizagem</small>
@@ -132,7 +132,7 @@ body.classroom-page{background:#eef3f9!important;overflow-x:hidden}
 <div class="board-wrap">
         <div class="board">
             <canvas id="whiteboardCanvas"></canvas>
-            <div id="boardObjects" class="board-objects"></div><div id="boardEmpty" class="board-empty">Clique no quadro para começar</div>
+            <div id="boardObjects" class="board-objects"></div>
             
             <div id="boardTextEditor" class="board-text-editor" contenteditable="true" spellcheck="true" hidden></div>
             <div id="cameraDock" class="camera-dock" hidden>
@@ -191,7 +191,7 @@ const roleAlias=String(roleRaw).trim().toLowerCase();
 const role=roleAlias==="teacher"||roleAlias==="docente"?"professor":roleAlias==="student"||roleAlias==="estudante"?"aluno":roleAlias;
 const phone=String(account.phone||localStorage.getItem("apsan_phone")||"").replace(/\D/g,"");
 const canvas=document.getElementById("whiteboardCanvas"),ctx=canvas.getContext("2d");
-const boardEmpty=document.getElementById("boardEmpty");
+const boardEmpty={classList:{add(){},remove(){},toggle(){}}};
 let live=null, drawing=false, startX=0,startY=0,tool="pen",undoStack=[],stream=null,micStream=null,recording=false,mediaRecorder=null,recordedChunks=[],recordingCanvas=null,recordingCtx=null,recordingTimer=null,startedAt=Date.now(),textEditorOpen=false,lastBoardPoint={x:24,y:24},cameraPosition={x:null,y:null};
 let boardObjectStoreKey=()=> "apsan_board_objects_"+(liveId||("draft_"+phone));
 
@@ -213,7 +213,7 @@ function snapshot(){undoStack.push(canvas.toDataURL("image/png"));if(undoStack.l
 function pointer(e){const r=canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
 function nextObjectZ(){return boardObjects().reduce((m,o)=>Math.max(m,Number(o.z)||20),20)+1}
 function placeCaretAtPoint(editor,clientX,clientY){if(!editor)return false;editor.focus({preventScroll:true});let range=null;try{if(document.caretRangeFromPoint)range=document.caretRangeFromPoint(clientX,clientY);else if(document.caretPositionFromPoint){const pos=document.caretPositionFromPoint(clientX,clientY);if(pos){range=document.createRange();range.setStart(pos.offsetNode,pos.offset);range.collapse(true)}}}catch(_){}if(range&&!editor.contains(range.startContainer)){range=null}if(!range){range=document.createRange();range.selectNodeContents(editor);range.collapse(false)}const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);saveTextSelection();return true}
-function openTextEditor(p,clientX=null,clientY=null){if(role!=="professor")return;const items=boardObjects();const item={id:"text_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,7),kind:"text",html:"",x:Math.max(6,p.x),y:Math.max(6,p.y),w:360,h:40,z:nextObjectZ(),fontFamily:"Arial",fontSize:"20px",color:(document.getElementById("chalkColor")?.value||"#ffffff")};items.push(item);selectedBoardObjectId=item.id;saveBoardObjects(items);renderBoardObjects();const el=document.querySelector('.board-object[data-id="'+item.id+'"] .board-object-text');if(el){if(clientX!=null&&clientY!=null)placeCaretAtPoint(el,clientX,clientY);else{el.focus({preventScroll:true});const range=document.createRange();range.selectNodeContents(el);range.collapse(false);const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range)}el.dispatchEvent(new Event("focus"));if(navigator.virtualKeyboard)navigator.virtualKeyboard.overlaysContent=true}}
+function openTextEditor(p,clientX=null,clientY=null){if(role!=="professor"||!canvas)return;const items=boardObjects();const item={id:"text_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,7),kind:"text",html:"",x:Math.max(6,p.x),y:Math.max(6,p.y),w:360,h:40,z:nextObjectZ(),fontFamily:"Arial",fontSize:"20px",color:(document.getElementById("chalkColor")?.value||"#ffffff")};items.push(item);selectedBoardObjectId=item.id;saveBoardObjects(items);renderBoardObjects();const el=document.querySelector('.board-object[data-id="'+item.id+'"] .board-object-text');if(el){if(clientX!=null&&clientY!=null)placeCaretAtPoint(el,clientX,clientY);else{el.focus({preventScroll:true});const range=document.createRange();range.selectNodeContents(el);range.collapse(false);const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range)}el.dispatchEvent(new Event("focus"));if(navigator.virtualKeyboard)navigator.virtualKeyboard.overlaysContent=true}}
 function commitActiveTextObject(){const el=document.querySelector(".board-object-text:focus");if(!el)return;const id=el.closest(".board-object")?.dataset.id;if(!id)return;const items=boardObjects(),o=items.find(x=>x.id===id);if(o){o.html=el.innerHTML;saveBoardObjects(items)}}
 function currentChalkColor(){return document.getElementById("chalkColor")?.value||"#ffffff"}
 function hexToRgba(hex,alpha){const h=String(hex||"#ffffff").replace("#","");if(h.length!==6)return "rgba(255,255,255,"+alpha+")";const n=parseInt(h,16);return "rgba("+(n>>16)+","+((n>>8)&255)+","+(n&255)+","+alpha+")"}
@@ -222,32 +222,6 @@ function move(e){if(!drawing)return;const p=pointer(e);if(tool==="pen"||tool==="
 function up(e){if(!drawing)return;drawing=false;const p=pointer(e);if(tool==="line"){ctx.globalCompositeOperation="source-over";ctx.strokeStyle=document.getElementById("chalkColor").value;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(startX,startY);ctx.lineTo(p.x,p.y);ctx.stroke()}else if(tool==="rect"){ctx.globalCompositeOperation="source-over";ctx.strokeStyle=document.getElementById("chalkColor").value;ctx.lineWidth=3;ctx.strokeRect(startX,startY,p.x-startX,p.y-startY)}else if(tool==="circle"){ctx.globalCompositeOperation="source-over";ctx.strokeStyle=document.getElementById("chalkColor").value;ctx.lineWidth=3;const rx=(p.x-startX)/2,ry=(p.y-startY)/2;ctx.beginPath();ctx.ellipse(startX+rx,startY+ry,Math.abs(rx),Math.abs(ry),0,0,Math.PI*2);ctx.stroke()}previewSnapshot=null;saveBoard()}
 let previewSnapshot=null;function loadUndoPreview(p){if(!previewSnapshot)return;const r=canvas.getBoundingClientRect();const im=new Image();im.onload=()=>{ctx.clearRect(0,0,r.width,r.height);ctx.drawImage(im,0,0,r.width,r.height);ctx.save();ctx.globalCompositeOperation="source-over";ctx.strokeStyle=document.getElementById("chalkColor").value;ctx.lineWidth=3;ctx.lineCap="round";if(tool==="line"){ctx.beginPath();ctx.moveTo(startX,startY);ctx.lineTo(p.x,p.y);ctx.stroke()}else if(tool==="rect"){ctx.strokeRect(startX,startY,p.x-startX,p.y-startY)}else if(tool==="circle"){const rx=(p.x-startX)/2,ry=(p.y-startY)/2;ctx.beginPath();ctx.ellipse(startX+rx,startY+ry,Math.abs(rx),Math.abs(ry),0,0,Math.PI*2);ctx.stroke()}ctx.restore()};im.src=previewSnapshot}
 canvas.addEventListener("pointerdown",down);canvas.addEventListener("pointermove",move);canvas.addEventListener("pointerup",up);canvas.addEventListener("pointerleave",up);canvas.addEventListener("pointercancel",up);
-/* Entrada de quadro reforçada: o próprio quadro captura o primeiro toque/clique.
-   Isto evita que objetos/camadas visuais roubem o primeiro clique e garante que
-   caneta, marcador, borracha, linha e formas iniciem imediatamente. */
-document.querySelector(".board").addEventListener("pointerdown",e=>{
-  if(role!=="professor"||!e.isPrimary)return;
-  if(e.target.closest(".board-object,.camera-dock,.live-board-pointer,.board-object-text"))return;
-  const r=canvas.getBoundingClientRect();
-  if(!r.width||!r.height)return;
-  if(e.target!==canvas){
-    try{canvas.setPointerCapture?.(e.pointerId)}catch(_){}
-  }
-  down(e);
-  e.stopPropagation();
-},{capture:true});
-document.querySelector(".board").addEventListener("pointermove",e=>{
-  if(role!=="professor"||!drawing||e.target===canvas)return;
-  move(e);
-},{capture:true});
-document.querySelector(".board").addEventListener("pointerup",e=>{
-  if(role!=="professor"||!drawing||e.target===canvas)return;
-  up(e);
-},{capture:true});
-document.querySelector(".board").addEventListener("pointercancel",e=>{
-  if(role!=="professor"||!drawing||e.target===canvas)return;
-  up(e);
-},{capture:true});
 
 window.addEventListener("resize",()=>{resizeCanvas();loadBoard();const active=document.activeElement;const editing=!!active?.classList?.contains("board-object-text")||active?.isContentEditable===true;if(!editing)renderBoardObjects();});
 document.getElementById("textFontFamily").onchange=e=>formatSelectedText("fontName",e.target.value);
