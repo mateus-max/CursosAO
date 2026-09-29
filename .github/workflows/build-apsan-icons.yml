@@ -1,0 +1,29 @@
+name: Gerar PNGs do logo APSAN Academy
+on:
+  push:
+    paths:
+      - "icons/apsan-academy-source.svg"
+      - ".github/workflows/build-apsan-icons.yml"
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instalar conversor SVG
+        run: sudo apt-get update && sudo apt-get install -y librsvg2-bin
+      - name: Gerar ícones PNG
+        run: |
+          rsvg-convert -w 192 -h 192 icons/apsan-academy-source.svg -o icons/apsan-academy-192.png
+          rsvg-convert -w 512 -h 512 icons/apsan-academy-source.svg -o icons/apsan-academy-512.png
+          cp icons/apsan-academy-192.png icons/icon-192.png
+          cp icons/apsan-academy-512.png icons/icon-512.png
+      - name: Commitar PNGs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add icons/*.png
+          git diff --cached --quiet && exit 0
+          git commit -m "Gerar PNGs oficiais do logo APSAN Academy"
+          git push
