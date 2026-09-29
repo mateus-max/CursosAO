@@ -51,6 +51,7 @@ let seenCandidates={};
 let mediaListeners=[];
 let boardListeners=[];
 let lastRemoteBoard="";
+let lastTeacherBoard="";
 let lastRemoteObjects="";
 let applyingRemote=false;
 let boardSyncTimer=null;
@@ -792,6 +793,7 @@ function ensureTeacherBoardLayer(){
 }
 function drawTeacherBoardSnapshot(data){
   if(role!=="aluno"||!data||typeof data!=="string"||!data.startsWith("data:image/"))return;
+  lastTeacherBoard=data;
   const cv=ensureTeacherBoardLayer();if(!cv)return;
   const im=new Image();im.onload=()=>{const x=cv.getContext("2d");x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,cv.width,cv.height);x.drawImage(im,0,0,cv.width,cv.height)};im.src=data;
 }
@@ -809,8 +811,13 @@ function bindBoardSync(){
   boardListeners.push(off1,off2);
   window.addEventListener("apsan-board-remote",()=>{
     window.dispatchEvent(new Event("resize"));
-    if(role==="aluno"&&typeof window.renderBoardObjects==="function")try{window.renderBoardObjects()}catch(_){}
+    if(role==="aluno"){
+      if(lastTeacherBoard)drawTeacherBoardSnapshot(lastTeacherBoard);
+      if(typeof window.renderBoardObjects==="function")try{window.renderBoardObjects()}catch(_){}
+    }
   });
+  window.addEventListener("resize",()=>{if(role==="aluno"&&lastTeacherBoard)drawTeacherBoardSnapshot(lastTeacherBoard)});
+
 }
 function publishBoardSnapshot(){
   if(role!=="professor"&&!localDrawing)return;
