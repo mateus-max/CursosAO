@@ -27,6 +27,7 @@ async function publishLive(item){
  const now=item.startedAt||new Date().toISOString();
  const baseCall={id:"livecall_"+item.id,liveId:item.id,teacherPhone:norm(item.teacherPhone),teacherName:item.teacherName||"Professor",title:item.title||"Aula ao vivo",course:item.course||"Curso",createdAt:now,started:true,startedAt:item.startedAt||now,callEnabled:true,startedByTeacherClick:true,active:true,joinedAt:null,joinUrl:item.joinUrl,readAt:null,allowedStudents:recipients.slice()};
  await cloudSet("apsan_live_calls_global/"+item.id,baseCall);
+ await cloudSet("apsan_live_sessions/"+item.id,{id:item.id,liveId:item.id,active:true,startedAt:item.startedAt||now,startedBy:item.teacherPhone||""});
  await Promise.all(recipients.map(p=>cloudSet("apsan_live_calls/"+p+"/"+item.id,Object.assign({},baseCall,{id:"livecall_"+item.id+"_"+p,recipientPhone:p}))));
  return item;
 }
@@ -217,7 +218,9 @@ function listenStudent(phone,callback){
      const process=async function(call,forceRecipient){
        if(!call||!call.liveId)return null;
        const live=await hydrateLive(call.liveId).catch(()=>null);
-       const allowed=live&&live.active===true && live.started===true && live.callEnabled===true && live.startedByTeacherClick===true && call.callEnabled===true && call.startedByTeacherClick===true &&
+       const session=await cloudGet("apsan_live_sessions/"+call.liveId);
+       const sessionActive=session&&session.active===true;
+       const allowed=live&&sessionActive && live.active===true && live.started===true && live.callEnabled===true && live.startedByTeacherClick===true && call.callEnabled===true && call.startedByTeacherClick===true &&
          (Array.isArray(live.allowedStudents)?live.allowedStudents:Array.isArray(call.allowedStudents)?call.allowedStudents:[])
            .map(norm).includes(studentPhone);
        if(call.active!==false&&allowed){
@@ -229,7 +232,7 @@ function listenStudent(phone,callback){
          mirrorCall(item);
          return item;
        }
-       if(call.active===false || (live&&!live.active)){
+       if(call.active===false || (live&&!live.active) || !sessionActive){
          const ended=Object.assign({},call,{recipientPhone:studentPhone,active:false,endedAt:call.endedAt||new Date().toISOString()});
          mirrorCall(ended);
        }
