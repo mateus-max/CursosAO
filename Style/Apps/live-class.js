@@ -75,73 +75,58 @@ function stopLiveCallSound(liveId){
 function getLocalStudentIdentity(phone){
  const target=norm(phone);
  try{
-   const accounts=JSON.parse(localStorage.getItem("apsan_accounts")||"[]");
-   const list=Array.isArray(accounts)?accounts:[];
-   const account=list.find(a=>a&&norm(a.phone||a.telefone||a.studentPhone)===target);
-   if(account){
-     return {
-       name:clean(account.name||account.fullName||account.nome||"Aluno"),
-       gender:clean(account.gender||account.sexo||account.genero||"").toLowerCase()
-     };
-   }
+  const accounts=JSON.parse(localStorage.getItem("apsan_accounts")||"[]");
+  const list=Array.isArray(accounts)?accounts:[];
+  const account=list.find(a=>a&&norm(a.phone||a.telefone||a.studentPhone)===target);
+  if(account)return {name:clean(account.name||account.fullName||account.nome||"Aluno"),gender:clean(account.gender||account.sexo||account.genero||"").toLowerCase()};
  }catch(_){}
  return {name:"Aluno",gender:""};
 }
-
-function speakLiveStudentGreeting(call){
+function firstNameFromProfile(name){return clean(name).split(/\s+/)[0]||"Aluno";}
+function inferStudentGenderFromFirstName(name){
+ const first=firstNameFromProfile(name).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+ const female=new Set("abigail adriana alda alexandra alice aline amanda ana andreia angela angelica anita beatriz belinda bruna carla carolina cassia cassiana celia clara claudia cristina daniela diana dina edite edna eliana elisabete elisa elizabeth eloisa elsa emilia erica fabiana fatima filomena flavia gabriela gilda gisela helena ines irene isabel isabela jacinta joana josefina juliana julia katia laura leonor leticia lidia liliana lucia luisa magdalena manuela marcia margarida maria mariana marisa marta matilde michelle monica nadia natalia nelma noemia patricia paula raquel renata rita rosa rosana sandra sara silvia sofia sonia susana tania tatiana teresa valeria vanessa vera veronica vitoria".split(" "));
+ const male=new Set("abel adriano alberto alexandre alfredo amaro andre antonio armando artur augusto benjamin bernardo bruno carlos celso cesar cristiano daniel david domingos edgar eduardo elias emilio ernesto estevao fabio felipe fernando francisco gabriel geraldo gilberto gil heitor henrique hugo isaias joao jorge jose julio justino leandro leonardo lourenco lucas manuel marco marcos mateus mauricio miguel moises nelson nicolas nicolau octavio oscar paulo pedro rafael raul ricardo roberto rodrigo romao rui samuel sebastiao sergio silvio simao tomas valdemar vicente vitor wellington wilson".split(" "));
+ if(female.has(first))return"female";
+ if(male.has(first))return"male";
+ return"";
+}
+function studentAddressFromProfile(identity){
+ const inferred=inferStudentGenderFromFirstName(identity.name);
+ if(inferred)return inferred;
+ const g=String(identity.gender||"").toLowerCase();
+ return /^(f|female|feminino|menina|mulher)$/.test(g)?"female":"male";
+}
+function speakLiveStudentGreeting(call,onEnd){
  if(!call||call.active===false)return;
  try{
-   if(!window.speechSynthesis||typeof window.SpeechSynthesisUtterance!=="function")return;
-   const identity=getLocalStudentIdentity(call.recipientPhone);
-   const name=identity.name||"Aluno";
-   const feminine=/^(f|female|feminino|menina|mulher)$/i.test(identity.gender);
-   const prefix=feminine?"Querida":"Querido";
-   const utterance=new SpeechSynthesisUtterance(prefix+" "+name+", a aula já está a decorrer, por favor entre na aula agora.");
-   utterance.lang="pt-PT";
-   utterance.rate=0.94;
-   utterance.pitch=1.08;
-   utterance.volume=1;
-   const voices=window.speechSynthesis.getVoices?window.speechSynthesis.getVoices():[];
-   const preferred=voices.find(v=>/female|feminina|woman|zira|samantha|helena|joana|maria/i.test(String(v.name||""))&&/^pt(-|_)/i.test(String(v.lang||"")))
-     ||voices.find(v=>/^pt(-|_)/i.test(String(v.lang||"")))
-     ||voices.find(v=>/female|feminina|woman|zira|samantha|helena|joana|maria/i.test(String(v.name||"")));
-   if(preferred)utterance.voice=preferred;
-   window.speechSynthesis.cancel();
-   window.speechSynthesis.speak(utterance);
- }catch(_){}
-}
-
-function ringLiveCallOnce(state){
- try{
-   const now=state.ac.currentTime;
-   [[0,523.25],[0.13,659.25],[0.26,783.99],[0.39,659.25],[0.52,523.25],[0.65,659.25],[0.78,783.99],[0.91,659.25]]
-   .forEach(function(pair){const offset=pair[0],freq=pair[1],o=state.ac.createOscillator(),g=state.ac.createGain();
-     o.type="sine";o.frequency.value=freq;g.gain.setValueAtTime(0.0001,now+offset);
-     g.gain.exponentialRampToValueAtTime(0.78,now+offset+0.018);g.gain.exponentialRampToValueAtTime(0.0001,now+offset+0.105);
-     o.connect(g);g.connect(state.ac.destination);o.start(now+offset);o.stop(now+offset+0.12);});
- }catch(_){}
-}
-function speakLiveStudentGreeting(call){
- if(!call||call.active===false)return;
- try{
-   if(!window.speechSynthesis||typeof window.SpeechSynthesisUtterance!=="function")return;
-   const identity=getLocalStudentIdentity(call.recipientPhone),name=identity.name||"Aluno";
-   const feminine=/^(f|female|feminino|menina|mulher)$/i.test(identity.gender),prefix=feminine?"Senhora":"Senhor";
-   const utterance=new SpeechSynthesisUtterance(prefix+" "+name+", entre na aula, a sua aula já está a decorrer.");
-   utterance.lang="pt-PT";utterance.rate=0.92;utterance.pitch=1.08;utterance.volume=1;
-   const voices=window.speechSynthesis.getVoices?window.speechSynthesis.getVoices():[];
-   const preferred=voices.find(v=>/female|feminina|woman|zira|samantha|helena|joana|maria/i.test(String(v.name||""))&&/^pt(-|_)/i.test(String(v.lang||"")))
-    ||voices.find(v=>/^pt(-|_)/i.test(String(v.lang||"")))
-    ||voices.find(v=>/female|feminina|woman|zira|samantha|helena|joana|maria/i.test(String(v.name||"")));
-   if(preferred)utterance.voice=preferred;window.speechSynthesis.cancel();window.speechSynthesis.speak(utterance);
- }catch(_){}
+  if(!window.speechSynthesis||typeof window.SpeechSynthesisUtterance!=="function"){if(onEnd)onEnd();return;}
+  const identity=getLocalStudentIdentity(call.recipientPhone);
+  const name=firstNameFromProfile(identity.name)||"Aluno";
+  const prefix=studentAddressFromProfile(identity)==="female"?"Senhora":"Senhor";
+  const utterance=new SpeechSynthesisUtterance(prefix+" "+name+", entre na aula, a sua aula já está a decorrer.");
+  utterance.lang="pt-PT";utterance.rate=0.90;utterance.pitch=1.08;utterance.volume=1;
+  const voices=window.speechSynthesis.getVoices?window.speechSynthesis.getVoices():[];
+  const preferred=voices.find(v=>/female|feminina|woman|zira|samantha|helena|joana|maria/i.test(String(v.name||""))&&/^pt(-|_)/i.test(String(v.lang||"")))
+   ||voices.find(v=>/^pt(-|_)/i.test(String(v.lang||"")))
+   ||voices.find(v=>/female|feminina|woman|zira|samantha|helena|joana|maria/i.test(String(v.name||"")));
+  if(preferred)utterance.voice=preferred;
+  utterance.onend=function(){if(onEnd)onEnd();};
+  utterance.onerror=function(){if(onEnd)onEnd();};
+  window.speechSynthesis.cancel();window.speechSynthesis.speak(utterance);
+ }catch(_){if(onEnd)onEnd();}
 }
 function scheduleLiveCallCycle(call,state){
  if(!state||!ringingCalls[call.liveId]||call.active===false)return;
  try{if(state.ac.state==="suspended")state.ac.resume().catch(()=>{});}catch(_){}
  ringLiveCallOnce(state);
- state.voiceTimer=setTimeout(function(){if(ringingCalls[call.liveId]&&call.active!==false)speakLiveStudentGreeting(call)},1000);
- state.cycleTimer=setTimeout(function(){if(ringingCalls[call.liveId]&&call.active!==false)scheduleLiveCallCycle(call,state)},4300);
+ state.voiceTimer=setTimeout(function(){
+  if(!ringingCalls[call.liveId]||call.active===false)return;
+  speakLiveStudentGreeting(call,function(){
+   if(!ringingCalls[call.liveId]||call.active===false)return;
+   state.cycleTimer=setTimeout(function(){scheduleLiveCallCycle(call,state)},700);
+  });
+ },1000);
 }
 function playLiveCallSound(call){
  if(!call||call.active===false||ringingCalls[call.liveId]||declinedLiveCalls[call.liveId]||laterLiveCalls[call.liveId])return;
