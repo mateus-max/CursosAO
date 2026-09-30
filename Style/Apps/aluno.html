@@ -10,7 +10,7 @@
 <script src="cloud-data.js?v=20260928-auth-cross-device-2"></script>
 <script src="recordings.js?v=20260928-recordings-1"></script>
 <script src="settings.js?v=20260927-profile-wallpaper-1"></script>
-<script src="live-class.js?v=20260930-live-call-16"></script>
+<script src="live-class.js?v=20260930-live-call-17"></script>
 <style id="apsan-live-call-actions-ui">
 .student-live-call-actions{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-left:auto}
 .student-live-later,.student-live-decline{border:0;border-radius:9px;padding:10px 11px;font-weight:800;cursor:pointer}
@@ -1785,17 +1785,23 @@ document.addEventListener("DOMContentLoaded", function () {
             if (validationToken !== liveNoticeValidationToken) return;
 
             let live = null;
+            let sessionActive = false;
             try {
-                live = window.APSANLive && typeof window.APSANLive.hydrateLive === "function"
-                    ? await window.APSANLive.hydrateLive(item.liveId)
-                    : null;
+                if (window.APSANLive && typeof window.APSANLive.hydrateLive === "function") {
+                    live = await window.APSANLive.hydrateLive(item.liveId);
+                }
+                if (window.APSANLive && typeof window.APSANLive.isLiveSessionActive === "function") {
+                    sessionActive = await window.APSANLive.isLiveSessionActive(item.liveId);
+                }
             } catch (_) {
                 live = null;
+                sessionActive = false;
             }
 
             if (validationToken !== liveNoticeValidationToken) return;
 
-            const allowed = live &&
+            const allowed = sessionActive &&
+                live &&
                 live.active === true &&
                 live.started === true &&
                 live.callEnabled === true &&
@@ -1809,9 +1815,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (allowed) {
                 valid.push(item);
-            } else if (live === null || live.active !== true) {
-                // Sessão inexistente/encerrada: remove o lixo local para que
-                // a chamada não reapareça no próximo carregamento.
+            } else {
+                // Sem uma sessão remota oficialmente ativa, uma notificação
+                // antiga nunca pode voltar a aparecer no painel.
                 removeStaleStudentLiveNotification(item.liveId, phoneKey);
             }
         }
