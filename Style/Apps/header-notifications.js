@@ -259,10 +259,23 @@
         updateBadge();
     }
 
+    function forceHeaderBadgeSync() {
+        const badge = getBadge();
+        if (!badge) return;
+        const unreadGeneric = genericUnread().length;
+        const unreadMessages = messageNotifications().filter(function (item) {
+            return !item.readAt && !item.deletedAt;
+        }).length;
+        const count = unreadGeneric + unreadMessages;
+        badge.textContent = count > 99 ? "99+" : String(count);
+        badge.hidden = count === 0;
+    }
+
     function openPanel() {
         const target = panel();
         if (!target) return;
         renderPanel();
+        forceHeaderBadgeSync();
         target.classList.add("open");
         target.setAttribute("aria-hidden", "false");
         // Abrir o painel não marca nem elimina notificações.
@@ -523,9 +536,11 @@
         });
 
         updateBadge();
+        forceHeaderBadgeSync();
         renderPanel();
         checkForUpdates();
         setInterval(function () {
+            forceHeaderBadgeSync();
             checkForUpdates();
             updateBadge();
             renderPanel();
