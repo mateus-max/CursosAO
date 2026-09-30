@@ -50,7 +50,7 @@
 
     function genericUnread() {
         return notifications().filter(function (item) {
-            return item.recipientKey === recipientKey && !item.readAt;
+            return item.recipientKey === recipientKey && !item.readAt && !item.deletedAt;
         });
     }
 
