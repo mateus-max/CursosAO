@@ -34,6 +34,7 @@ async function endLive(id){
  const list=readLocal("apsan_live_classes",[]),arr=Array.isArray(list)?list.slice():[],item=arr.find(x=>x&&x.id===id),endedAt=new Date().toISOString();
  if(item){item.active=false;item.endedAt=endedAt;writeLocal("apsan_live_classes",arr);await cloudSet("apsan_live_classes",arr)}
  const calls=await cloudGet("apsan_live_calls");if(calls)await Promise.all(Object.keys(calls).map(p=>calls[p]&&calls[p][id]?cloudSet("apsan_live_calls/"+p+"/"+id,Object.assign({},calls[p][id],{active:false,endedAt})):Promise.resolve()));
+ await cloudSet("apsan_live_sessions/"+id,{id,liveId:id,active:false,endedAt,endedBy:item&&item.teacherPhone?norm(item.teacherPhone):""});
  await cloudSet("apsan_live_calls_global/"+id,{id:"livecall_"+id,liveId:id,active:false,endedAt});
  // Ao terminar, a sessão do quadro, objetos e sinalização desta aula são descartados.
  await Promise.all([
