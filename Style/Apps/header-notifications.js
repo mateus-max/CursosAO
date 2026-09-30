@@ -87,7 +87,7 @@
     }
 
     function updateBadge() {
-        const count = genericUnread().length + messageNotifications().length;
+        const count = genericUnread().length + messageNotifications().filter(function(item){ return !item.readAt; }).length;
         const badge = getBadge();
         if (badge) {
             badge.textContent = count > 99 ? "99+" : String(count);
@@ -104,7 +104,7 @@
         } else if (ROLE_BY_BODY === "professor") {
             const menuBadge = document.getElementById("professorMessageMenuBadge");
             if (menuBadge) {
-                const n = messageNotifications().length;
+                const n = messageNotifications().filter(function(item){ return !item.readAt; }).length;
                 menuBadge.textContent = n > 99 ? "99+" : String(n);
                 menuBadge.hidden = n === 0;
             }
