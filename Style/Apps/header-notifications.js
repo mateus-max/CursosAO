@@ -24,6 +24,14 @@
         localStorage.setItem(key, JSON.stringify(value));
     };
 
+    async function syncMessageNotificationsToCloud(items) {
+        try {
+            if (window.apsanCloud && typeof window.apsanCloud.set === "function") {
+                await window.apsanCloud.set("appData/apsan_message_notifications", items);
+            }
+        } catch (_) {}
+    }
+
     const normalizePhone = function (value) {
         const digits = String(value || "").replace(/\D/g, "");
         return digits.length > 9 ? digits.slice(-9) : digits;
@@ -222,6 +230,7 @@
                 if (msg) {
                     msg.readAt = msg.readAt || now;
                     write("apsan_message_notifications", msgs);
+                    syncMessageNotificationsToCloud(msgs);
                 }
             }
         } else {
@@ -245,6 +254,7 @@
                 if (msg) {
                     msg.deletedAt = now;
                     write("apsan_message_notifications", msgs);
+                    syncMessageNotificationsToCloud(msgs);
                 }
             }
         } else {
@@ -393,7 +403,23 @@
             // do aparelho onde o aluno abriu a página pela primeira vez.
             await window.apsanCloud.listen("appData/apsan_message_notifications", function (value) {
                 if (value === null || value === undefined) return;
-                const encoded = typeof value === "string" ? value : JSON.stringify(value);
+                const remoteItems = Array.isArray(value) ? value : [];
+                const localItems = read("apsan_message_notifications", []);
+                const localMap = Array.isArray(localItems)
+                    ? localItems.reduce(function(map, item) {
+                        if (item && item.id) map[item.id] = item;
+                        return map;
+                    }, {})
+                    : {};
+                const merged = remoteItems.map(function(item) {
+                    const local = item && item.id ? localMap[item.id] : null;
+                    if (!local) return item;
+                    return Object.assign({}, item, {
+                        readAt: local.readAt || item.readAt || null,
+                        deletedAt: local.deletedAt || item.deletedAt || null
+                    });
+                });
+                const encoded = JSON.stringify(merged);
                 if (localStorage.getItem("apsan_message_notifications") !== encoded) {
                     localStorage.setItem("apsan_message_notifications", encoded);
                 }
