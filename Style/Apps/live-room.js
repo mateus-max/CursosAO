@@ -584,7 +584,8 @@ function wireTransceivers(pc){
   const senders={};
   const vt=pc.addTransceiver("video",{direction:"sendrecv"});const at=pc.addTransceiver("audio",{direction:"sendrecv"});
   senders.video=vt.sender;senders.audio=at.sender;pc._apsanSenders=senders;
-  if(cameraStream)vt.sender.replaceTrack(cameraStream.getVideoTracks()[0]).catch(()=>{});
+  const activeVideo=screenSharing&&screenStream?screenStream:cameraStream;
+  if(activeVideo)vt.sender.replaceTrack(activeVideo.getVideoTracks()[0]).catch(()=>{});
   if(micStream)at.sender.replaceTrack(micStream.getAudioTracks()[0]).catch(()=>{});
 }
 function candidateSeen(peer,side,k){const id=peer+":"+side+":"+k;if(seenCandidates[id])return true;seenCandidates[id]=true;return false}
