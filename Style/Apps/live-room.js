@@ -511,7 +511,6 @@ function markClassEnded(){
   document.querySelectorAll(".live-student-tools,.live-student-participant-grid,.live-local-camera,.live-remote-camera,#rightPanel,.classroom-right,#liveStudentTools").forEach(el=>{try{el.remove()}catch(_){}});
   const status=document.getElementById("liveStatus");if(status)status.innerHTML='<span style="color:#ef4444;font-weight:900">AULA ENCERRADA</span>';
   const timer=document.getElementById("classTimer");if(timer)timer.classList.remove("active");
-  try{localStorage.removeItem("apsan_live_notifications")}catch(_){}
 }
 function listenLiveEnd(){
   const c=cloud();if(!c||!liveId)return;
