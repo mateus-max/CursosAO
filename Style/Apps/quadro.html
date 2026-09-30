@@ -99,7 +99,7 @@ body.classroom-page{background:#eef3f9!important;overflow-x:hidden}
 
 <main class="classroom-main">
     <div class="board-toolbar">
-        <button class="tool" data-tool="pen"><span>🖊</span>Caneta</button>
+        <button class="tool active" data-tool="pen"><span>🖊</span>Caneta</button>
         <button class="tool" data-tool="highlighter"><span>🖍</span>Destacar</button>
         <button class="tool" data-tool="eraser"><span>⌫</span>Borracha</button>
         <button class="tool" data-tool="text"><span>T</span>Texto</button>
@@ -187,7 +187,7 @@ const canEditBoard=()=>role==="professor"||role==="teacher"||role.includes("dire
 const phone=String(account.phone||localStorage.getItem("apsan_phone")||"").replace(/\D/g,"");
 const canvas=document.getElementById("whiteboardCanvas"),ctx=canvas.getContext("2d");
 const boardEmpty=document.getElementById("boardEmpty");
-let live=null, drawing=false, startX=0,startY=0,tool=null,undoStack=[],stream=null,micStream=null,recording=false,mediaRecorder=null,recordedChunks=[],recordingCanvas=null,recordingCtx=null,recordingTimer=null,startedAt=Date.now(),textEditorOpen=false,lastBoardPoint={x:24,y:24},cameraPosition={x:null,y:null};
+let live=null, drawing=false, startX=0,startY=0,tool="pen",undoStack=[],stream=null,micStream=null,recording=false,mediaRecorder=null,recordedChunks=[],recordingCanvas=null,recordingCtx=null,recordingTimer=null,startedAt=Date.now(),textEditorOpen=false,lastBoardPoint={x:24,y:24},cameraPosition={x:null,y:null};
 let boardObjectStoreKey=()=> "apsan_board_objects_"+(liveId||("draft_"+phone));
 
 function read(k,f){try{const v=JSON.parse(localStorage.getItem(k)||"null");return v==null?f:v}catch(_){return f}}
