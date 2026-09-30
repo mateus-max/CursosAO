@@ -141,6 +141,22 @@ function speakLiveStudentGreeting(call,onEnd){
   speakNext();
  }catch(_){finish();}
 }
+function ringLiveCallOnce(state){
+ try{
+  const now=state.ac.currentTime;
+  [[0,523.25],[0.13,659.25],[0.26,783.99],[0.39,659.25],[0.52,523.25],[0.65,659.25],[0.78,783.99],[0.91,659.25]]
+   .forEach(function(pair){
+    const offset=pair[0],freq=pair[1];
+    const o=state.ac.createOscillator(),g=state.ac.createGain();
+    o.type="sine";o.frequency.value=freq;
+    g.gain.setValueAtTime(0.0001,now+offset);
+    g.gain.exponentialRampToValueAtTime(0.78,now+offset+0.018);
+    g.gain.exponentialRampToValueAtTime(0.0001,now+offset+0.105);
+    o.connect(g);g.connect(state.ac.destination);
+    o.start(now+offset);o.stop(now+offset+0.12);
+   });
+ }catch(_){}
+}
 function scheduleLiveCallCycle(call,state){
  if(!state||!ringingCalls[call.liveId]||call.active===false)return;
  try{if(state.ac.state==="suspended")state.ac.resume().catch(()=>{});}catch(_){}
