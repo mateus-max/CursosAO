@@ -496,27 +496,39 @@ function clearEndedSession(){
   }catch(_){}
 }
 function markClassEnded(){
+  if(!classActive && document.body.dataset.apsanLiveEnded==="1")return;
   classActive=false;networkState="offline";
+  document.body.dataset.apsanLiveEnded="1";
   try{stopMedia("video");stopMedia("audio")}catch(_){}
+  try{window.speechSynthesis&&window.speechSynthesis.cancel()}catch(_){}
+  try{window.APSANLive&&liveId&&window.APSANLive.stopLiveCallSound(liveId)}catch(_){}
   cleanupPeers();
   clearEndedSession();
   publishPresence();
-  document.querySelectorAll(".classroom-bottom button").forEach(b=>{if(b.id!=="leaveClass")b.disabled=true});
+  document.querySelectorAll(".classroom-bottom button,.live-student-tools button,.classroom-top-actions button,.board-toolbar button").forEach(b=>{
+    if(b.id!=="leaveClass")b.disabled=true;
+  });
+  document.querySelectorAll(".live-student-tools,.live-student-participant-grid,.live-local-camera,.live-remote-camera,#rightPanel,.classroom-right,#liveStudentTools").forEach(el=>{try{el.remove()}catch(_){}});
+  const status=document.getElementById("liveStatus");if(status)status.innerHTML='<span style="color:#ef4444;font-weight:900">AULA ENCERRADA</span>';
+  const timer=document.getElementById("classTimer");if(timer)timer.classList.remove("active");
+  try{localStorage.removeItem("apsan_live_notifications")}catch(_){}
 }
 function listenLiveEnd(){
   const c=cloud();if(!c||!liveId)return;
+  const finish=()=>{
+    if(document.body.dataset.apsanLiveEnded==="1")return;
+    markClassEnded();
+    if(role==="aluno"){
+      toast("Aula encerrada pelo professor.");
+      setTimeout(()=>{location.replace("aluno.html#classroom")},150);
+    }
+  };
+  mediaListeners.push(c.listen("appData/apsan_live_sessions/"+liveId,data=>{
+    if(data&&data.active===false)finish();
+  }));
   mediaListeners.push(c.listen("appData/apsan_live_classes",data=>{
     const item=Array.isArray(data)?data.find(x=>x&&x.id===liveId):(data&&data[liveId]);
-    if(item&&item.active===false&&!classActive)return;
-    if(!item||item.active!==true){
-      if(classActive){
-        markClassEnded();
-        if(role==="aluno"){
-          toast("Aula encerrada pelo professor.");
-          setTimeout(()=>{location.href="aluno.html#classroom"},900);
-        }
-      }
-    }
+    if(!item||item.active!==true)finish();
   }));
 }
 async function ensureClassIsActive(){
