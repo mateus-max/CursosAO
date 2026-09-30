@@ -58,6 +58,8 @@ async function hydrateLive(id){
 }
 const playedCalls={};
 const ringingCalls={};
+const declinedLiveCalls={};
+const laterLiveCalls={};
 
 function stopLiveCallSound(liveId){
  const state=ringingCalls[liveId];
@@ -124,8 +126,8 @@ function speakLiveStudentGreeting(call){
  try{
    if(!window.speechSynthesis||typeof window.SpeechSynthesisUtterance!=="function")return;
    const identity=getLocalStudentIdentity(call.recipientPhone),name=identity.name||"Aluno";
-   const feminine=/^(f|female|feminino|menina|mulher)$/i.test(identity.gender),prefix=feminine?"Querida":"Querido";
-   const utterance=new SpeechSynthesisUtterance(prefix+" "+name+", a sua aula já está a decorrer, por favor entre na aula.");
+   const feminine=/^(f|female|feminino|menina|mulher)$/i.test(identity.gender),prefix=feminine?"Senhora":"Senhor";
+   const utterance=new SpeechSynthesisUtterance(prefix+" "+name+", entre na aula, a sua aula já está a decorrer.");
    utterance.lang="pt-PT";utterance.rate=0.92;utterance.pitch=1.08;utterance.volume=1;
    const voices=window.speechSynthesis.getVoices?window.speechSynthesis.getVoices():[];
    const preferred=voices.find(v=>/female|feminina|woman|zira|samantha|helena|joana|maria/i.test(String(v.name||""))&&/^pt(-|_)/i.test(String(v.lang||"")))
@@ -142,7 +144,7 @@ function scheduleLiveCallCycle(call,state){
  state.cycleTimer=setTimeout(function(){if(ringingCalls[call.liveId]&&call.active!==false)scheduleLiveCallCycle(call,state)},4300);
 }
 function playLiveCallSound(call){
- if(!call||call.active===false||ringingCalls[call.liveId])return;
+ if(!call||call.active===false||ringingCalls[call.liveId]||declinedLiveCalls[call.liveId]||laterLiveCalls[call.liveId])return;
  playedCalls[call.liveId]=true;
  try{
    const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
@@ -231,5 +233,20 @@ async function markJoined(phone,id){
  stopLiveCallSound(id);
  const current=await cloudGet("apsan_live_calls/"+p+"/"+id);if(current){current.joinedAt=current.joinedAt||new Date().toISOString();current.readAt=null;current.active=true;await cloudSet("apsan_live_calls/"+p+"/"+id,current);mirrorCall(current)}
 }
-window.APSANLive={norm,classroomUrl,publishLive,endLive,hydrateLive,listenStudent,markJoined,stopLiveCallSound};
+async function setStudentCallDecision(phone,id,decision){
+ const p=norm(phone);
+ stopLiveCallSound(id);
+ if(decision==="declined")declinedLiveCalls[id]=true;
+ if(decision==="later")laterLiveCalls[id]=true;
+ const current=await cloudGet("apsan_live_calls/"+p+"/"+id);
+ if(current){
+   current.callDecision=decision;
+   current.decisionAt=new Date().toISOString();
+   current.active=true;
+   await cloudSet("apsan_live_calls/"+p+"/"+id,current);
+   mirrorCall(Object.assign({},current,{recipientPhone:p}));
+ }
+ return true;
+}
+window.APSANLive={norm,classroomUrl,publishLive,endLive,hydrateLive,listenStudent,markJoined,stopLiveCallSound,setStudentCallDecision};
 })();
