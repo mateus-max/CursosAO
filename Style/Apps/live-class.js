@@ -58,6 +58,18 @@ async function hydrateLive(id){
  else{writeLocal("apsan_live_classes",arr)}
  return live;
 }
+async function isLiveSessionActive(id){
+ if(!id||!window.apsanCloud)return false;
+ try{
+   const session=await cloudGet("apsan_live_sessions/"+id);
+   if(!session||session.active!==true)return false;
+   const remote=await cloudGet("apsan_live_classes");
+   let live=null;
+   if(Array.isArray(remote))live=remote.find(x=>x&&x.id===id)||null;
+   else if(remote&&typeof remote==="object")live=remote[id]||null;
+   return !!(live&&live.active===true&&live.started===true&&live.callEnabled===true&&live.startedByTeacherClick===true);
+ }catch(_){return false}
+}
 const playedCalls={};
 const ringingCalls={};
 const declinedLiveCalls={};
@@ -283,5 +295,5 @@ async function setStudentCallDecision(phone,id,decision){
  }
  return true;
 }
-window.APSANLive={norm,classroomUrl,publishLive,endLive,hydrateLive,listenStudent,markJoined,stopLiveCallSound,setStudentCallDecision};
+window.APSANLive={norm,classroomUrl,publishLive,endLive,hydrateLive,isLiveSessionActive,listenStudent,markJoined,stopLiveCallSound,setStudentCallDecision};
 })();
