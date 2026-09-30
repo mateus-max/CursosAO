@@ -33,6 +33,8 @@ const RTC_CONFIG={
 
 let cameraStream=null;
 let micStream=null;
+let screenStream=null;
+let screenSharing=false;
 let cameraOn=false;
 let micOn=false;
 let handRaised=false;
@@ -411,6 +413,41 @@ function stopMedia(kind){
   s.getTracks().forEach(t=>t.stop());
   if(kind==="video")cameraStream=null;else micStream=null;
 }
+function stopScreenShareLocal(){
+  if(screenStream){screenStream.getTracks().forEach(t=>{try{t.stop()}catch(_){}});screenStream=null;}
+  screenSharing=false;
+}
+async function setScreenShare(on){
+  if(role!=="professor")return false;
+  try{
+    if(on){
+      if(!navigator.mediaDevices||!navigator.mediaDevices.getDisplayMedia)throw new Error("screen-media");
+      if(screenSharing&&screenStream)return true;
+      const s=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:{ideal:30,max:60}},audio:false});
+      const track=s.getVideoTracks()[0];
+      if(!track)throw new Error("screen-track");
+      screenStream=s;screenSharing=true;
+      track.onended=()=>{setScreenShare(false).catch(()=>{});};
+      await replaceAllSenders("video",track);
+      const b=document.getElementById("shareScreen");if(b)b.innerHTML="▣ Parar partilha";
+      const local=document.getElementById("localCamera");if(local){local.srcObject=s;local.play().catch(()=>{});}
+      await publishPresence();
+      toast("O seu ecrã está a ser transmitido em tempo real aos participantes.");
+      return true;
+    }
+    stopScreenShareLocal();
+    await replaceAllSenders("video",cameraStream?cameraStream.getVideoTracks()[0]:null);
+    const local=document.getElementById("localCamera");if(local){local.srcObject=cameraStream||null;if(cameraStream)local.play().catch(()=>{});}
+    const b=document.getElementById("shareScreen");if(b)b.innerHTML="▣ Partilhar ecrã";
+    await publishPresence();
+    toast("Partilha de ecrã terminada.");
+    return false;
+  }catch(e){
+    if(on)toast("Não foi possível iniciar a partilha de ecrã. Verifique a permissão do navegador.");
+    return false;
+  }
+}
+window.APSANLiveRoomShareScreen=()=>setScreenShare(!screenSharing);
 function senderFor(pc,kind){const arr=pc._apsanSenders||{};return arr[kind]||null}
 async function replaceAllSenders(kind,track){
   await Promise.all(Object.keys(peerConnections).map(async k=>{
@@ -499,7 +536,7 @@ function markClassEnded(){
   if(!classActive && document.body.dataset.apsanLiveEnded==="1")return;
   classActive=false;networkState="offline";
   document.body.dataset.apsanLiveEnded="1";
-  try{stopMedia("video");stopMedia("audio")}catch(_){}
+  try{stopScreenShareLocal();stopMedia("video");stopMedia("audio")}catch(_){}
   try{window.speechSynthesis&&window.speechSynthesis.cancel()}catch(_){}
   try{window.APSANLive&&liveId&&window.APSANLive.stopLiveCallSound(liveId)}catch(_){}
   cleanupPeers();
@@ -960,7 +997,7 @@ async function boot(){
   publishPresence();
   setInterval(measureNetwork,3000);
   setInterval(addTeacherControls,1500);
-  window.addEventListener("beforeunload",()=>{try{publishPointer(0,0,false);cleanupPeers();}catch(_){}});
+  window.addEventListener("beforeunload",()=>{try{stopScreenShareLocal();publishPointer(0,0,false);cleanupPeers();}catch(_){}});
 }
 boot();
 })();
