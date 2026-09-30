@@ -21,11 +21,11 @@ async function publishLive(item){
  (Array.isArray(item.allowedStudents)?item.allowedStudents:[]).forEach(addStudent);
  (await officialStudents(item.teacherPhone,item.course)).forEach(addStudent);
  const recipients=[...students];
- item.allowedStudents=recipients.slice();item.students=[];item.active=true;item.started=true;item.startedAt=item.startedAt||new Date().toISOString();item.joinUrl=classroomUrl(item.id);
+ item.allowedStudents=recipients.slice();item.students=[];item.active=true;item.started=true;item.callEnabled=true;item.startedByTeacherClick=true;item.startedAt=item.startedAt||new Date().toISOString();item.joinUrl=classroomUrl(item.id);
  const list=readLocal("apsan_live_classes",[]),arr=Array.isArray(list)?list.slice():[],i=arr.findIndex(x=>x&&x.id===item.id);if(i>=0)arr[i]=item;else arr.push(item);writeLocal("apsan_live_classes",arr);
  await cloudSet("apsan_live_classes",arr);
  const now=item.startedAt||new Date().toISOString();
- const baseCall={id:"livecall_"+item.id,liveId:item.id,teacherPhone:norm(item.teacherPhone),teacherName:item.teacherName||"Professor",title:item.title||"Aula ao vivo",course:item.course||"Curso",createdAt:now,started:true,startedAt:item.startedAt||now,active:true,joinedAt:null,joinUrl:item.joinUrl,readAt:null,allowedStudents:recipients.slice()};
+ const baseCall={id:"livecall_"+item.id,liveId:item.id,teacherPhone:norm(item.teacherPhone),teacherName:item.teacherName||"Professor",title:item.title||"Aula ao vivo",course:item.course||"Curso",createdAt:now,started:true,startedAt:item.startedAt||now,callEnabled:true,startedByTeacherClick:true,active:true,joinedAt:null,joinUrl:item.joinUrl,readAt:null,allowedStudents:recipients.slice()};
  await cloudSet("apsan_live_calls_global/"+item.id,baseCall);
  await Promise.all(recipients.map(p=>cloudSet("apsan_live_calls/"+p+"/"+item.id,Object.assign({},baseCall,{id:"livecall_"+item.id+"_"+p,recipientPhone:p}))));
  return item;
@@ -215,7 +215,7 @@ function listenStudent(phone,callback){
      const process=async function(call,forceRecipient){
        if(!call||!call.liveId)return null;
        const live=await hydrateLive(call.liveId).catch(()=>null);
-       const allowed=live&&live.active===true && live.started===true &&
+       const allowed=live&&live.active===true && live.started===true && live.callEnabled===true && live.startedByTeacherClick===true && call.callEnabled===true && call.startedByTeacherClick===true &&
          (Array.isArray(live.allowedStudents)?live.allowedStudents:Array.isArray(call.allowedStudents)?call.allowedStudents:[])
            .map(norm).includes(studentPhone);
        if(call.active!==false&&allowed){
