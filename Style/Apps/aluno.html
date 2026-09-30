@@ -10,7 +10,7 @@
 <script src="cloud-data.js?v=20260928-auth-cross-device-2"></script>
 <script src="recordings.js?v=20260928-recordings-1"></script>
 <script src="settings.js?v=20260927-profile-wallpaper-1"></script>
-<script src="live-class.js?v=20260930-live-call-8"></script>
+<script src="live-class.js?v=20260930-live-call-11"></script>
 <style id="apsan-live-call-actions-ui">
 .student-live-call-actions{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-left:auto}
 .student-live-later,.student-live-decline{border:0;border-radius:9px;padding:10px 11px;font-weight:800;cursor:pointer}
@@ -1707,8 +1707,12 @@ document.addEventListener("DOMContentLoaded", function () {
             const classes = JSON.parse(localStorage.getItem("apsan_live_classes") || "[]");
             return Array.isArray(classes) && classes.some(function (liveClass) {
                 return liveClass && liveClass.id === item.liveId && liveClass.active === true &&
-                    Array.isArray(liveClass.students) &&
-                    liveClass.students.map(normalizeLivePhone).includes(normalizeLivePhone(currentAccount.phone));
+                    (
+                        (Array.isArray(liveClass.allowedStudents) &&
+                         liveClass.allowedStudents.map(normalizeLivePhone).includes(normalizeLivePhone(currentAccount.phone))) ||
+                        (Array.isArray(liveClass.students) &&
+                         liveClass.students.map(normalizeLivePhone).includes(normalizeLivePhone(currentAccount.phone)))
+                    );
             });
         } catch (error) {
             return false;
