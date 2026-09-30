@@ -193,6 +193,10 @@ function listenStudent(phone,callback){
          (Array.isArray(live.allowedStudents)?live.allowedStudents:Array.isArray(call.allowedStudents)?call.allowedStudents:[])
            .map(norm).includes(studentPhone);
        if(call.active!==false&&allowed){
+         if(call.callDecision==="declined"||call.callDecision==="later"){
+           stopLiveCallSound(call.liveId);
+           return call;
+         }
          const item=Object.assign({},call,{recipientPhone:studentPhone});
          mirrorCall(item);
          return item;
