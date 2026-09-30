@@ -44,7 +44,7 @@
         if (!Array.isArray(all)) return [];
         if (ROLE_BY_BODY === "direcao") return [];
         return all.filter(function (item) {
-            return normalizePhone(item.recipientPhone) === identity && !item.readAt;
+            return normalizePhone(item.recipientPhone) === identity && !item.deletedAt;
         });
     }
 
@@ -119,7 +119,9 @@
         const box = document.getElementById("apsanHeaderNotificationList");
         if (!box) return;
 
-        const generic = genericUnread();
+        const generic = notifications().filter(function (item) {
+            return item && item.recipientKey === recipientKey && !item.deletedAt;
+        });
         const messages = messageNotifications().map(function (item) {
             return {
                 id: item.id,
@@ -128,7 +130,8 @@
                 text: (item.senderName ? item.senderName + ": " : "") + (item.textPreview || "Tem uma nova mensagem."),
                 createdAt: item.createdAt,
                 link: "mensagens.html",
-                messageId: item.id
+                messageId: item.id,
+                readAt: item.readAt
             };
         });
 
@@ -149,12 +152,15 @@
             const date = item.createdAt
                 ? new Date(item.createdAt).toLocaleString("pt-PT", { dateStyle: "short", timeStyle: "short" })
                 : "";
-            return '<button type="button" class="apsan-header-notification-item" data-header-notification-kind="' +
-                String(item.kind || "update").replace(/[^a-z-]/gi, "") + '" data-header-notification-link="' +
-                String(item.link || "").replace(/"/g, "&quot;") + '">' +
+            return '<div class="apsan-header-notification-item' + (item.readAt ? ' is-read' : ' is-unread') + '" data-notification-id="' +
+                String(item.id || "").replace(/[^a-zA-Z0-9_-]/g, "") + '">' +
                 '<span class="apsan-header-notification-dot"></span>' +
                 '<span class="apsan-header-notification-copy"><strong>' + safeTitle + '</strong><small>' +
-                safeText + '</small><time>' + date + '</time></span></button>';
+                safeText + '</small><time>' + date + '</time></span>' +
+                '<span class="apsan-header-notification-actions">' +
+                '<button type="button" data-notification-action="view">Ver</button>' +
+                '<button type="button" data-notification-action="delete">Eliminar</button>' +
+                '</span></div>';
         }).join("");
     }
 
@@ -185,15 +191,82 @@
         updateBadge();
     }
 
+    function allVisibleNotifications() {
+        const generic = notifications().filter(function (item) {
+            return item && item.recipientKey === recipientKey && !item.deletedAt;
+        });
+        const messages = messageNotifications().map(function (item) {
+            return {
+                id: item.id,
+                kind: "message",
+                title: "Nova mensagem",
+                text: (item.senderName ? item.senderName + ": " : "") + (item.textPreview || "Tem uma nova mensagem."),
+                createdAt: item.createdAt,
+                link: "mensagens.html",
+                messageId: item.id,
+                readAt: item.readAt
+            };
+        });
+        return generic.concat(messages).sort(function (a, b) {
+            return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+        });
+    }
+
+    function markNotificationRead(item) {
+        if (!item) return;
+        const now = new Date().toISOString();
+        if (item.kind === "message" && item.messageId) {
+            const msgs = read("apsan_message_notifications", []);
+            if (Array.isArray(msgs)) {
+                const msg = msgs.find(function (x) { return x && x.id === item.messageId; });
+                if (msg) {
+                    msg.readAt = msg.readAt || now;
+                    write("apsan_message_notifications", msgs);
+                }
+            }
+        } else {
+            const all = notifications();
+            const entry = all.find(function (x) { return x && x.id === item.id; });
+            if (entry) {
+                entry.readAt = entry.readAt || now;
+                write("apsan_header_notifications", all);
+            }
+        }
+        updateBadge();
+    }
+
+    function deleteNotification(item) {
+        if (!item) return;
+        const now = new Date().toISOString();
+        if (item.kind === "message" && item.messageId) {
+            const msgs = read("apsan_message_notifications", []);
+            if (Array.isArray(msgs)) {
+                const msg = msgs.find(function (x) { return x && x.id === item.messageId; });
+                if (msg) {
+                    msg.deletedAt = now;
+                    write("apsan_message_notifications", msgs);
+                }
+            }
+        } else {
+            const all = notifications();
+            const entry = all.find(function (x) { return x && x.id === item.id; });
+            if (entry) {
+                entry.deletedAt = now;
+                write("apsan_header_notifications", all);
+            }
+        }
+        renderPanel();
+        updateBadge();
+    }
+
     function openPanel() {
         const target = panel();
         if (!target) return;
         renderPanel();
         target.classList.add("open");
         target.setAttribute("aria-hidden", "false");
-        // O contador desaparece ao abrir, mas a lista permanece visível
-        // para o utilizador poder consultar o que chegou.
-        markAllRead();
+        // Abrir o painel não marca nem elimina notificações.
+        // Cada notificação só fica lida quando o utilizador escolhe "Ver".
     }
 
     function closePanel() {
@@ -341,6 +414,7 @@
                                 return item && item.recipientKey === recipientKey &&
                                     item.kind === "live-class" && item.liveId === call.liveId;
                             });
+                            const previous = hi >= 0 ? headers[hi] : null;
                             const notification = {
                                 id: "hn_live_" + call.liveId + "_" + identity,
                                 recipientKey: recipientKey,
@@ -351,9 +425,12 @@
                                 link: call.joinUrl || ("quadro.html?live=" + encodeURIComponent(call.liveId)),
                                 liveId: call.liveId,
                                 signature: "Aula ao vivo · " + call.liveId,
-                                createdAt: call.createdAt || new Date().toISOString(),
-                                readAt: null
+                                createdAt: call.createdAt || (previous && previous.createdAt) || new Date().toISOString(),
+                                readAt: previous ? (previous.readAt || null) : null,
+                                deletedAt: previous ? (previous.deletedAt || null) : null
                             };
+                            // Uma sincronização da chamada não transforma uma notificação
+                            // já visualizada/eliminada em nova.
                             if (hi >= 0) headers[hi] = notification;
                             else headers.push(notification);
                             localStorage.setItem("apsan_header_notifications", JSON.stringify(headers.slice(-100)));
@@ -387,16 +464,31 @@
 
         const list = document.getElementById("apsanHeaderNotificationList");
         if (list) list.addEventListener("click", function (event) {
-            const item = event.target.closest("[data-header-notification-link]");
+            const action = event.target.closest("[data-notification-action]");
+            const row = event.target.closest("[data-notification-id]");
+            if (!action || !row) return;
+
+            const id = row.getAttribute("data-notification-id") || "";
+            const item = allVisibleNotifications().find(function (entry) {
+                return String(entry.id || "") === id;
+            });
             if (!item) return;
-            const link = item.getAttribute("data-header-notification-link") || "";
-            closePanel();
-            if (link === "mensagens.html" || /^https?:\/\//i.test(link)) {
-                window.location.href = link;
+
+            const actionName = action.getAttribute("data-notification-action");
+            if (actionName === "delete") {
+                deleteNotification(item);
                 return;
             }
-            if (link) {
-                window.location.hash = link.replace(/^#/, "");
+
+            if (actionName === "view") {
+                markNotificationRead(item);
+                const link = item.link || "";
+                closePanel();
+                if (link === "mensagens.html" || /^https?:\/\//i.test(link)) {
+                    window.location.href = link;
+                    return;
+                }
+                if (link) window.location.hash = link.replace(/^#/, "");
             }
         });
 
