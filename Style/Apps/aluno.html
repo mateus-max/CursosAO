@@ -1719,25 +1719,108 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    function updateStudentLiveClassNotice() {
+    let liveNoticeValidationToken = 0;
+
+    function hideStudentLiveClassNotice() {
+        const notice = document.getElementById("studentLiveClassNotice");
+        if (notice) {
+            notice.hidden = true;
+            notice.innerHTML = "";
+        }
+    }
+
+    function removeStaleStudentLiveNotification(liveId, phoneKey) {
+        const updated = readLiveNotifications().filter(function (item) {
+            return !(item &&
+                item.liveId === liveId &&
+                normalizeLivePhone(item.recipientPhone) === phoneKey);
+        });
+        localStorage.setItem("apsan_live_notifications", JSON.stringify(updated));
+
+        try {
+            const headers = JSON.parse(localStorage.getItem("apsan_header_notifications") || "[]");
+            if (Array.isArray(headers)) {
+                const cleaned = headers.filter(function (item) {
+                    return !(item &&
+                        item.liveId === liveId &&
+                        item.kind === "live-class" &&
+                        item.recipientKey === "aluno:" + phoneKey);
+                });
+                localStorage.setItem("apsan_header_notifications", JSON.stringify(cleaned));
+            }
+        } catch (_) {}
+    }
+
+    async function updateStudentLiveClassNotice() {
         const notice = document.getElementById("studentLiveClassNotice");
         if (!notice || !currentAccount) return;
 
+        const validationToken = ++liveNoticeValidationToken;
         const phoneKey = normalizeLivePhone(currentAccount.phone);
         const notifications = readLiveNotifications();
-        let current = notifications
+
+        // Primeiro filtramos a memória local. Depois confirmamos cada chamada
+        // diretamente na sessão remota. Assim uma chamada antiga nunca volta
+        // apenas porque ficou guardada no telefone do aluno.
+        const candidates = notifications
             .filter(function (item) {
                 return item &&
+                    item.active !== false &&
                     normalizeLivePhone(item.recipientPhone) === phoneKey &&
+                    item.callEnabled === true &&
+                    item.startedByTeacherClick === true &&
                     getActiveLiveForStudent(item);
             })
             .sort(function (a, b) {
                 return String(b.createdAt || "").localeCompare(String(a.createdAt || ""));
-            })[0];
+            });
 
+        if (!candidates.length) {
+            hideStudentLiveClassNotice();
+            return;
+        }
+
+        const valid = [];
+        for (const item of candidates) {
+            if (validationToken !== liveNoticeValidationToken) return;
+
+            let live = null;
+            try {
+                live = window.APSANLive && typeof window.APSANLive.hydrateLive === "function"
+                    ? await window.APSANLive.hydrateLive(item.liveId)
+                    : null;
+            } catch (_) {
+                live = null;
+            }
+
+            if (validationToken !== liveNoticeValidationToken) return;
+
+            const allowed = live &&
+                live.active === true &&
+                live.started === true &&
+                live.callEnabled === true &&
+                live.startedByTeacherClick === true &&
+                (
+                    (Array.isArray(live.allowedStudents) &&
+                        live.allowedStudents.map(normalizeLivePhone).includes(phoneKey)) ||
+                    (Array.isArray(live.students) &&
+                        live.students.map(normalizeLivePhone).includes(phoneKey))
+                );
+
+            if (allowed) {
+                valid.push(item);
+            } else if (live === null || live.active !== true) {
+                // Sessão inexistente/encerrada: remove o lixo local para que
+                // a chamada não reapareça no próximo carregamento.
+                removeStaleStudentLiveNotification(item.liveId, phoneKey);
+            }
+        }
+
+        if (validationToken !== liveNoticeValidationToken) return;
+
+        const current = valid[0];
         if (!current) {
-            notice.hidden = true;
-            notice.innerHTML = "";
+            hideStudentLiveClassNotice();
             return;
         }
 
@@ -1861,7 +1944,7 @@ window.addEventListener("storage", function (event) {
   else startLiveCallListener();
 })();
 </script>
-<script src="header-notifications.js?v=20260930-header-notifications-6"></script>
+<script src="header-notifications.js?v=20260930-header-notifications-7"></script>
 <script>
 (function(){
   function refresh(){if(window.APSANRecordings)window.APSANRecordings.renderStudent("studentRecordedClasses");}
