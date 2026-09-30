@@ -181,6 +181,7 @@ function playLiveCallSound(call){
 }
 function mirrorCall(call){
  if(!call)return;
+ if(call.active!==false && !(call.callEnabled===true && call.startedByTeacherClick===true))return;
  const all=readLocal("apsan_live_notifications",[]),arr=Array.isArray(all)?all.slice():[],i=arr.findIndex(x=>x&&x.liveId===call.liveId&&norm(x.recipientPhone)===norm(call.recipientPhone));
  if(i>=0)arr[i]=Object.assign({},arr[i],call);else arr.push(call);
  writeLocal("apsan_live_notifications",arr.slice(-300));
