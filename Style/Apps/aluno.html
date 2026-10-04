@@ -1378,8 +1378,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const enrollments = getEnrollments();
 
-        enrollments.push({
-            id: Date.now().toString(),
+        const enrollment = {
+            id: Date.now().toString() + "_" + Math.random().toString(36).slice(2, 8),
             studentName: currentAccount.name,
             studentPhone: currentAccount.phone,
             teacherName: selectedTeacher.teacherName,
@@ -1390,9 +1390,25 @@ document.addEventListener("DOMContentLoaded", function () {
             paymentStatus: "pending_confirmation",
             status: "pending",
             createdAt: new Date().toISOString()
-        });
+        };
 
-        saveEnrollments(enrollments);
+        try {
+            if (window.apsanCloud && typeof window.apsanCloud.saveEnrollment === "function") {
+                const result = await window.apsanCloud.saveEnrollment(enrollment);
+                if (result.duplicate) {
+                    message.style.color = "#d93025";
+                    message.textContent = "Já existe uma matrícula pendente para este professor.";
+                    return;
+                }
+            } else {
+                enrollments.push(enrollment);
+                saveEnrollments(enrollments);
+            }
+        } catch (error) {
+            message.style.color = "#d93025";
+            message.textContent = "Não foi possível enviar a matrícula para a Direção. Verifique a ligação e tente novamente.";
+            return;
+        }
 
         message.style.color = "#16803c";
         message.textContent =
