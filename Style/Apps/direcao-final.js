@@ -93,7 +93,14 @@ document.addEventListener("DOMContentLoaded", function () {
         return read("apsan_enrollments", []).find(e => String(e.id) === String(id)) || null;
     }
 
-    function updateEnrollment(id, changes) {
+    async function updateEnrollment(id, changes) {
+        if (window.apsanCloud && typeof window.apsanCloud.updateEnrollment === "function") {
+            try {
+                return await window.apsanCloud.updateEnrollment(id, changes);
+            } catch (_) {
+                return false;
+            }
+        }
         const items = read("apsan_enrollments", []);
         const index = items.findIndex(e => String(e.id) === String(id));
         if (index < 0) return false;
@@ -233,6 +240,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         render();
+    window.addEventListener("apsan-cloud-sync", function(event) {
+        if (event.detail && event.detail.key === "apsan_enrollments") render();
+    });
     }
 
     function openUserProfile(account) {
@@ -524,7 +534,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function approve(id) {
         const e = getEnrollment(id);
         if (!e) return;
-        updateEnrollment(id, { paymentStatus: "confirmed", status: "official", confirmedAt: new Date().toISOString(), adminDecision: "approved" });
+        await updateEnrollment(id, { paymentStatus: "confirmed", status: "official", confirmedAt: new Date().toISOString(), adminDecision: "approved" });
         const legacy = read("apsan_teacher_students", []);
         if (!legacy.some(x => x.studentPhone === e.studentPhone && x.teacherPhone === e.teacherPhone)) {
             legacy.push({ id: e.id, name: e.studentName, studentName: e.studentName, studentPhone: e.studentPhone, teacherPhone: e.teacherPhone, status: "confirmed" });
@@ -536,7 +546,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function reject(id) {
         const reason = prompt("Motivo da rejeição (opcional):", "Comprovativo/pagamento não validado.");
-        updateEnrollment(id, { paymentStatus: "rejected", status: "rejected", rejectedAt: new Date().toISOString(), rejectionReason: reason || "" });
+        await updateEnrollment(id, { paymentStatus: "rejected", status: "rejected", rejectedAt: new Date().toISOString(), rejectionReason: reason || "" });
         document.getElementById("adminViewModal").classList.remove("open");
         render();
     }
@@ -603,7 +613,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.getElementById("adminEditForm")?.addEventListener("submit", event => {
         event.preventDefault();
-        updateEnrollment(document.getElementById("editEnrollmentId").value, {
+        await updateEnrollment(document.getElementById("editEnrollmentId").value, {
             price: document.getElementById("editPrice").value.trim(),
             paymentReference: document.getElementById("editReference").value.trim(),
             adminNote: document.getElementById("editNote").value.trim(),
