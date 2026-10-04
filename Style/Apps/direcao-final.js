@@ -243,6 +243,14 @@ document.addEventListener("DOMContentLoaded", function () {
     window.addEventListener("apsan-cloud-sync", function(event) {
         if (event.detail && event.detail.key === "apsan_enrollments") render();
     });
+    // A Direção lê a fonte remota diretamente para nunca depender apenas do cache local.
+    if (window.apsanCloud && typeof window.apsanCloud.listen === "function") {
+        window.apsanCloud.listen("appData/apsan_enrollments", function(value) {
+            const remote = Array.isArray(value) ? value : [];
+            localStorage.setItem("apsan_enrollments", JSON.stringify(remote));
+            render();
+        }).catch(function(error) { console.warn("Matrículas em tempo real:", error); });
+    }
     }
 
     function openUserProfile(account) {
