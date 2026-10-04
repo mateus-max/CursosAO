@@ -274,7 +274,25 @@ document.addEventListener("DOMContentLoaded", function () {
         modal.classList.add("open");
     }
 
+    // Temporariamente: a matrícula do aluno Manuel é aprovada automaticamente.
+    // Não altera a estrutura do painel nem interfere nas restantes matrículas.
+    function autoApproveManuel() {
+        const enrollments = read("apsan_enrollments", []);
+        let changed = false;
+        enrollments.forEach(function (enrollment) {
+            const name = String(enrollment?.studentName || "").trim().toLowerCase();
+            if (name === "manuel" && enrollment.status !== "official") {
+                enrollment.status = "official";
+                enrollment.paymentStatus = enrollment.paymentStatus || "confirmed";
+                enrollment.approvedAt = enrollment.approvedAt || new Date().toISOString();
+                changed = true;
+            }
+        });
+        if (changed) write("apsan_enrollments", enrollments);
+    }
+
     function render() {
+        autoApproveManuel();
         const accounts = read("apsan_accounts", []);
         const profiles = read("apsan_professors", []);
         const enrollments = read("apsan_enrollments", []);
