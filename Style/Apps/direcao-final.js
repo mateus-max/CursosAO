@@ -240,18 +240,24 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         render();
-    window.addEventListener("apsan-cloud-sync", function(event) {
-        if (event.detail && event.detail.key === "apsan_enrollments") render();
-    });
-    // A Direção lê a fonte remota diretamente para nunca depender apenas do cache local.
-    if (window.apsanCloud && typeof window.apsanCloud.listen === "function") {
+    }
+
+    function attachEnrollmentRealtimeListener() {
+        if (!window.apsanCloud || typeof window.apsanCloud.listen !== "function") return;
         window.apsanCloud.listen("appData/apsan_enrollments", function(value) {
             const remote = Array.isArray(value) ? value : [];
             localStorage.setItem("apsan_enrollments", JSON.stringify(remote));
             render();
-        }).catch(function(error) { console.warn("Matrículas em tempo real:", error); });
+        }).catch(function(error) {
+            console.warn("Matrículas em tempo real:", error);
+        });
     }
-    }
+
+    window.addEventListener("apsan-cloud-sync", function(event) {
+        if (event.detail && event.detail.key === "apsan_enrollments") render();
+    });
+
+    attachEnrollmentRealtimeListener();
 
     function openUserProfile(account) {
         const data = getUserProfileData(account);
