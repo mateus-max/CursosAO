@@ -59,7 +59,7 @@ main{padding:18px 16px 38px}
 @media(max-width:380px){.data-value{font-size:14px}.copy-btn{padding:7px 8px}.step{padding:15px}.method{padding:14px}}
 </style>
     <script src="firebase-config.js?v=20260928-online-1"></script>
-<script src="cloud-data.js?v=20261004-enrollment-fix-1"></script>
+<script src="cloud-data.js?v=rtdb-cross-device-20260928"></script>
 <script src="settings.js?v=20260927-themes-final-2"></script>
 </head>
 <body>
@@ -200,47 +200,4 @@ document.addEventListener("DOMContentLoaded",function(){
 });
 </script>
 </body>
-</html  document.getElementById("sendButton").onclick=async function(){
-    const msg=document.getElementById("checkoutMessage");
-    if(!selectedTeacher){msg.style.display="block";msg.textContent="Não foi possível identificar a matrícula.";return;}
-    if(!receiptData){msg.style.display="block";msg.textContent="Carregue o comprovativo antes de enviar.";return;}
-    const items=JSON.parse(localStorage.getItem("apsan_enrollments")||"[]");
-    const existing=items.find(x=>x.studentPhone===account.phone&&x.teacherPhone===selectedTeacher.teacherPhone&&x.status!=="cancelled");
-    if(existing){msg.style.display="block";msg.textContent="Já existe uma matrícula para este professor.";return;}
-    const enrollment={
-      id:Date.now().toString()+"_"+Math.random().toString(36).slice(2,8),studentName:account.name,studentPhone:account.phone,
-      teacherName:selectedTeacher.teacherName,teacherPhone:selectedTeacher.teacherPhone,
-      course:selectedTeacher.course,price:selectedTeacher.price,modality:selectedTeacher.modality,
-      paymentMethod:selectedMethod,paymentReference:document.getElementById("paymentReference").value.trim(),
-      paymentNote:document.getElementById("paymentNote").value.trim(),receipt:receiptData,
-      paymentStatus:"pending_confirmation",status:"pending",createdAt:new Date().toISOString()
-    };
-    try{
-      if(window.apsanCloud && typeof window.apsanCloud.saveEnrollment==="function"){
-        const result=await window.apsanCloud.saveEnrollment(enrollment);
-        if(result.duplicate){msg.style.display="block";msg.textContent="Já existe uma matrícula para este professor.";return;}
-      }else{
-        items.push(enrollment);
-        localStorage.setItem("apsan_enrollments",JSON.stringify(items));
-      }
-    }catch(error){
-      msg.style.display="block";msg.textContent="Não foi possível enviar a matrícula para a Direção. Verifique a ligação e tente novamente.";return;
-    }
-    document.getElementById("receiptSection").classList.add("hidden");show("successSection");localStorage.removeItem("apsan_checkout_selection");document.getElementById("successSection").scrollIntoView({behavior:"smooth"});
-  };
-  document.getElementById("sendButton").onclick=async function(){
-    const msg=document.getElementById("checkoutMessage");
-    if(!selectedTeacher){msg.style.display="block";msg.textContent="Não foi possível identificar a matrícula.";return;}
-    if(!receiptData){msg.style.display="block";msg.textContent="Carregue o comprovativo antes de enviar.";return;}
-    const items=JSON.parse(localStorage.getItem("apsan_enrollments")||"[]");
-    const existing=items.find(x=>x.studentPhone===account.phone&&x.teacherPhone===selectedTeacher.teacherPhone&&x.status!=="cancelled");
-    if(existing){msg.style.display="block";msg.textContent="Já existe uma matrícula para este professor.";return;}
-    const enrollment={id:Date.now().toString()+"_"+Math.random().toString(36).slice(2,8),studentName:account.name,studentPhone:account.phone,teacherName:selectedTeacher.teacherName,teacherPhone:selectedTeacher.teacherPhone,course:selectedTeacher.course,price:selectedTeacher.price,modality:selectedTeacher.modality,paymentMethod:selectedMethod,paymentReference:document.getElementById("paymentReference").value.trim(),paymentNote:document.getElementById("paymentNote").value.trim(),receipt:receiptData,paymentStatus:"pending_confirmation",status:"pending",createdAt:new Date().toISOString()};
-    try{
-      if(!window.apsanCloud || typeof window.apsanCloud.saveEnrollment!=="function") throw new Error("FIREBASE_UNAVAILABLE");
-      const result=await window.apsanCloud.saveEnrollment(enrollment);
-      if(result.duplicate){msg.style.display="block";msg.textContent="Já existe uma matrícula para este professor.";return;}
-    }catch(error){msg.style.display="block";msg.textContent="Não foi possível enviar a matrícula para a Direção. Verifique a ligação e tente novamente.";return;}
-    document.getElementById("receiptSection").classList.add("hidden");show("successSection");localStorage.removeItem("apsan_checkout_selection");document.getElementById("successSection").scrollIntoView({behavior:"smooth"});
-  };
->
+</html>
