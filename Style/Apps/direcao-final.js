@@ -531,7 +531,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("adminViewModal").classList.add("open");
     }
 
-    function approve(id) {
+    async function approve(id) {
         const e = getEnrollment(id);
         if (!e) return;
         await updateEnrollment(id, { paymentStatus: "confirmed", status: "official", confirmedAt: new Date().toISOString(), adminDecision: "approved" });
@@ -544,7 +544,7 @@ document.addEventListener("DOMContentLoaded", function () {
         render();
     }
 
-    function reject(id) {
+    async function reject(id) {
         const reason = prompt("Motivo da rejeição (opcional):", "Comprovativo/pagamento não validado.");
         await updateEnrollment(id, { paymentStatus: "rejected", status: "rejected", rejectedAt: new Date().toISOString(), rejectionReason: reason || "" });
         document.getElementById("adminViewModal").classList.remove("open");
@@ -611,7 +611,7 @@ document.addEventListener("DOMContentLoaded", function () {
         render();
     });
 
-    document.getElementById("adminEditForm")?.addEventListener("submit", event => {
+    document.getElementById("adminEditForm")?.addEventListener("submit", async event => {
         event.preventDefault();
         await updateEnrollment(document.getElementById("editEnrollmentId").value, {
             price: document.getElementById("editPrice").value.trim(),
