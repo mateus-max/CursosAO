@@ -93,14 +93,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return read("apsan_enrollments", []).find(e => String(e.id) === String(id)) || null;
     }
 
-    async function updateEnrollment(id, changes) {
-        if (window.apsanCloud && typeof window.apsanCloud.updateEnrollment === "function") {
-            try {
-                return await window.apsanCloud.updateEnrollment(id, changes);
-            } catch (_) {
-                return false;
-            }
-        }
+    function updateEnrollment(id, changes) {
         const items = read("apsan_enrollments", []);
         const index = items.findIndex(e => String(e.id) === String(id));
         if (index < 0) return false;
@@ -241,23 +234,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         render();
     }
-
-    function attachEnrollmentRealtimeListener() {
-        if (!window.apsanCloud || typeof window.apsanCloud.listen !== "function") return;
-        window.apsanCloud.listen("appData/apsan_enrollments", function(value) {
-            const remote = Array.isArray(value) ? value : [];
-            localStorage.setItem("apsan_enrollments", JSON.stringify(remote));
-            render();
-        }).catch(function(error) {
-            console.warn("Matrículas em tempo real:", error);
-        });
-    }
-
-    window.addEventListener("apsan-cloud-sync", function(event) {
-        if (event.detail && event.detail.key === "apsan_enrollments") render();
-    });
-
-    attachEnrollmentRealtimeListener();
 
     function openUserProfile(account) {
         const data = getUserProfileData(account);
@@ -545,10 +521,10 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("adminViewModal").classList.add("open");
     }
 
-    async function approve(id) {
+    function approve(id) {
         const e = getEnrollment(id);
         if (!e) return;
-        await updateEnrollment(id, { paymentStatus: "confirmed", status: "official", confirmedAt: new Date().toISOString(), adminDecision: "approved" });
+        updateEnrollment(id, { paymentStatus: "confirmed", status: "official", confirmedAt: new Date().toISOString(), adminDecision: "approved" });
         const legacy = read("apsan_teacher_students", []);
         if (!legacy.some(x => x.studentPhone === e.studentPhone && x.teacherPhone === e.teacherPhone)) {
             legacy.push({ id: e.id, name: e.studentName, studentName: e.studentName, studentPhone: e.studentPhone, teacherPhone: e.teacherPhone, status: "confirmed" });
@@ -558,9 +534,9 @@ document.addEventListener("DOMContentLoaded", function () {
         render();
     }
 
-    async function reject(id) {
+    function reject(id) {
         const reason = prompt("Motivo da rejeição (opcional):", "Comprovativo/pagamento não validado.");
-        await updateEnrollment(id, { paymentStatus: "rejected", status: "rejected", rejectedAt: new Date().toISOString(), rejectionReason: reason || "" });
+        updateEnrollment(id, { paymentStatus: "rejected", status: "rejected", rejectedAt: new Date().toISOString(), rejectionReason: reason || "" });
         document.getElementById("adminViewModal").classList.remove("open");
         render();
     }
@@ -625,9 +601,9 @@ document.addEventListener("DOMContentLoaded", function () {
         render();
     });
 
-    document.getElementById("adminEditForm")?.addEventListener("submit", async event => {
+    document.getElementById("adminEditForm")?.addEventListener("submit", event => {
         event.preventDefault();
-        await updateEnrollment(document.getElementById("editEnrollmentId").value, {
+        updateEnrollment(document.getElementById("editEnrollmentId").value, {
             price: document.getElementById("editPrice").value.trim(),
             paymentReference: document.getElementById("editReference").value.trim(),
             adminNote: document.getElementById("editNote").value.trim(),
