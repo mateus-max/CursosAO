@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#1769e0">
 <title>APSAN Academy - Aluno</title>
 <link rel="stylesheet" href="../style.css?v=student-live-class-20260927"><script src="firebase-config.js?v=20260928-online-1"></script>
-<script src="cloud-data.js?v=20261004-enrollment-fix-1"></script>
+<script src="cloud-data.js?v=20260928-auth-cross-device-2"></script>
 <script src="recordings.js?v=20260928-recordings-1"></script>
 <script src="settings.js?v=20260927-profile-wallpaper-1"></script>
 <script src="live-class.js?v=20260930-live-call-17"></script>
@@ -1378,8 +1378,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const enrollments = getEnrollments();
 
-        const enrollment = {
-            id: Date.now().toString() + "_" + Math.random().toString(36).slice(2, 8),
+        enrollments.push({
+            id: Date.now().toString(),
             studentName: currentAccount.name,
             studentPhone: currentAccount.phone,
             teacherName: selectedTeacher.teacherName,
@@ -1390,25 +1390,9 @@ document.addEventListener("DOMContentLoaded", function () {
             paymentStatus: "pending_confirmation",
             status: "pending",
             createdAt: new Date().toISOString()
-        };
+        });
 
-        try {
-            if (window.apsanCloud && typeof window.apsanCloud.saveEnrollment === "function") {
-                const result = await window.apsanCloud.saveEnrollment(enrollment);
-                if (result.duplicate) {
-                    message.style.color = "#d93025";
-                    message.textContent = "Já existe uma matrícula pendente para este professor.";
-                    return;
-                }
-            } else {
-                enrollments.push(enrollment);
-                saveEnrollments(enrollments);
-            }
-        } catch (error) {
-            message.style.color = "#d93025";
-            message.textContent = "Não foi possível enviar a matrícula para a Direção. Verifique a ligação e tente novamente.";
-            return;
-        }
+        saveEnrollments(enrollments);
 
         message.style.color = "#16803c";
         message.textContent =
