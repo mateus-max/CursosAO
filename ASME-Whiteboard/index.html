@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ASME Whiteboard — Quadro Virtual</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;height:100%;font-family:Inter,Arial,sans-serif;background:#0b1424;color:#172033}
+button,input{font:inherit}.hidden{display:none!important}
+#app{height:100dvh;display:flex;flex-direction:column}
+.top{height:60px;background:#0d1d38;color:#fff;display:flex;align-items:center;gap:12px;padding:0 14px;border-bottom:1px solid #203653}
+.brand{font-weight:950;white-space:nowrap}.room{flex:1;min-width:0}.room strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.room small{color:#9fb0c7}
+.actions{display:flex;gap:7px}.btn{border:1px solid #294361;background:#132846;color:#fff;border-radius:9px;padding:8px 11px;font-weight:850;cursor:pointer}.btn.primary{background:#1769e0;border-color:#1769e0}.btn.danger{background:#d92d20;border-color:#d92d20}
+.main{flex:1;min-height:0;display:grid;grid-template-columns:64px minmax(0,1fr) 290px}
+.tools{background:#0d1d38;padding:9px 7px;display:flex;flex-direction:column;gap:7px}.tool{height:48px;border:1px solid #294361;background:#132846;color:#fff;border-radius:9px;cursor:pointer;font-size:11px;font-weight:850}.tool b{display:block;font-size:18px}.tool.active{background:#1769e0;border-color:#1769e0}
+.workspace{min-width:0;display:flex;flex-direction:column;background:#e8eef6}
+.boardbar{height:48px;background:#fff;border-bottom:1px solid #d7e0eb;display:flex;align-items:center;gap:8px;padding:7px 9px;overflow:auto}.boardbar label{font-size:11px;font-weight:800;white-space:nowrap}.boardbar input[type=color]{width:34px;height:30px;border:0;padding:0;background:transparent}.boardbar input[type=range]{width:100px}.boardbar .mini{border:1px solid #d5deea;background:#fff;border-radius:7px;padding:6px 9px;font-weight:800;cursor:pointer;white-space:nowrap}
+.boardarea{position:relative;flex:1;min-height:0;padding:12px}.canvas-wrap{position:relative;width:100%;height:100%;background:#fff;border:1px solid #cbd7e5;border-radius:12px;overflow:hidden;box-shadow:0 12px 32px rgba(18,48,88,.12)}
+canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}.text-editor{position:absolute;display:none;min-width:90px;min-height:30px;padding:2px 5px;border:1px dashed #1769e0;background:rgba(255,255,255,.92);outline:0;z-index:5;font-size:22px;font-weight:600;white-space:pre-wrap}
+.camera{position:absolute;right:22px;top:22px;width:220px;background:#071a33;border:1px solid #38506c;border-radius:12px;box-shadow:0 12px 30px rgba(0,0,0,.25);z-index:10;color:#fff;overflow:hidden}.camera-head{height:32px;display:flex;align-items:center;justify-content:space-between;padding:0 8px;font-size:11px;font-weight:900}.camera video{width:100%;aspect-ratio:16/10;display:block;background:#020b18;object-fit:cover}.camera small{display:block;padding:5px 8px;color:#9fb0c7}
+.side{background:#f7f9fc;border-left:1px solid #d8e1ec;display:flex;flex-direction:column;min-width:0}.side-head{padding:10px;border-bottom:1px solid #dce4ee}.side-head strong{display:block}.side-head small{color:#718096}.tabs{display:flex;border-bottom:1px solid #dce4ee}.tabs button{flex:1;border:0;background:#fff;padding:10px 5px;font-weight:850;cursor:pointer}.tabs button.active{color:#1769e0;border-bottom:3px solid #1769e0}.panel{display:none;flex:1;min-height:0;overflow:auto;padding:10px}.panel.active{display:block}.person{display:flex;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid #e7edf4}.avatar{width:34px;height:34px;border-radius:50%;background:#dbeafe;color:#1769e0;display:grid;place-items:center;font-weight:900}.chatmsg{padding:8px 0;border-bottom:1px solid #e7edf4;font-size:12px}.chatmsg b{display:block}.chatbox{position:sticky;bottom:0;display:flex;gap:5px;background:#f7f9fc;padding-top:8px}.chatbox input{flex:1;border:1px solid #d5deea;border-radius:8px;padding:9px}.chatbox button{border:0;background:#1769e0;color:#fff;border-radius:8px;padding:0 12px;font-weight:900}
+.overlay{position:fixed;inset:0;background:rgba(3,12,25,.72);z-index:100;display:grid;place-items:center;padding:16px}.card{width:min(480px,100%);background:#fff;border-radius:18px;padding:22px;box-shadow:0 25px 80px rgba(0,0,0,.35)}.card h1{margin:0 0 7px;font-size:24px}.card p{color:#718096;font-size:13px;line-height:1.5}.field{display:grid;gap:6px;margin:12px 0}.field label{font-size:12px;font-weight:850}.field input{height:46px;border:1px solid #ccd7e5;border-radius:10px;padding:0 12px}.status{min-height:18px;font-size:12px;color:#b42318}.linkbox{display:flex;gap:6px}.linkbox input{flex:1}.toast{position:fixed;right:16px;bottom:16px;background:#102542;color:#fff;padding:10px 13px;border-radius:10px;z-index:200;display:none}.toast.show{display:block}
+@media(max-width:850px){.main{grid-template-columns:52px minmax(0,1fr)}.side{display:none}.camera{width:155px;right:12px;top:12px}.actions .optional{display:none}}
+@media(max-width:560px){.top{height:54px}.brand{font-size:12px}.camera{width:125px}.boardarea{padding:6px}.boardbar{height:44px}.tools{padding:6px 4px}.tool{height:43px}.camera small{font-size:8px}}
+</style>
+</head>
+<body>
+<div id="app">
+<header class="top">
+  <div class="brand">ASME WHITEBOARD</div><div class="room"><strong id="roomTitle">Quadro independente</strong><small id="roomState">Sem sala ativa</small></div>
+  <div class="actions"><button class="btn optional" id="shareBtn">🔗 Partilhar</button><button class="btn primary" id="cameraBtn">📷 Câmera</button><button class="btn danger" id="leaveBtn">Sair</button></div>
+</header>
+<div class="main">
+  <nav class="tools">
+    <button class="tool active" data-tool="pen"><b>✎</b>Caneta</button>
+    <button class="tool" data-tool="eraser"><b>⌫</b>Borracha</button>
+    <button class="tool" data-tool="text"><b>T</b>Texto</button>
+    <button class="tool" data-tool="line"><b>╱</b>Linha</button>
+    <button class="tool" data-tool="rect"><b>□</b>Forma</button>
+    <button class="tool" data-tool="select"><b>↖</b>Selecionar</button>
+    <button class="tool" id="clearBtn"><b>⌫</b>Limpar</button>
+    <button class="tool" id="undoBtn"><b>↶</b>Desfazer</button>
+  </nav>
+  <section class="workspace">
+    <div class="boardbar">
+      <label>Cor <input id="color" type="color" value="#172033"></label>
+      <label>Tamanho <input id="size" type="range" min="1" max="30" value="4"></label>
+      <button class="mini" id="zoomOut">−</button><b id="zoomLabel">100%</b><button class="mini" id="zoomIn">+</button>
+    </div>
+    <div class="boardarea"><div class="canvas-wrap"><canvas id="board"></canvas><textarea id="textEditor" class="text-editor"></textarea>
+      <div class="camera hidden" id="cameraDock"><div class="camera-head"><span>Professor</span><button class="btn" id="cameraClose">×</button></div><video id="localVideo" autoplay muted playsinline></video><small id="cameraStatus">Câmera desligada</small></div>
+    </div></div>
+  </section>
+  <aside class="side">
+    <div class="side-head"><strong>Participantes</strong><small id="participantCount">0 online</small></div>
+    <div class="tabs"><button class="active" data-panel="people">Pessoas</button><button data-panel="chat">Chat</button></div>
+    <div class="panel active" id="peoplePanel"></div>
+    <div class="panel" id="chatPanel"><div id="chatList"></div><div class="chatbox"><input id="chatInput" placeholder="Mensagem..."><button id="sendChat">Enviar</button></div></div>
+  </aside>
+</div>
+</div>
+
+<div class="overlay" id="accessOverlay">
+ <div class="card">
+  <h1>ASME Whiteboard</h1><p>Quadro virtual independente. O professor cria a sala e os alunos entram apenas pelo link da aula.</p>
+  <div id="teacherForm">
+   <div class="field"><label>Nome do professor</label><input id="teacherName" placeholder="Nome do professor"></div>
+   <div class="field"><label>Palavra-passe do quadro</label><input id="teacherPass" type="password" placeholder="Palavra-passe"></div>
+   <button class="btn primary" id="createRoom" style="width:100%">Criar sala como professor</button>
+   <p class="status" id="accessStatus"></p>
+  </div>
+  <div id="studentForm" class="hidden">
+   <div class="field"><label>Seu nome</label><input id="studentName" placeholder="Nome do aluno"></div>
+   <button class="btn primary" id="joinRoom" style="width:100%">Entrar na aula</button>
+  </div>
+ </div>
+</div>
+<div class="overlay hidden" id="shareOverlay"><div class="card"><h1>Link da aula</h1><p>Envie este link aos alunos. A sala permanece válida enquanto estiver ativa.</p><div class="linkbox"><input id="shareLink" readonly><button class="btn primary" id="copyLink">Copiar</button></div><br><button class="btn" id="closeShare">Fechar</button></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const FIREBASE_CONFIG={apiKey:"AIzaSyAaR4GxEGJ1tr05qLB_onkON-0KumtG-A",authDomain:"curso-a0.firebaseapp.com",databaseURL:"https://curso-a0-default-rtdb.firebaseio.com/",projectId:"curso-a0",messagingSenderId:"424486251732",appId:"1:424486251732:web:3bba92f4b3c8e255945f41",storageBucket:"curso-a0.firebasestorage.app"};
+const SDK=["https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js","https://www.gstatic.com/firebasejs/12.19.0/firebase-database-compat.js"];
+function loadSDK(i=0){return new Promise((ok,fail)=>{if(i>=SDK.length)return ok();let s=document.createElement("script");s.src=SDK[i];s.onload=()=>loadSDK(i+1).then(ok);s.onerror=fail;document.head.appendChild(s)})}
+const $=id=>document.getElementById(id); const qs=s=>document.querySelector(s); const qsa=s=>[...document.querySelectorAll(s)];
+let db,roomId="",role="",userId="",name="",tool="pen",color="#172033",size=4,zoom=1,points=[],history=[],drawing=false,start=null,localStream=null,teacher=false;
+let canvas=$("board"),ctx=canvas.getContext("2d"),editor=$("textEditor");
+function toast(t){$("toast").textContent=t;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),2200)}
+function resize(){const r=canvas.getBoundingClientRect(),d=devicePixelRatio||1;canvas.width=r.width*d;canvas.height=r.height*d;ctx.setTransform(d,0,0,d,0,0);render()}
+window.addEventListener("resize",resize);
+function p(e){const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)/zoom,y:(e.clientY-r.top)/zoom}}
+function render(){ctx.save();ctx.clearRect(0,0,canvas.width,canvas.height);ctx.scale(zoom,zoom);for(const o of points){ctx.strokeStyle=o.color;ctx.fillStyle=o.color;ctx.lineWidth=o.size;ctx.lineCap="round";ctx.lineJoin="round";if(o.type==="stroke"){ctx.beginPath();o.pts.forEach((q,i)=>i?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y));ctx.stroke()}else if(o.type==="line"){ctx.beginPath();ctx.moveTo(o.a.x,o.a.y);ctx.lineTo(o.b.x,o.b.y);ctx.stroke()}else if(o.type==="rect"){ctx.strokeRect(o.a.x,o.a.y,o.b.x-o.a.x,o.b.y-o.a.y)}else if(o.type==="text"){ctx.font=o.size+"px Arial";ctx.fillText(o.text,o.a.x,o.a.y)}}ctx.restore()}
+function saveOp(o){points.push(o);history.push(o);render();if(role==="teacher"&&roomId)db.ref("asmeRooms/"+roomId+"/board/objects").push(o)}
+function redrawRemote(snap){points=[];snap.forEach(x=>points.push(x.val()));render()}
+async function init(){await loadSDK();firebase.initializeApp(FIREBASE_CONFIG);db=firebase.database();resize();const u=new URLSearchParams(location.search);roomId=u.get("room");if(roomId){role="student";$("teacherForm").classList.add("hidden");$("studentForm").classList.remove("hidden")}else role="teacher"}
+function setRoom(id,n,r){roomId=id;name=n;role=r;teacher=r==="teacher";$("accessOverlay").classList.add("hidden");$("roomTitle").textContent="Sala ASME • "+id;$("roomState").textContent=teacher?"Professor • sala ativa":"Aluno • sala ao vivo";listenRoom();if(teacher)publishPresence();resize()}
+function listenRoom(){const base=db.ref("asmeRooms/"+roomId);base.child("board/objects").on("value",redrawRemote);base.child("presence").on("value",s=>{const arr=[];s.forEach(x=>arr.push(x.val()));$("participantCount").textContent=arr.length+" online";$("peoplePanel").innerHTML=arr.map(x=>'<div class="person"><div class="avatar">'+(x.name||"?")[0].toUpperCase()+'</div><div><b>'+esc(x.name)+'</b><small>'+esc(x.role==="teacher"?"Professor":"Aluno")+'</small></div></div>').join("")});base.child("chat").limitToLast(80).on("value",s=>{$("chatList").innerHTML="";s.forEach(x=>{const v=x.val();$("chatList").innerHTML+='<div class="chatmsg"><b>'+esc(v.name)+'</b>'+esc(v.text)+'</div>'})})}
+function publishPresence(){const ref=db.ref("asmeRooms/"+roomId+"/presence/"+userId);ref.set({name,role});ref.onDisconnect().remove()}
+function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+qsa(".tool[data-tool]").forEach(b=>b.onclick=()=>{qsa(".tool").forEach(x=>x.classList.remove("active"));b.classList.add("active");tool=b.dataset.tool});
+$("color").oninput=e=>color=e.target.value;$("size").oninput=e=>size=+e.target.value;
+canvas.addEventListener("pointerdown",e=>{if(tool==="text"){const q=p(e);editor.style.left=q.x+"px";editor.style.top=q.y+"px";editor.style.display="block";editor.value="";editor.dataset.x=q.x;editor.dataset.y=q.y;editor.focus();return}drawing=true;start=p(e);if(tool==="pen"||tool==="eraser")points.push({type:"stroke",pts:[start],color:tool==="eraser"?"#ffffff":color,size:tool==="eraser"?size*4:size});else history=[]});
+canvas.addEventListener("pointermove",e=>{if(!drawing)return;const q=p(e);if(tool==="pen"||tool==="eraser"){let o=points[points.length-1];o.pts.push(q);render()}else{render();ctx.save();ctx.scale(zoom,zoom);ctx.strokeStyle=color;ctx.lineWidth=size;ctx.beginPath();if(tool==="line"){ctx.moveTo(start.x,start.y);ctx.lineTo(q.x,q.y);ctx.stroke()}else if(tool==="rect")ctx.strokeRect(start.x,start.y,q.x-start.x,q.y-start.y);ctx.restore()}});
+canvas.addEventListener("pointerup",e=>{if(!drawing)return;drawing=false;const q=p(e);if(tool==="pen"||tool==="eraser"){const o=points[points.length-1];if(role==="teacher"&&roomId)db.ref("asmeRooms/"+roomId+"/board/objects").push(o)}else if(tool==="line"||tool==="rect")saveOp({type:tool,a:start,b:q,color,size})});
+editor.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();commitText()}});
+editor.addEventListener("blur",commitText);function commitText(){if(!editor.value.trim())return editor.style.display="none";saveOp({type:"text",a:{x:+editor.dataset.x,y:+editor.dataset.y},text:editor.value.trim(),color,size:Math.max(16,size*5)});editor.style.display="none"}
+$("clearBtn").onclick=()=>{if(role!=="teacher")return toast("Apenas o professor pode limpar o quadro");points=[];render();db.ref("asmeRooms/"+roomId+"/board/objects").remove()};
+$("undoBtn").onclick=()=>{if(role!=="teacher"||!points.length)return;points.pop();render();db.ref("asmeRooms/"+roomId+"/board/objects").set(Object.fromEntries(points.map((x,i)=>[i,x])))};
+$("zoomIn").onclick=()=>{zoom=Math.min(2,zoom+.1);$("zoomLabel").textContent=Math.round(zoom*100)+"%";render()};$("zoomOut").onclick=()=>{zoom=Math.max(.5,zoom-.1);$("zoomLabel").textContent=Math.round(zoom*100)+"%";render()};
+$("sendChat").onclick=sendChat;$("chatInput").addEventListener("keydown",e=>{if(e.key==="Enter")sendChat()});function sendChat(){const t=$("chatInput").value.trim();if(!t||!roomId)return;$("chatInput").value="";db.ref("asmeRooms/"+roomId+"/chat").push({name,text:t,time:Date.now()})}
+$("cameraBtn").onclick=async()=>{if(localStream){localStream.getTracks().forEach(t=>t.stop());localStream=null;$("cameraDock").classList.add("hidden");return}try{localStream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});$("localVideo").srcObject=localStream;$("cameraStatus").textContent="Câmera e microfone ativos";$("cameraDock").classList.remove("hidden")}catch(e){toast("Não foi possível acessar a câmera/microfone")}};
+$("cameraClose").onclick=()=>$("cameraBtn").click();
+$("shareBtn").onclick=()=>{$("shareLink").value=location.origin+location.pathname+"?room="+encodeURIComponent(roomId);$("shareOverlay").classList.remove("hidden")};
+$("closeShare").onclick=()=>$("shareOverlay").classList.add("hidden");$("copyLink").onclick=async()=>{await navigator.clipboard.writeText($("shareLink").value);toast("Link copiado")};
+$("createRoom").onclick=async()=>{const n=$("teacherName").value.trim(),pass=$("teacherPass").value;if(!n||!pass)return $("accessStatus").textContent="Preencha nome e palavra-passe.";const id=Math.random().toString(36).slice(2,9).toUpperCase();userId="t_"+Date.now();await db.ref("asmeRooms/"+id).set({active:true,teacherName:n,createdAt:Date.now(),board:{objects:{}}});setRoom(id,n,"teacher")};
+$("joinRoom").onclick=async()=>{const n=$("studentName").value.trim()||"Aluno";const s=await db.ref("asmeRooms/"+roomId+"/active").get();if(!s.exists()||s.val()!==true)return $("accessStatus").textContent="Esta sala não está ativa.";userId="s_"+Date.now();setRoom(roomId,n,"student")};
+$("leaveBtn").onclick=()=>location.href=location.pathname;
+qsa(".tabs button").forEach(b=>b.onclick=()=>{qsa(".tabs button").forEach(x=>x.classList.remove("active"));qsa(".panel").forEach(x=>x.classList.remove("active"));b.classList.add("active");$(b.dataset.panel+"Panel").classList.add("active")});
+window.addEventListener("beforeunload",()=>{if(roomId&&userId)db?.ref("asmeRooms/"+roomId+"/presence/"+userId).remove()});
+init().catch(e=>{$("accessStatus").textContent="Erro ao iniciar o quadro: "+e.message});
+</script>
+</body></html>
