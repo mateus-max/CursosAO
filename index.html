@@ -660,10 +660,32 @@
 @media (max-width:900px){
   .login-resource-panel{display:none;}
 }
+
+/* AZNY Virtual Classroom quick access */
+.azny-site-nav{position:relative;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px clamp(14px,4vw,42px);background:#071b33;color:#fff;box-shadow:0 3px 14px #071b3320}
+.azny-site-brand{font-weight:900;letter-spacing:.02em;font-size:16px;white-space:nowrap}.azny-site-brand span{color:#70b2ff}
+.azny-site-links{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.azny-site-links a{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:8px 13px;border:1px solid #ffffff30;border-radius:10px;color:#fff;text-decoration:none;font-size:12px;font-weight:800;transition:background .18s}
+.azny-site-links a:first-child{background:#1769e0;border-color:#1769e0}.azny-site-links a:hover{background:#ffffff1c}.azny-site-links a:first-child:hover{background:#0d47b5}
+.azny-quick-access{margin:20px 0 0;padding:16px;border:1px solid #dce7f4;border-radius:18px;background:linear-gradient(135deg,#f6faff,#edf5ff)}
+.azny-quick-access h2{margin:0 0 5px;color:#13213a;font-size:18px}.azny-quick-access>p{margin:0 0 13px;color:#64748b;font-size:12px;line-height:1.5}
+.azny-access-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.azny-access-card{display:flex;align-items:center;gap:10px;min-width:0;padding:12px;border:1px solid #dbe6f2;border-radius:13px;background:#fff;color:#172033;text-decoration:none;transition:transform .18s,border-color .18s,box-shadow .18s}
+.azny-access-card:hover{transform:translateY(-2px);border-color:#8bbaff;box-shadow:0 7px 18px #163c6812}
+.azny-access-icon{flex:0 0 40px;width:40px;height:40px;display:grid;place-items:center;border-radius:12px;background:#eaf2ff;font-size:20px}
+.azny-access-card.exam .azny-access-icon{background:#e4f7ec}
+.azny-access-card strong{display:block;color:#102743;font-size:12px;line-height:1.3}.azny-access-card small{display:block;margin-top:4px;color:#718096;font-size:10px;line-height:1.35}
+.azny-footer-links{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px;margin:8px 0 4px}
+.azny-footer-links a{padding:6px 9px;border-radius:7px;background:#f1f6fd;color:#1769e0;text-decoration:none;font-size:11px;font-weight:800}
+@media(max-width:560px){.azny-site-nav{align-items:flex-start;flex-direction:column;gap:10px}.azny-site-links{justify-content:flex-start;width:100%}.azny-site-links a{flex:1;font-size:11px;padding:8px 9px}.azny-access-grid{grid-template-columns:1fr}.azny-quick-access{padding:13px}.azny-access-card{padding:11px}}
+@media(prefers-reduced-motion:reduce){.azny-site-links a,.azny-access-card{transition:none}}
+
 </style>
 </head>
 
 <body class="login-page">
+<nav class="azny-site-nav" aria-label="Navegação principal"><div class="azny-site-brand">APSAN <span>ACADEMY</span></div><div class="azny-site-links"><a href="https://mateus-max.github.io/QUADRO-AZNY/entrada.html">Quadro Virtual AZNY</a><a href="https://mateus-max.github.io/QUADRO-AZNY/entrada.html">Entrar nas aulas</a><a href="https://mateus-max.github.io/QUADRO-AZNY/exames.html">Avaliações e exames</a></div></nav>
+
     <main class="login-container">
         <section class="login-card">
 
@@ -796,6 +818,7 @@
                 </div>
             </div>
 
+<section class="azny-quick-access" aria-labelledby="aznyQuickTitle"><h2 id="aznyQuickTitle">Quadro Virtual AZNY</h2><p>Entre nas aulas online ou aceda às avaliações e exames publicados pelos professores.</p><div class="azny-access-grid"><a class="azny-access-card" href="https://mateus-max.github.io/QUADRO-AZNY/entrada.html"><span class="azny-access-icon" aria-hidden="true">🎓</span><span><strong>Entrar nas aulas</strong><small>Identifique-se e peça entrada na aula.</small></span></a><a class="azny-access-card exam" href="https://mateus-max.github.io/QUADRO-AZNY/exames.html"><span class="azny-access-icon" aria-hidden="true">📝</span><span><strong>Avaliações e exames</strong><small>Consulte provas disponíveis.</small></span></a></div></section>
             <div class="login-footer login-footer-signature">
                 <img
                     class="login-footer-logo"
@@ -803,6 +826,7 @@
                     alt="APSAN Academy"
                 >
                 <button type="button" class="admin-access-trigger" id="adminAccessTrigger" aria-label="Acesso reservado à administração" title="Acesso reservado">•</button>
+<div class="azny-footer-links" aria-label="Acessos rápidos"><a href="https://mateus-max.github.io/QUADRO-AZNY/entrada.html">Quadro Virtual</a><a href="https://mateus-max.github.io/QUADRO-AZNY/entrada.html">Entrar nas aulas</a><a href="https://mateus-max.github.io/QUADRO-AZNY/exames.html">Avaliações e exames</a></div>
                 <span>suporte@apsanlda.com</span>
                 <small>© 2026 APSAN Academy. Todos os direitos reservados.</small>
             </div>
